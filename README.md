@@ -12,7 +12,7 @@ are in [CLAUDE.md](CLAUDE.md).
 | Preprocessing / chunking | Done - phase 1 (`fin_graph_rag/preprocess.py`). 617 non-empty pages → 1,432 chunks, all ≤ 500 tokens incl. overlap (bert-base-uncased); 375 tables (365 whole, 10 split into labelled parts); 20-30 token overlap between prose chunks. |
 | Embeddings / index | Local (`fin_graph_rag/embeddings.py`): `BAAI/bge-small-en-v1.5` on CPU, 1,432 × 384-d flat cosine index, chunks embedded with a context header. Gemini / Hugging Face free tiers not yet compared. |
 | Entity & relation extraction | Done - phase 3 (`fin_graph_rag/entity_extractor.py`). 214 financial facts parsed from tables (no LLM); 247 risks, 78 executive/board entries, 73 competitor mentions via Gemini free tier (46 calls), every LLM item validated against a verbatim quote. |
-| Knowledge graph (Neo4j) | Done - phase 3 (`fin_graph_rag/graph_builder.py`, `run_ingestion.py`). AuraDB Free; MERGE-only, idempotent; 575 nodes, 1,748 relationships. |
+| Knowledge graph (Neo4j) | Done - phase 3 (`fin_graph_rag/graph_builder.py`, `run_ingestion.py`). AuraDB Free; MERGE-only, idempotent. Phase 4: + 1,432 `TextChunk` nodes with bge-small vectors and the `chunk_embeddings` vector index (ONLINE). Totals: 2,007 nodes, 4,612 relationships. |
 | Retrieval | Hybrid (vector + BM25, RRF) recommended, in `fin_graph_rag/retrieval.py`. On 39 eval cases: support@5 = 27/39, support@10 = 31/39 (vector + header: 24, 28). |
 | Answer generation | Not started |
 | Evaluation | Unit tests + real-corpus checks; 42 eval cases in `eval/cases.jsonl` (every citation verified against page text), retrieval scored in `eval/results/` (one file per run, never overwritten). |
@@ -119,6 +119,33 @@ Known limitations: "Cisco" and "Cisco Systems" are separate nodes (not merged
 on a guess); LLM categories and titles for risks are model judgements (the
 quote is verified, the label is not); Apple's 10-K lists only signing officers,
 not its full executive team (that is in its proxy statement, not indexed).
+
+## Text chunks and vector index in Neo4j (phase 4)
+
+`run_ingestion` also loads every chunk as a `TextChunk` node with its
+embedding and builds the `chunk_embeddings` vector index (cosine).
+`--skip-embed` skips this step.
+
+```
+(:TextChunk {chunk_id, text, company, year, page_num, page_end, chunk_index, section,
+             in_exhibits, has_table, qualifiers, overlap_chars, token_count, embedding_model, embedding})
+(:TextChunk)-[:SOURCED_FROM]->(:Company)      (:TextChunk)-[:PART_OF]->(:Report)
+```
+
+**Free, no re-embedding.** `pipeline.txt` specifies paid OpenRouter
+`text-embedding-3-small` (1536-d). Instead the vectors are the ones already
+built and evaluated locally - `BAAI/bge-small-en-v1.5` with the context header
+(384-d) - read via the same staleness checks as local search. The index
+dimension is taken from those vectors; an existing index with a different
+dimension is reported, not overwritten.
+
+Measured 2026-10-28: 1,432 `TextChunk` nodes, index `ONLINE`, 100% populated,
+384 dimensions (`pipeline.txt` acceptance: >= 500 nodes, ONLINE - checked by
+the integration test). Neo4j vector search vs the local index on all 42 eval
+questions: identical top-1 chunk 42/42, top-10 overlap 9.86/10 on average
+(min 8; Neo4j's index is approximate). Neo4j reports scores as
+`(1 + cosine) / 2` (verified to within 0.00003), so 0.85 there = 0.70 cosine.
+Re-running is idempotent (same node and relationship counts).
 
 ## Embeddings (local baseline)
 

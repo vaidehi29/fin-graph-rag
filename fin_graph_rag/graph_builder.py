@@ -23,6 +23,9 @@ Graph schema (as written by this module):
     (:Company)-[:HAS_EXECUTIVE | BOARD_MEMBER {fiscal_year, role, page, chunk_id, quote}]->(:Person {key, name})
     (:Company)-[:COMPETES_WITH {fiscal_year, context, page, chunk_id, quote}]->(:Company)
     (:Company)-[:COMPETES_WITH {...}]->(:Offering {name, kind})   (competing products / open source)
+    (:TextChunk {chunk_id, text, company, year, page_num, chunk_index, embedding, ...})
+        -[:SOURCED_FROM]->(:Company);  (:TextChunk)-[:PART_OF]->(:Report)
+    vector index chunk_embeddings ON :TextChunk(embedding), cosine
 
 PANEL NOTE: One FinancialMetric node per (company, metric, segment/product,
             fiscal year, basis), with one REPORTED_IN edge per place a report
@@ -53,6 +56,7 @@ CONSTRAINTS = [
     "CREATE CONSTRAINT risk_category IF NOT EXISTS FOR (k:RiskCategory) REQUIRE k.name IS UNIQUE",
     "CREATE CONSTRAINT person_key IF NOT EXISTS FOR (p:Person) REQUIRE p.key IS UNIQUE",
     "CREATE CONSTRAINT offering_name IF NOT EXISTS FOR (o:Offering) REQUIRE o.name IS UNIQUE",
+    "CREATE CONSTRAINT chunk_id IF NOT EXISTS FOR (t:TextChunk) REQUIRE t.chunk_id IS UNIQUE",
 ]
 
 # Every text entity is attached to the Report it came from, with page, chunk and
@@ -240,3 +244,89 @@ def graph_summary(driver, database=None) -> dict:
             "MATCH (c:Company)-[:HAS_METRIC]->(m) RETURN c.name AS name, count(m) AS n ORDER BY name")},
         "conflicting_metrics": q("MATCH (m:FinancialMetric {conflict: true}) RETURN count(m) AS n")[0]["n"],
     }
+
+
+# ---------------------------------------------------------------------------
+# Text chunks + vector index (phase 4)
+# ---------------------------------------------------------------------------
+# PANEL: Vectors are the ones already built and evaluated locally (free, no
+# re-embedding); the index dimension comes from those vectors, so the graph
+# and the local index can never disagree on model or size.
+
+VECTOR_INDEX = "chunk_embeddings"
+
+WRITE_CHUNKS = """
+UNWIND $rows AS row
+MERGE (c:Company {name: row.company_name})
+MERGE (r:Report {company: row.company, year: row.year})
+  SET r.name = row.report_name
+MERGE (t:TextChunk {chunk_id: row.chunk_id})
+  SET t.text = row.text, t.company = row.company, t.year = row.year, t.page_num = row.page_num,
+      t.page_end = row.page_end, t.chunk_index = row.chunk_index, t.section = row.section,
+      t.in_exhibits = row.in_exhibits, t.has_table = row.has_table, t.qualifiers = row.qualifiers,
+      t.overlap_chars = row.overlap_chars, t.token_count = row.token_count,
+      t.embedding_model = row.embedding_model
+MERGE (t)-[:SOURCED_FROM]->(c)
+MERGE (t)-[:PART_OF]->(r)
+WITH t, row
+CALL db.create.setNodeVectorProperty(t, 'embedding', row.vector)
+"""
+
+
+def chunk_rows(chunks: list[dict], vectors, model: str) -> list[dict]:
+    rows = []
+    for c, v in zip(chunks, vectors):
+        rows.append({
+            "chunk_id": c["chunk_id"], "text": c["text"], "company": c["company"],
+            "company_name": COMPANY_NAMES[c["company"]], "year": c["fiscal_year"],
+            "report_name": report_name(c["company"], c["fiscal_year"]),
+            "page_num": c["page_start"], "page_end": c["page_end"],
+            "chunk_index": int(c["chunk_id"].rsplit("_c", 1)[1]), "section": c["section"],
+            "in_exhibits": c["in_exhibits"], "has_table": c["has_table"], "qualifiers": c["qualifiers"],
+            "overlap_chars": c.get("overlap_chars", 0), "token_count": c["token_count"],
+            "embedding_model": model, "vector": [float(x) for x in v],
+        })
+    return rows
+
+
+def write_chunks(driver, chunks: list[dict], vectors, model: str, database=None, batch: int = 100) -> int:
+    rows = chunk_rows(chunks, vectors, model)
+    for i in range(0, len(rows), batch):
+        driver.execute_query(WRITE_CHUNKS, rows=rows[i:i + batch], database_=database)
+    return len(rows)
+
+
+def ensure_vector_index(driver, dim: int, database=None, wait_s: int = 300) -> dict:
+    """Create the cosine vector index (if absent) and wait until it is ONLINE.
+
+    An existing index with a different dimension (e.g. built for another model)
+    is reported as an error rather than silently mixed with new vectors.
+    """
+    existing = driver.execute_query(
+        "SHOW VECTOR INDEXES YIELD name, state, options WHERE name = $name RETURN state, options",
+        name=VECTOR_INDEX, database_=database).records
+    if existing:
+        have = existing[0]["options"]["indexConfig"]["vector.dimensions"]
+        if have != dim:
+            raise RuntimeError(f"Vector index {VECTOR_INDEX} has {have} dimensions but the vectors have {dim}. "
+                               f"Drop it in Neo4j (DROP INDEX {VECTOR_INDEX}) before switching models.")
+    else:
+        driver.execute_query(
+            f"CREATE VECTOR INDEX {VECTOR_INDEX} IF NOT EXISTS FOR (t:TextChunk) ON t.embedding "
+            "OPTIONS {indexConfig: {`vector.dimensions`: $dim, `vector.similarity_function`: 'cosine'}}",
+            dim=dim, database_=database)
+    driver.execute_query(f"CALL db.awaitIndex('{VECTOR_INDEX}', {int(wait_s)})", database_=database)
+    rec = driver.execute_query(
+        "SHOW VECTOR INDEXES YIELD name, state, populationPercent, options WHERE name = $name "
+        "RETURN state, populationPercent AS pct, options.indexConfig.`vector.dimensions` AS dim",
+        name=VECTOR_INDEX, database_=database).records[0]
+    return {"name": VECTOR_INDEX, "state": rec["state"], "population_percent": rec["pct"], "dimensions": rec["dim"]}
+
+
+def vector_query(driver, vector, k: int = 5, database=None) -> list[dict]:
+    """Top-k chunks from the Neo4j vector index (cosine)."""
+    return [dict(r) for r in driver.execute_query(
+        f"CALL db.index.vector.queryNodes('{VECTOR_INDEX}', $k, $v) YIELD node, score "
+        "RETURN node.chunk_id AS chunk_id, node.company AS company, node.year AS year, "
+        "node.page_num AS page_num, score ORDER BY score DESC",
+        k=k, v=[float(x) for x in vector], database_=database).records]

@@ -229,25 +229,32 @@ def build(chunks_path: Path = CHUNKS_PATH, index_root: Path = INDEX_ROOT, header
 # Search
 # ---------------------------------------------------------------------------
 
+def load_vectors(index_root: Path = INDEX_ROOT, chunks_path: Path = CHUNKS_PATH,
+                 header: bool = True) -> tuple[dict, list[dict], np.ndarray]:
+    """(manifest, chunks in row order, vectors) of a built index, after checking
+    it matches the current model and chunks.jsonl. No model is loaded."""
+    d = index_dir(index_root, header)
+    if not (d / "manifest.json").exists():
+        raise FileNotFoundError(f"No index at {d} - run `python -m fin_graph_rag.embeddings build"
+                                f"{'' if header else ' --no-header'}`")
+    manifest = json.loads((d / "manifest.json").read_text(encoding="utf-8"))
+    if manifest["model"] != MODEL_NAME:
+        raise ValueError(f"Index built with {manifest['model']}, queries would use {MODEL_NAME}")
+    # A stale index would return chunks that no longer match chunks.jsonl.
+    if manifest["chunks_sha256"] != sha256_of(chunks_path):
+        raise ValueError(f"{chunks_path} changed since the index was built - rebuild the index")
+    vecs = np.load(d / "embeddings.npy")
+    ids = json.loads((d / "chunk_ids.json").read_text(encoding="utf-8"))
+    by_id = {c["chunk_id"]: c for c in load_chunks(chunks_path)}
+    return manifest, [by_id[i] for i in ids], vecs
+
+
 class Index:
     """Flat in-memory cosine index over one model's embeddings."""
 
     def __init__(self, index_root: Path = INDEX_ROOT, chunks_path: Path = CHUNKS_PATH, embedder=None,
                  header: bool = True):
-        d = index_dir(index_root, header)
-        if not (d / "manifest.json").exists():
-            raise FileNotFoundError(f"No index at {d} - run `python -m fin_graph_rag.embeddings build"
-                                    f"{'' if header else ' --no-header'}`")
-        self.manifest = json.loads((d / "manifest.json").read_text(encoding="utf-8"))
-        if self.manifest["model"] != MODEL_NAME:
-            raise ValueError(f"Index built with {self.manifest['model']}, queries would use {MODEL_NAME}")
-        # A stale index would return chunks that no longer match chunks.jsonl.
-        if self.manifest["chunks_sha256"] != sha256_of(chunks_path):
-            raise ValueError(f"{chunks_path} changed since the index was built - rebuild the index")
-        self.vecs = np.load(d / "embeddings.npy")
-        ids = json.loads((d / "chunk_ids.json").read_text(encoding="utf-8"))
-        by_id = {c["chunk_id"]: c for c in load_chunks(chunks_path)}
-        self.chunks = [by_id[i] for i in ids]
+        self.manifest, self.chunks, self.vecs = load_vectors(index_root, chunks_path, header)
         self.embedder = embedder or get_embedder(MODEL_NAME)
         dim = getattr(self.embedder, "dim", self.vecs.shape[1])
         if dim != self.vecs.shape[1]:

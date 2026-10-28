@@ -225,3 +225,26 @@ def test_report_nodes_get_a_readable_name():
     assert fact_rows([f])[0]["evidence"][0]["report_name"] == "Microsoft 10-K FY2025"   # the report it came from
     risk = ex.TextEntity("risk", "apple", 2023, "apple_2023", "a_c1", 8, "q", {"category": "other", "title": "T", "description": "d"})
     assert entity_rows([risk])["risk"][0]["report_name"] == "Apple 10-K FY2023"
+
+
+def test_chunk_rows_carry_provenance_and_the_vector():
+    from fin_graph_rag.graph_builder import chunk_rows
+    c = {"chunk_id": "apple_2024_c0102", "text": "INCOME STATEMENTS ...", "company": "apple", "fiscal_year": 2024,
+         "page_start": 32, "page_end": 33, "section": "Item 8", "in_exhibits": False, "has_table": True,
+         "qualifiers": [], "overlap_chars": 0, "token_count": 450}
+    row = chunk_rows([c], [[0.5, -0.25, 0.0]], "BAAI/bge-small-en-v1.5")[0]
+    assert row["chunk_index"] == 102 and row["page_num"] == 32 and row["year"] == 2024
+    assert row["report_name"] == "Apple 10-K FY2024" and row["company_name"] == "Apple Inc."
+    assert row["vector"] == [0.5, -0.25, 0.0] and row["embedding_model"] == "BAAI/bge-small-en-v1.5"
+
+
+@pytest.mark.skipif(os.getenv("FGR_RUN_INTEGRATION") != "1", reason="needs Neo4j; set FGR_RUN_INTEGRATION=1")
+def test_integration_text_chunks_and_vector_index_online():
+    # pipeline.txt phase 4 acceptance: >= 500 TextChunk nodes, vector index ONLINE.
+    from fin_graph_rag.graph_builder import VECTOR_INDEX, driver_session
+    with driver_session() as (driver, db):
+        n = driver.execute_query("MATCH (t:TextChunk)-[:SOURCED_FROM]->(:Company) RETURN count(t) AS n",
+                                 database_=db).records[0]["n"]
+        state = driver.execute_query("SHOW VECTOR INDEXES YIELD name, state WHERE name = $n RETURN state",
+                                     n=VECTOR_INDEX, database_=db).records[0]["state"]
+    assert n >= 500 and state == "ONLINE"
