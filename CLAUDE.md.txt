@@ -1,0 +1,373 @@
+Financial Graph RAG --- Agent Operating Rules
+These instructions apply to every AI coding agent working on the
+Financial Graph RAG project, including Claude Code, Cursor, Codex, and
+other assistants.
+
+The goal is to keep the project understandable, reproducible, auditable,
+and easy to continue across sessions. The system should answer questions
+about company financial reports using retrieved evidence and a knowledge
+graph---not unsupported model guesses.
+Project context: The project currently uses Apple and Microsoft
+annual reports for fiscal years 2023, 2024, and 2025. Treat this as
+the known baseline, not proof of the current state of the repository.
+Inspect the actual files and Git history before changing anything.
+
+0. Start-of-session checklist
+Before writing or editing code:
+1. Read this file and the project README.
+2. Inspect the repository structure and identify the ingestion,
+   extraction, graph, retrieval, answer-generation, evaluation, and UI
+   components that actually exist.
+3. Read relevant project documentation, configuration, tests, and
+   recent run logs.
+4. Run git status and git log --oneline -10.
+5. Inspect .env.example or equivalent configuration guidance, but
+   never print or expose secret values.
+6. Tell the user in 3--5 lines:
+   - what currently exists and what was verified;
+   - the component you propose to work on;
+   - why it is the best next step;
+   - any important risk or missing information.
+7. Work on one component at a time. If the repository has a task board,
+   claim the component there before editing.
+Do not assume that a file, command, feature, model, database, or test
+exists just because it is mentioned in a previous conversation.
+1. Project goal and scope
+1.1 Goal
+Build a Financial Graph Retrieval-Augmented Generation (Graph RAG)
+system that answers questions about company financial reports by
+combining:
+- source-document extraction and preprocessing;
+- chunking and semantic retrieval;
+- entity and relationship extraction;
+- a knowledge graph stored in Neo4j, where configured;
+- evidence-grounded answer generation;
+- evaluation using repeatable questions and recorded outputs.
+The system should make it easier to ask cross-document and cross-year
+questions---for example, comparing a company's reported revenue across
+fiscal years---while preserving traceability to the source material.
+1.2 Known initial dataset
+The previously processed dataset consisted of six annual reports:
+- Apple: 2023, 2024, 2025
+- Microsoft: 2023, 2024, 2025
+A previous run reported 682 extracted pages, 617 cleaned pages, and 622
+chunks. These are historical measurements, not guaranteed current
+counts. Re-run the relevant pipeline to establish current figures before
+reporting them as current results.
+
+Previously observed file names included pdf_extractor.py,
+preprocess.py, embeddings.py, neo4j_utils.py, ingest_all.py, and
+search.py. Verify the current repository layout before relying on
+these names.
+1.3 Out of scope unless explicitly approved
+- Adding paid APIs or materially increasing API usage.
+- Replacing the current vector store, graph database, framework, or
+  model stack.
+- Ingesting confidential financial data or personal information.
+- Claiming investment advice, audited financial conclusions, or
+  guaranteed factual correctness.
+- Reporting evaluation scores, latency, cost, or accuracy without
+  running the corresponding measurement.
+2. Non-negotiable engineering rules
+Honesty and evidence
+- Never claim a test passed unless it was run. Include the command and
+  relevant output.
+- Clearly distinguish:
+  - Measured --- obtained by running the project or a defined
+    experiment;
+  - Sourced --- taken from a cited report or reliable external
+    source;
+  - Estimated --- a reasoned approximation;
+  - Hypothesized --- a proposed explanation that still needs
+    testing.
+- Never invent financial figures, citations, page numbers, entity
+  relationships, benchmark results, or user-study feedback.
+- A plausible LLM answer is not proof that retrieval or graph
+  traversal worked correctly.
+- When evidence is missing or conflicting, the system should say so
+  rather than silently filling the gap.
+- Keep source references attached to extracted chunks and answers
+  wherever the architecture supports it.
+Scope and safety
+- Work on one component at a time.
+- Read a file before changing or deleting it.
+- Do not overwrite user changes or reset unrelated work.
+- Do not add a dependency, hosted service, model, database, or
+  framework without explaining the reason and impact.
+- Ask before adding paid API calls, changing credentials, uploading
+  project data, or changing persistent database contents in a
+  potentially destructive way.
+- Never expose API keys, passwords, access tokens, .env values, or
+  database credentials.
+- Do not run destructive database cleanup commands without explaining
+  the impact and obtaining approval.
+- Keep real secrets and large source datasets out of Git.
+Debugging discipline
+- Reproduce the issue and capture the exact error before changing
+  code.
+- Make the smallest change that addresses the root cause.
+- After two unsuccessful attempts at the same issue, stop and report
+  what was tried, what happened, and what information is needed.
+- Do not hide exceptions that affect correctness. Log useful context
+  while avoiding secrets and excessive report text.
+3. Component map
+Use the repository's actual layout as the source of truth. The following
+is a conceptual component map, not a claim that each item already exists
+as a separate module.
+  Component               Responsibility          Main checks
+  PDF extraction          Extract text and        Page counts, empty
+                          page-level metadata     pages, extraction
+                          from annual reports     errors
+
+  Preprocessing and       Clean extracted text    Chunk counts, chunk
+  chunking                and create retrievable  boundaries, source/page
+                          chunks                  metadata
+
+  Embeddings and index    Create embeddings and   Embedding dimensions,
+                          persist searchable      index consistency,
+                          representations         repeatability
+
+  Entity and relation     Extract financial       Schema compliance,
+  extraction              entities and            invalid output
+                          relationships from      handling, entity
+                          chunks                  normalization
+
+  Knowledge graph         Store and query         Duplicate nodes,
+                          entities and            relationship validity,
+                          relationships, using    query correctness
+                          Neo4j where configured  
+
+  Retrieval               Retrieve relevant       Relevance, source
+                          chunks and graph        metadata, empty-result
+                          evidence for a question behavior
+
+  Answer generation       Produce answers         Correct values,
+                          grounded in retrieved   citations, uncertainty
+                          evidence                handling
+
+  Evaluation and stress   Check known questions,  Reproducible inputs and
+  tests                   failure cases, and      recorded outputs
+                          regressions             
+
+  User interface / demo   Expose the system to a  Clear errors,
+                          user, if present        understandable
+                                                  evidence, usable
+                                              fallback
+Do not refactor across multiple components unless the task requires it.
+If a change alters a component interface, document the change and update
+dependent tests.
+4. Data pipeline rules
+Follow the existing implementation and verify its behavior rather than
+assuming a particular order or technology.
+4.1 Document extraction
+- Preserve document identity, company, fiscal year, page number, and
+  source filename wherever possible.
+- Report extraction failures and pages with no usable text.
+- Do not silently treat a partially extracted PDF as fully processed.
+- Keep a record of which source reports were ingested.
+4.2 Preprocessing and chunking
+- Preserve enough context for financial tables, headings, units, and
+  reporting periods to remain interpretable.
+- Avoid splitting a number away from its metric label or unit when the
+  current chunking approach can reasonably prevent it.
+- Keep source and page metadata with every chunk.
+- Inspect representative chunks manually after changing cleaning or
+  chunking rules.
+- Record chunking configuration changes so results can be reproduced.
+4.3 Embeddings and retrieval index
+- Verify that the embedding model used to index documents matches the
+  model used for query embeddings.
+- If the model or chunking configuration changes, determine whether a
+  full re-embedding or index rebuild is required.
+- Handle missing model files, network failures, rate limits, and empty
+  indexes clearly.
+- Do not claim semantic retrieval quality from successful index
+  creation alone.
+4.4 Entity and relationship extraction
+- Validate model output before inserting it into the graph.
+- Handle malformed JSON, missing fields, unexpected entity types, and
+  model errors explicitly.
+- Normalize company names and common aliases consistently, without
+  merging distinct entities based on a guess.
+- Preserve the source chunk or equivalent provenance for extracted
+  facts and relationships where possible.
+- Distinguish a value stated by the report from a value inferred or
+  calculated by the system.
+4.5 Knowledge graph
+- Document the graph schema used by the actual code. Potential
+  concepts discussed for this project include Company,
+  FinancialMetric, Year, BusinessSegment, Product, Person,
+  Risk, and Event; do not assume every label or relationship is
+  implemented.
+- Define uniqueness rules and relationship direction intentionally.
+- Avoid duplicate nodes caused by inconsistent names, punctuation, or
+  aliases.
+- Parameterize database queries where supported; do not build queries
+  by unsafe string concatenation.
+- Test graph retrieval independently from LLM answer generation.
+- Keep database credentials in environment variables or the project's
+  existing secret-management mechanism.
+4.6 Answer generation
+- Use retrieved evidence as the factual basis of the answer.
+- For financial figures, include the metric name, company, fiscal
+  year, unit/currency, and relevant reporting period when available.
+- Distinguish millions from billions and avoid silently changing
+  units.
+- Do not conflate calendar years with fiscal years.
+- If sources disagree, explain the discrepancy and identify the
+  evidence rather than arbitrarily selecting one value.
+- If retrieval provides no adequate evidence, return a clear
+  uncertainty or insufficient-evidence response.
+- Do not fabricate citations, source pages, graph paths, or
+  quotations.
+5. Evaluation and stress testing
+Every meaningful retrieval or answer-generation change should be checked
+against a small, repeatable evaluation set.
+5.1 Evaluation categories
+Include tests for:
+1. Direct lookup: a metric for one company and fiscal year.
+2. Cross-year comparison: the same metric across two or more years.
+3. Segment breakdown: a total and its component business segments,
+   where reported.
+4. Cross-document retrieval: evidence spread across multiple annual
+   reports.
+5. Entity resolution: company aliases, metric names, and
+   fiscal-year references.
+6. Missing evidence: a metric or period not present in the indexed
+   documents.
+7. Ambiguous questions: unclear company, year, unit, or metric.
+8. Conflicting or duplicate evidence: multiple chunks containing
+   similar or inconsistent statements.
+9. Numerical correctness: units, rounding, and arithmetic in
+   comparisons.
+10. Failure handling: unavailable model, malformed extraction
+    output, empty index, database failure, or network/rate-limit error.
+5.2 Record results
+For each test, record:
+- test ID and question;
+- expected answer or acceptance criteria;
+- relevant source report, fiscal year, and page/chunk when known;
+- retrieved evidence;
+- actual answer;
+- pass/fail and reason;
+- date, code revision, and relevant model/configuration details.
+Do not label a test as passed merely because the answer sounds
+reasonable. Check the underlying evidence and numerical values.
+5.3 Useful metrics
+Choose metrics appropriate to the current implementation and define how
+they are calculated before reporting them. Examples include:
+- retrieval hit rate or recall on a labeled question set;
+- answer correctness against verified reference answers;
+- citation/source-support rate;
+- unsupported-claim rate;
+- latency and token/API cost, if measured.
+Never invent a baseline or report an unrun metric as a result. Preserve
+previous results so regressions can be compared fairly.
+6. Code quality and explainability
+Every new source file should start with a short header explaining its
+role. Adapt this template to the language in use:
+"""
+COMPONENT : <component name>
+PURPOSE   : <what this file does>
+INPUTS    : <input files, arguments, or request shape>
+OUTPUTS   : <files, return values, or side effects>
+DEPENDS ON: <modules, services, or data stores>
+PANEL NOTE: <why this component is needed>
+"""
+Comment non-obvious decisions, especially why a fallback, threshold,
+prompt, schema rule, or retrieval strategy exists. Comments should
+explain why, not simply restate the code.
+
+Use searchable tags when helpful:
+- DEMO-KNOB: --- a safe parameter intended to be tuned during a
+  demo.
+- PANEL: --- a likely reviewer question and concise answer.
+- MOCK: --- mocked behavior or fixture data that must be disclosed.
+- FALLBACK: --- behavior when a model, API, database, or network is
+  unavailable.
+- TODO: --- a known gap or future improvement.
+Do not claim a comment's explanation is experimentally validated unless
+it has been tested. Keep configurable values in the project's existing
+configuration pattern; do not introduce a new configuration system
+unnecessarily.
+7. Parallel work and Git rules
+If multiple people or agents work on the project:
+- Coordinate through repository documentation or an agreed task board,
+  not assumptions about another agent's memory.
+- One agent should own a component and its tests at a time.
+- Record ownership, files being changed, status, and handoff notes if
+  a board is available.
+- Never edit another agent's claimed files without coordination.
+- Keep changes small and logically grouped.
+- Do not force-push or rewrite shared Git history.
+- Do not push or merge on the user's behalf unless the user explicitly
+  authorizes that action and the available environment supports it.
+- Never commit .env, credentials, private data, or large generated
+  indexes/model weights.
+- Before finishing, inspect git diff and ensure unrelated user
+  changes remain untouched.
+Suggested commit format:
+<component>: <short description>
+Examples:
+retrieval: preserve source metadata in search results
+graph: validate extracted relationship types
+evaluation: add cross-year revenue regression cases
+8. Dependency and architecture decisions
+Before adding or replacing a dependency or service, record:
+- Decision: what is being added or changed.
+- Reason: the problem it solves.
+- Alternatives: the simpler options considered.
+- Impact: runtime, reproducibility, maintenance, privacy, and
+  cost.
+- Verification: how the change will be tested.
+Prefer the simplest solution that meets the requirement. Do not replace
+an existing model, vector index, graph database, or UI framework merely
+because another option is fashionable.
+
+Any change involving paid APIs, external data transfer, persistent
+schema changes, or significant re-indexing must be explained before
+proceeding.
+9. Demo and offline resilience
+The project should fail clearly and recover gracefully when a dependency
+is unavailable.
+- Where practical, provide a small, clearly labeled fixture-based test
+  path for demonstrating retrieval and answer formatting without live
+  model calls.
+- Mark all fixture or mocked outputs with MOCK: and disclose them in
+  the demo.
+- Do not present mock results as live retrieval or measured model
+  performance.
+- Explain whether a demo requires Neo4j, an embedding model download,
+  network access, or an API key.
+- Never silently fall back from live results to fabricated data.
+- Keep a short, verified set of demo questions and their expected
+  evidence.
+A fallback should preserve honesty and make limitations visible.
+10. End-of-task checklist
+Before reporting a task as complete, verify and report:
+- [ ] Files changed and the reason for each change.
+- [ ] Tests or commands actually run, with relevant results.
+- [ ] Tests not run and the reason they were skipped.
+- [ ] Any new dependency, configuration, schema, or index rebuild
+  requirement.
+- [ ] Evidence that the change works; do not rely on code inspection
+  alone when execution is possible.
+- [ ] Known limitations, edge cases, or unresolved errors.
+- [ ] Documentation and evaluation cases updated where appropriate.
+- [ ] git diff reviewed and unrelated changes preserved.
+- [ ] Next step written clearly enough for a new session to continue.
+Do not say "done" if a critical test has not run. State the limitation
+plainly.
+11. How to resume work in a new session
+When asked to continue this project:
+1. Follow the start-of-session checklist.
+2. Establish the current repository state from files and Git, not from
+   this document alone.
+3. Identify the smallest useful next task.
+4. Explain the proposed task and any risks before making changes.
+5. Implement and test one component at a time.
+6. Update relevant documentation and handoff notes.
+7. Report measured results separately from assumptions and plans.
+Guiding principle: every answer should be traceable to evidence,
+every result should be reproducible, and every design choice should be
+explainable to a reviewer.
