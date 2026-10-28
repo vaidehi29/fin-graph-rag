@@ -1,0 +1,1682 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "summary": {
+    "questions": 97,
+    "answers_with_valid_citation": "88/91",
+    "invalid_citations_total": 0,
+    "answers_with_unverified_numbers": 0,
+    "expected_figures_present": "81/89",
+    "trap_figure_used": "1/7",
+    "missing_evidence_declined_without_figures": "5/6",
+    "note": "automatic checks; expected figure present != fully correct answer - read the answers"
+  },
+  "cases": [
+    {
+      "id": "E01",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's net income for fiscal year 2024?",
+      "answer": "Microsoft Corporation's net income for fiscal year 2024 was $88,136 million (GAAP) [Source: Microsoft Annual Report FY2024, p.61].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.61"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": false,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E02",
+      "category": "conflicting_evidence",
+      "question": "According to Microsoft's fiscal 2025 annual report, what was net income?",
+      "answer": "According to Microsoft's fiscal 2025 annual report, Microsoft Corporation's net income for fiscal year 2025 was $101,832 million (GAAP) [Source: Microsoft Annual Report FY2025, p.53].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.53"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": false,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E03",
+      "category": "conflicting_evidence",
+      "question": "What was Microsoft's net income in fiscal year 2023?",
+      "answer": "In fiscal year 2023, Microsoft Corporation's net income was $72,361 million (GAAP) [Source: Microsoft Annual Report FY2023, p.44]. On a non-GAAP basis, Microsoft Corporation's adjusted net income for fiscal year 2023 was $73,307 million [Source: Microsoft Annual Report FY2023, p.43].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2023, p.44",
+        "Microsoft Annual Report FY2023, p.43"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": true,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E04",
+      "category": "direct_lookup",
+      "question": "What would Microsoft's fiscal 2024 revenue have been if the Activision Blizzard acquisition had closed on July 1, 2022?",
+      "answer": "If the Activision Blizzard acquisition had been consummated on July 1, 2022, Microsoft Corporation's unaudited pro forma revenue for fiscal year 2024 would have been $247,442 million [Source: Microsoft Annual Report FY2024, p.108] [Source: Microsoft Annual Report FY2025, p.94].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.108",
+        "Microsoft Annual Report FY2025, p.94"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": false,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E05",
+      "category": "entity_resolution",
+      "question": "How much revenue did Activision Blizzard contribute to Microsoft in fiscal 2024 after the acquisition?",
+      "answer": "Activision Blizzard contributed $5,729 million in revenue to Microsoft for the year ended June 30, 2024, since the date of the acquisition [Source: Microsoft Annual Report FY2024, p.108].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.108"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E06",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's total net sales change from fiscal 2023 to fiscal 2024?",
+      "answer": "Apple's total net sales changed from $383,285 million in fiscal year 2023 [Source: Apple Annual Report FY2023, p.24] to $391,035 million in fiscal year 2024 [Source: Apple Annual Report FY2024, p.25], representing an increase of 2% [Source: Apple Annual Report FY2024, p.25].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.24",
+        "Apple Annual Report FY2024, p.25"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E07",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in the Americas segment in fiscal 2023?",
+      "answer": "Apple Inc.'s net sales in the Americas segment in fiscal 2023 were $162,560 million [Source: Apple Annual Report FY2023, p.24].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.24"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E08",
+      "category": "missing_evidence",
+      "question": "What was Apple's total net sales in fiscal 2026?",
+      "answer": "The provided reports do not contain enough information to determine Apple's total net sales in fiscal 2026.",
+      "confidence": "medium",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": null,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": true
+    },
+    {
+      "id": "E09",
+      "category": "ambiguous_question",
+      "question": "What was Microsoft's revenue in 2024?",
+      "answer": "Microsoft Corporation's revenue in fiscal year 2024 was $245,122 million (GAAP) [Source: Microsoft Annual Report FY2024, p.61].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.61"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": false,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E10",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend on research and development in fiscal 2023?",
+      "answer": "In fiscal 2023, Apple spent $29,915 million on research and development [Source: Apple Annual Report FY2023, p.26].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.26"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E11",
+      "category": "direct_lookup",
+      "question": "What were Apple's Services net sales in fiscal 2025?",
+      "answer": "Apple's Services net sales in fiscal 2025 were $109,158 million [Source: Apple Annual Report FY2025, p.26].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.26"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E12",
+      "category": "direct_lookup",
+      "question": "How much revenue did iPhone generate for Apple in fiscal 2023?",
+      "answer": "In fiscal 2023, iPhone generated $200,583 million in revenue for Apple [Source: Apple Annual Report FY2024, p.38].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.38"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E13",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's Mac sales change between fiscal 2022 and fiscal 2023?",
+      "answer": "Apple Inc. Mac sales decreased 27% or $10.8 billion during fiscal 2023 compared to fiscal 2022, moving from $40,177 million in fiscal 2022 to $29,357 million in fiscal 2023, primarily due to lower net sales of laptops [Source: Apple Annual Report FY2023, p.24].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.24"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E14",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in Greater China in fiscal 2025?",
+      "answer": "Apple Inc.'s net sales in Greater China in fiscal year 2025 were $64,377 million [Source: Apple Annual Report FY2025, p.25].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.25"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E15",
+      "category": "segment_breakdown",
+      "question": "How much did Apple sell in Japan in fiscal 2025?",
+      "answer": "In fiscal 2025, Apple sold $28,703 million in Japan [Source: Apple Annual Report FY2025, p.25].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.25"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E16",
+      "category": "direct_lookup",
+      "question": "What were Apple's diluted earnings per share for fiscal 2025?",
+      "answer": "Apple Inc.'s diluted earnings per share for fiscal 2025 were $7.46 per share (GAAP) [Source: Apple Annual Report FY2025, p.32].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.32"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E17",
+      "category": "direct_lookup",
+      "question": "What was Apple's total gross margin in fiscal 2025?",
+      "answer": "In fiscal 2025, Apple's total gross margin was $195,201 million (GAAP) [Source: Apple Annual Report FY2025, p.27].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.27"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E18",
+      "category": "direct_lookup",
+      "question": "How much cash did Apple's operations generate in fiscal 2023?",
+      "answer": "In fiscal year 2023, Apple Inc.'s operating cash flow was $110,543 million (GAAP) [Source: Apple Annual Report FY2023, p.35].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.35"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E19",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend buying back its own stock in fiscal 2025?",
+      "answer": "In fiscal year 2025, Apple Inc. spent $90,711 million (GAAP) on share repurchases [Source: Apple Annual Report FY2025, p.36].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.36"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E20",
+      "category": "direct_lookup",
+      "question": "How much did Apple pay in dividends in fiscal 2023?",
+      "answer": "In fiscal 2023, Apple paid $15,025 million in dividends and dividend equivalents [Source: Apple Annual Report FY2023, p.35].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.35"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E21",
+      "category": "direct_lookup",
+      "question": "What were Apple's total assets at the end of fiscal 2025?",
+      "answer": "Apple Inc.'s total assets at the end of fiscal 2025 were $359,241 million (GAAP) [Source: Apple Annual Report FY2025, p.34].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.34"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E22",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's provision for income taxes change from fiscal 2024 to fiscal 2025?",
+      "answer": "Apple's provision for income taxes was $29,749 million for fiscal 2024 [Source: Apple Annual Report FY2024, p.32] [Source: Apple Annual Report FY2025, p.32] and decreased to $20,719 million for fiscal 2025 [Source: Apple Annual Report FY2025, p.27].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.32",
+        "Apple Annual Report FY2025, p.32",
+        "Apple Annual Report FY2025, p.27"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E23",
+      "category": "direct_lookup",
+      "question": "How many full-time employees did Apple have at the end of fiscal 2024?",
+      "answer": "As of September 28, 2024, Apple had approximately 164,000 full-time equivalent employees [Source: Apple Annual Report FY2024, p.7].",
+      "confidence": "medium",
+      "sources": [
+        "Apple Annual Report FY2024, p.7"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E24",
+      "category": "direct_lookup",
+      "question": "How many shares did Apple repurchase during fiscal 2024 and for how much?",
+      "answer": "The provided context does not contain enough information to state the exact number of shares Apple repurchased during fiscal 2024, though it notes that share repurchases were -$94,949 million (GAAP) [Source: Apple Annual Report FY2024, p.36] [Source: Apple Annual Report FY2025, p.36].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.36",
+        "Apple Annual Report FY2025, p.36"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": null
+    },
+    {
+      "id": "E25",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's total revenue in fiscal 2025?",
+      "answer": "Microsoft's total revenue in fiscal 2025 was $281,724 million (GAAP) [Source: Microsoft Annual Report FY2025, p.53].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.53"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E26",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's operating income in fiscal 2023?",
+      "answer": "Microsoft's operating income in fiscal year 2023 was $88,523 million (GAAP) [Source: Microsoft Annual Report FY2023, p.44].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2023, p.44"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E27",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's diluted earnings per share in fiscal 2025?",
+      "answer": "In fiscal 2025, Microsoft's diluted earnings per share were $13.64 per share [Source: Microsoft Annual Report FY2025, p.69].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.69"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E28",
+      "category": "segment_breakdown",
+      "question": "How much revenue did Microsoft's Intelligent Cloud segment generate in fiscal 2025?",
+      "answer": "Microsoft's Intelligent Cloud segment generated $106,265 million in revenue in fiscal 2025 [Source: Microsoft Annual Report FY2025, p.54] [Source: Microsoft Annual Report FY2025, p.112].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.54",
+        "Microsoft Annual Report FY2025, p.112"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E29",
+      "category": "segment_breakdown",
+      "question": "What was revenue for Microsoft's More Personal Computing segment in fiscal 2023?",
+      "answer": "For fiscal year 2023, Microsoft's More Personal Computing segment revenue was $54,734 million (GAAP) [Source: Microsoft Annual Report FY2023, p.45], though Microsoft's 10-K for FY2025 states $44,820 million for the same period [Source: Microsoft Annual Report FY2025, p.112].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2023, p.45",
+        "Microsoft Annual Report FY2025, p.112"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E30",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft spend on research and development in fiscal 2025?",
+      "answer": "In fiscal year 2025, Microsoft spent $32,488 million on research and development [Source: Microsoft Annual Report FY2025, p.56].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.56"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E31",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's net cash from operations in fiscal 2025?",
+      "answer": "Microsoft's net cash from operations in fiscal year 2025 was $136,162 million [Source: Microsoft Annual Report FY2025, p.72].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.72"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E32",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft pay out in cash dividends in fiscal 2025?",
+      "answer": "Microsoft paid out -$24,082 million (GAAP) in dividends for fiscal year 2025 [Source: Microsoft Annual Report FY2025, p.72].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.72"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E33",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's total assets as of June 30, 2025?",
+      "answer": "Microsoft Corporation's total assets as of June 30, 2025, were $619,003 million (GAAP) [Source: Microsoft Annual Report FY2025, p.71].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.71"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E34",
+      "category": "entity_resolution",
+      "question": "How large was Microsoft Cloud revenue in fiscal 2024?",
+      "answer": "Microsoft Cloud revenue was $137.4 billion in fiscal year 2024 [Source: Microsoft Annual Report FY2024, p.56] [Source: Microsoft Annual Report FY2024, p.130].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.56",
+        "Microsoft Annual Report FY2024, p.130"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E35",
+      "category": "direct_lookup",
+      "question": "How many people did Microsoft employ full-time as of June 30, 2024?",
+      "answer": "As of June 30, 2024, Microsoft employed approximately 228,000 people on a full-time basis [Source: Microsoft Annual Report FY2024, p.12].",
+      "confidence": "medium",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.12"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E36",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft's gaming revenue grow in fiscal 2024?",
+      "answer": "In fiscal year 2024, Microsoft's Gaming revenue was $21,503 million, compared to $15,466 million in fiscal year 2023 [Source: Microsoft Annual Report FY2024, p.130]. This represents a growth of $6,037 million or approximately 39.03% (calculated).",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.130"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E37",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's effective tax rate in fiscal 2024?",
+      "answer": "Microsoft's effective tax rate for fiscal year 2024 was 18% [Source: Microsoft Annual Report FY2024, p.67] or 18.2% [Source: Microsoft Annual Report FY2025, p.100].",
+      "confidence": "medium",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.67",
+        "Microsoft Annual Report FY2025, p.100"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E38",
+      "category": "cross_year_comparison",
+      "question": "How did Microsoft's net income change from fiscal 2023 to fiscal 2025?",
+      "answer": "Microsoft's net income was $72,361 million (GAAP) for fiscal year 2023 [Source: Microsoft Annual Report FY2023, p.44] and $101,832 million (GAAP) for fiscal year 2025 [Source: Microsoft Annual Report FY2025, p.53]. This represents an increase of $29,471 million or approximately 40.73% (calculated) from fiscal year 2023 to fiscal year 2025.",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2023, p.44",
+        "Microsoft Annual Report FY2025, p.53"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E39",
+      "category": "cross_document",
+      "question": "Which company reported higher net income in fiscal 2025, Apple or Microsoft?",
+      "answer": "Apple reported a higher net income in fiscal year 2025 with $112,010 million (GAAP) [Source: Apple Annual Report FY2025, p.32], compared to Microsoft's net income of $101,832 million (GAAP) [Source: Microsoft Annual Report FY2025, p.53] for the same fiscal year.",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.32",
+        "Microsoft Annual Report FY2025, p.53"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E40",
+      "category": "missing_evidence",
+      "question": "What was NVIDIA's data center revenue in fiscal 2025?",
+      "answer": "The provided reports do not contain enough information to determine NVIDIA's data center revenue in fiscal 2025.",
+      "confidence": "medium",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": null,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": true
+    },
+    {
+      "id": "E41",
+      "category": "missing_evidence",
+      "question": "What was Microsoft's revenue in fiscal 2026?",
+      "answer": "The provided reports do not contain enough information to determine Microsoft's revenue in fiscal 2026.",
+      "confidence": "medium",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": null,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": true
+    },
+    {
+      "id": "E42",
+      "category": "entity_resolution",
+      "question": "What net income did the iPhone maker report for fiscal 2023?",
+      "answer": "Apple Inc. reported a net income of $96,995 million (GAAP) for fiscal year 2023 [Source: Apple Annual Report FY2023, p.31]. Management's Discussion and Analysis also notes that net income was $97.0 billion during 2023 [Source: Apple Annual Report FY2023, p.23].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.31",
+        "Apple Annual Report FY2023, p.23"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E43",
+      "category": "direct_lookup",
+      "question": "What were Apple's total net sales in fiscal 2024?",
+      "answer": "Apple's total net sales in fiscal 2024 were $391,035 million [Source: Apple Annual Report FY2024, p.25].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.25"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E44",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend on research and development in fiscal 2024?",
+      "answer": "Apple Inc. spent $31,370 million on research and development in fiscal 2024 [Source: Apple Annual Report FY2024, p.27].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.27"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E45",
+      "category": "direct_lookup",
+      "question": "What were Apple's selling, general and administrative expenses in fiscal 2025?",
+      "answer": "Apple's selling, general and administrative expenses in fiscal 2025 were $27,601 million (GAAP) [Source: Apple Annual Report FY2025, p.27].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.27"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E46",
+      "category": "direct_lookup",
+      "question": "What was Apple's operating income in fiscal 2024?",
+      "answer": "Apple Inc.'s operating income in fiscal 2024 was $123,216 million (GAAP) [Source: Apple Annual Report FY2024, p.32] [Source: Apple Annual Report FY2025, p.32].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.32",
+        "Apple Annual Report FY2025, p.32"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E47",
+      "category": "direct_lookup",
+      "question": "What was Apple's income before provision for income taxes in fiscal 2024?",
+      "answer": "Apple Inc.'s income before taxes for fiscal year 2024 was $123,485 million (GAAP) [Source: Apple Annual Report FY2024, p.32] [Source: Apple Annual Report FY2025, p.32].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.32",
+        "Apple Annual Report FY2025, p.32"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E48",
+      "category": "direct_lookup",
+      "question": "What were Apple's diluted earnings per share in fiscal 2024?",
+      "answer": "Apple's diluted earnings per share in fiscal 2024 were $6.08 per share [Source: Apple Annual Report FY2024, p.32].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.32"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E49",
+      "category": "direct_lookup",
+      "question": "How much cash and cash equivalents did Apple hold at the end of fiscal 2024?",
+      "answer": "Apple Inc. held $29,943 million (GAAP) in cash and cash equivalents at the end of fiscal 2024 [Source: Apple Annual Report FY2024, p.34].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.34"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E50",
+      "category": "direct_lookup",
+      "question": "What were Apple's total liabilities at the end of fiscal 2024?",
+      "answer": "Apple's total liabilities at the end of fiscal 2024 were $308,030 million [Source: Apple Annual Report FY2024, p.34].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.34"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E51",
+      "category": "direct_lookup",
+      "question": "What was Apple's total shareholders' equity at the end of fiscal 2024?",
+      "answer": "Apple's total shareholders' equity at the end of fiscal 2024 was $56,950 million [Source: Apple Annual Report FY2024, p.34].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.34"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E52",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend on property, plant and equipment in fiscal 2024?",
+      "answer": "The provided context does not contain the specific amount Apple spent on property, plant and equipment in fiscal 2024, though it notes that Apple's capital expenditures for fiscal year 2024 were -$9,447 million (GAAP) [Source: Apple Annual Report FY2024, p.36] [Source: Apple Annual Report FY2025, p.36].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.36",
+        "Apple Annual Report FY2025, p.36"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": null
+    },
+    {
+      "id": "E53",
+      "category": "direct_lookup",
+      "question": "What was Apple's share-based compensation expense in fiscal 2024?",
+      "answer": "Apple's share-based compensation expense in fiscal 2024 was $11,688 million [Source: Apple Annual Report FY2024, p.48].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.48"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E54",
+      "category": "direct_lookup",
+      "question": "What was Apple's depreciation and amortization in fiscal 2023?",
+      "answer": "Apple's depreciation and amortization in fiscal year 2023 was $11,519 million (GAAP) [Source: Apple Annual Report FY2023, p.35]. Additionally, depreciation expense on property, plant and equipment was $8.5 billion during 2023 [Source: Apple Annual Report FY2023, p.42].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.35",
+        "Apple Annual Report FY2023, p.42"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E55",
+      "category": "segment_breakdown",
+      "question": "What were Apple's Wearables, Home and Accessories net sales in fiscal 2024?",
+      "answer": "In fiscal 2024, Apple's Wearables, Home and Accessories net sales were $37,005 million [Source: Apple Annual Report FY2024, p.25].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.25"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E56",
+      "category": "segment_breakdown",
+      "question": "How much revenue did iPad generate for Apple in fiscal 2025?",
+      "answer": "In fiscal 2025, iPad generated $28,023 million (GAAP) in revenue for Apple [Source: Apple Annual Report FY2025, p.26].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.26"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E57",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in Europe in fiscal 2024?",
+      "answer": "Apple's net sales in Europe in fiscal 2024 were $101,328 million [Source: Apple Annual Report FY2024, p.25].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.25"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E58",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in the Americas in fiscal 2025?",
+      "answer": "In fiscal 2025, Apple's net sales in the Americas were $178,353 million [Source: Apple Annual Report FY2025, p.25].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.25"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E59",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in Rest of Asia Pacific in fiscal 2023?",
+      "answer": "Apple's net sales in Rest of Asia Pacific in fiscal 2023 were $29,615 million [Source: Apple Annual Report FY2023, p.24].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.24"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E60",
+      "category": "direct_lookup",
+      "question": "What was Apple's total gross margin percentage in fiscal 2025?",
+      "answer": "Apple's total gross margin percentage in fiscal 2025 was 46.9% [Source: Apple Annual Report FY2025, p.26].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.26"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E61",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's iPhone net sales change from fiscal 2024 to fiscal 2025?",
+      "answer": "Apple Inc.'s iPhone net sales increased from $201,183 million in fiscal year 2024 to $209,586 million in fiscal year 2025 [Source: Apple Annual Report FY2025, p.25]. This represents an increase of 4% [Source: Apple Annual Report FY2025, p.25].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.25"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E62",
+      "category": "cross_year_comparison",
+      "question": "How much did Apple's Services net sales grow between fiscal 2023 and fiscal 2025?",
+      "answer": "Apple's Services net sales were $85,200 million in fiscal year 2023 [Source: Apple Annual Report FY2023, p.25] and $109,158 million in fiscal year 2025 [Source: Apple Annual Report FY2025, p.26]. This represents an increase of $23,958 million (calculated).",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.25",
+        "Apple Annual Report FY2025, p.26"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E63",
+      "category": "direct_lookup",
+      "question": "How many full-time equivalent employees did Apple have at the end of fiscal 2025?",
+      "answer": "The provided context does not contain enough information to state the number of full-time equivalent employees Apple had at the end of fiscal 2025.",
+      "confidence": "medium",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": null
+    },
+    {
+      "id": "E64",
+      "category": "direct_lookup",
+      "question": "How many full-time employees did Apple have at the end of fiscal 2023?",
+      "answer": "The provided reports do not contain enough information to state how many full-time employees Apple had at the end of fiscal 2023.",
+      "confidence": "medium",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": null
+    },
+    {
+      "id": "E65",
+      "category": "direct_lookup",
+      "question": "How large was the share repurchase program Apple announced in May 2024?",
+      "answer": "On May 2, 2024, Apple announced a share repurchase program to repurchase up to $110 billion of the company's common stock [Source: Apple Annual Report FY2025, p.22].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.22"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E66",
+      "category": "direct_lookup",
+      "question": "How many shares did Apple repurchase during fiscal 2025?",
+      "answer": "During fiscal 2025, Apple repurchased 402 million shares (or 401,672 thousand shares) of its common stock for $89.3 billion [Source: Apple Annual Report FY2025, p.47].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.47"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E67",
+      "category": "direct_lookup",
+      "question": "How many shares did Apple buy back in fiscal 2023 and at what cost?",
+      "answer": "During fiscal 2023, Apple repurchased 471 million shares of its common stock for $76.6 billion, excluding excise tax due under the Inflation Reduction Act of 2022 [Source: Apple Annual Report FY2023, p.47].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.47"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E68",
+      "category": "entity_resolution",
+      "question": "What was MSFT's total revenue in fiscal 2024?",
+      "answer": "Microsoft Corporation's total revenue in fiscal year 2024 was $245,122 million [Source: Microsoft Annual Report FY2024, p.61].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.61"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E69",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's gross margin in fiscal 2024?",
+      "answer": "Microsoft's gross margin in fiscal year 2024 was $171,008 million (GAAP) [Source: Microsoft Annual Report FY2024, p.61].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.61"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E70",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's operating income in fiscal 2025?",
+      "answer": "Microsoft's operating income in fiscal year 2025 was $128,528 million (GAAP) [Source: Microsoft Annual Report FY2025, p.53].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.53"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E71",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's diluted earnings per share in fiscal 2023?",
+      "answer": "Microsoft's diluted earnings per share in fiscal 2023 were $9.68 per share [Source: Microsoft Annual Report FY2023, p.44].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2023, p.44"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E72",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's general and administrative expenses in fiscal 2024?",
+      "answer": "In fiscal year 2024, Microsoft's general and administrative expenses were $7,609 million (GAAP) [Source: Microsoft Annual Report FY2024, p.66].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.66"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E73",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft spend on sales and marketing in fiscal 2024?",
+      "answer": "In fiscal year 2024, Microsoft spent $24,456 million on sales and marketing [Source: Microsoft Annual Report FY2024, p.64].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.64"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E74",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's income before income taxes in fiscal 2025?",
+      "answer": "In fiscal year 2025, Microsoft's income before income taxes was $123,627 million [Source: Microsoft Annual Report FY2025, p.69]. This consisted of U.S. income before income taxes of $69,212 million and foreign income before income taxes of $54,415 million [Source: Microsoft Annual Report FY2025, p.100].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.69",
+        "Microsoft Annual Report FY2025, p.100"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E75",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's provision for income taxes in fiscal 2024?",
+      "answer": "Microsoft's provision for income taxes in fiscal year 2024 was $19,651 million [Source: Microsoft Annual Report FY2024, p.80].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.80"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E76",
+      "category": "direct_lookup",
+      "question": "How much cash and cash equivalents did Microsoft have on June 30, 2025?",
+      "answer": "Microsoft had $30,242 million in cash and cash equivalents on June 30, 2025 [Source: Microsoft Annual Report FY2025, p.71].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.71"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E77",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's total liabilities at the end of fiscal 2024?",
+      "answer": "At the end of fiscal year 2024, Microsoft's total liabilities were $243,686 million [Source: Microsoft Annual Report FY2024, p.82] [Source: Microsoft Annual Report FY2025, p.71].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.82",
+        "Microsoft Annual Report FY2025, p.71"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E78",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's total stockholders' equity at the end of fiscal 2025?",
+      "answer": "At the end of fiscal 2025, Microsoft's total stockholders' equity was $343,479 million [Source: Microsoft Annual Report FY2025, p.71].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.71"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E79",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft spend on additions to property and equipment in fiscal 2025?",
+      "answer": "Microsoft spent $64,551 million (GAAP) on capital expenditures, which includes additions to property and equipment, in fiscal year 2025 [Source: Microsoft Annual Report FY2025, p.72].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.72"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E80",
+      "category": "cross_year_comparison",
+      "question": "How did Microsoft's capital expenditures change from fiscal 2024 to fiscal 2025?",
+      "answer": "Microsoft Corporation's capital expenditures were -$44,477 million (GAAP) for fiscal year 2024 [Source: Microsoft Annual Report FY2024, p.84] [Source: Microsoft Annual Report FY2025, p.72] and increased to -$64,551 million (GAAP) for fiscal year 2025 [Source: Microsoft Annual Report FY2025, p.72]. This represents an increase in capital expenditures (or change in magnitude) of -$20,074 million (calculated).",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.84",
+        "Microsoft Annual Report FY2025, p.72"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E81",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft spend repurchasing common stock in fiscal 2024 according to its cash flow statement?",
+      "answer": "According to Microsoft's cash flow statement, Microsoft spent $17,254 million repurchasing common stock in fiscal year 2024 [Source: Microsoft Annual Report FY2024, p.84].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.84"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E82",
+      "category": "segment_breakdown",
+      "question": "What was revenue for Microsoft's Productivity and Business Processes segment in fiscal 2024?",
+      "answer": "Microsoft's Productivity and Business Processes segment revenue for fiscal 2024 was $77,728 million (GAAP) [Source: Microsoft Annual Report FY2024, p.62], though the reports disagree and Microsoft 10-K FY2025 states $106,820 million [Source: Microsoft Annual Report FY2025, p.54] due to segment changes recast to conform to the way the business was managed during fiscal year 2025 [Source: Microsoft Annual Report FY2025, p.50].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2024, p.62",
+        "Microsoft Annual Report FY2025, p.54",
+        "Microsoft Annual Report FY2025, p.50"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E83",
+      "category": "conflicting_evidence",
+      "question": "What was Microsoft's Intelligent Cloud revenue in fiscal 2023?",
+      "answer": "In fiscal year 2023, Microsoft's Intelligent Cloud revenue was $87,907 million (GAAP), though Microsoft's 10-K FY2025 states $72,944 million [Source: Microsoft Annual Report FY2023, p.45] [Source: Microsoft Annual Report FY2025, p.112].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2023, p.45",
+        "Microsoft Annual Report FY2025, p.112"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": false,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E84",
+      "category": "entity_resolution",
+      "question": "How large was Microsoft Cloud revenue in fiscal 2025?",
+      "answer": "Microsoft Cloud revenue was $168.9 billion in fiscal year 2025 [Source: Microsoft Annual Report FY2025, p.113].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.113"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E85",
+      "category": "entity_resolution",
+      "question": "What was Microsoft Cloud revenue in fiscal 2023?",
+      "answer": "Microsoft Cloud revenue was $111.6 billion in fiscal year 2023 [Source: Microsoft Annual Report FY2023, p.40] [Source: Microsoft Annual Report FY2024, p.130] [Source: Microsoft Annual Report FY2023, p.94].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2023, p.40",
+        "Microsoft Annual Report FY2024, p.130",
+        "Microsoft Annual Report FY2023, p.94"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E86",
+      "category": "direct_lookup",
+      "question": "How fast did Azure and other cloud services revenue grow in fiscal 2025?",
+      "answer": "In fiscal year 2025, server products and cloud services revenue increased 23% driven by Azure and other cloud services revenue growth of 34% [Source: Microsoft Annual Report FY2025, p.49].",
+      "confidence": "medium",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.49"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E87",
+      "category": "direct_lookup",
+      "question": "How many people did Microsoft employ full-time as of June 30, 2023?",
+      "answer": "As of June 30, 2023, Microsoft employed approximately 221,000 people on a full-time basis, with 120,000 in the U.S. and 101,000 internationally [Source: Microsoft Annual Report FY2023, p.9].",
+      "confidence": "medium",
+      "sources": [
+        "Microsoft Annual Report FY2023, p.9"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E88",
+      "category": "direct_lookup",
+      "question": "What was the total purchase price of Microsoft's Activision Blizzard acquisition?",
+      "answer": "Microsoft completed its acquisition of Activision Blizzard, Inc. on October 13, 2023, for a total purchase price of $75.4 billion, consisting primarily of cash [Source: Microsoft Annual Report FY2025, p.94].",
+      "confidence": "medium",
+      "sources": [
+        "Microsoft Annual Report FY2025, p.94"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E89",
+      "category": "conflicting_evidence",
+      "question": "What was Microsoft's adjusted (non-GAAP) diluted EPS in fiscal 2023?",
+      "answer": "Microsoft's adjusted (non-GAAP) diluted earnings per share for fiscal year 2023 was $9.81 per share [Source: Microsoft Annual Report FY2023, p.44].",
+      "confidence": "high",
+      "sources": [
+        "Microsoft Annual Report FY2023, p.44"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E90",
+      "category": "cross_document",
+      "question": "Which company spent more on research and development in fiscal 2025, Apple or Microsoft?",
+      "answer": "In fiscal 2025, Apple spent $34,550 million on research and development [Source: Apple Annual Report FY2025, p.27]. In the same fiscal year, Microsoft Corporation spent $32,488 million (GAAP) on research and development [Source: Microsoft Annual Report FY2025, p.56]. Therefore, Apple spent more on research and development than Microsoft in fiscal 2025.",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.27",
+        "Microsoft Annual Report FY2025, p.56"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E91",
+      "category": "cross_document",
+      "question": "Compare Apple's and Microsoft's total assets at the end of fiscal 2024.",
+      "answer": "At the end of fiscal 2024, Apple's total assets were $364,980 million (GAAP) [Source: Apple Annual Report FY2024, p.34], while Microsoft's total assets were $512,163 million (GAAP) [Source: Microsoft Annual Report FY2024, p.82].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.34",
+        "Microsoft Annual Report FY2024, p.82"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E92",
+      "category": "ambiguous_question",
+      "question": "What was net income in fiscal 2025?",
+      "answer": "The provided reports do not contain enough information to determine the net income in fiscal 2025.",
+      "confidence": "medium",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": null
+    },
+    {
+      "id": "E93",
+      "category": "missing_evidence",
+      "question": "How many iPhone units did Apple sell in fiscal 2024?",
+      "answer": "The provided reports do not contain enough information to determine the number of iPhone units Apple sold in fiscal 2024, as they only report iPhone net sales of $201,183 million [Source: Apple Annual Report FY2024, p.26] [Source: Apple Annual Report FY2025, p.26].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.26",
+        "Apple Annual Report FY2025, p.26"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": null,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": false
+    },
+    {
+      "id": "E94",
+      "category": "missing_evidence",
+      "question": "What was Microsoft's revenue in the second quarter of fiscal 2024?",
+      "answer": "The provided context does not contain information regarding Microsoft's revenue for the second quarter of fiscal 2024.",
+      "confidence": "high",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": null,
+      "trap_figure_used": false,
+      "declined": true,
+      "correct_decline": true
+    },
+    {
+      "id": "E95",
+      "category": "missing_evidence",
+      "question": "What was Tesla's automotive revenue in fiscal 2024?",
+      "answer": "The provided reports do not contain enough information to determine Tesla's automotive revenue in fiscal 2024.",
+      "confidence": "medium",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": null,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": true
+    },
+    {
+      "id": "extra",
+      "category": "pipeline_sample",
+      "question": "Compare Apple and Microsoft revenue",
+      "answer": "Apple Inc. reported revenues of $365,817 million for fiscal year 2021 [Source: Apple Annual Report FY2023, p.24], $394,328 million for fiscal year 2022 [Source: Apple Annual Report FY2024, p.25], $383,285 million for fiscal year 2023 [Source: Apple Annual Report FY2023, p.24], $391,035 million for fiscal year 2024 [Source: Apple Annual Report FY2024, p.25], and $416,161 million for fiscal year 2025 [Source: Apple Annual Report FY2025, p.25]. Microsoft Corporation reported revenues of $168,088 million for fiscal year 2021 [Source: Microsoft Annual Report FY2023, p.58], $198,270 million for fiscal year 2022 [Source: Microsoft Annual Report FY2024, p.80], $211,915 million for fiscal year 2023 [Source: Microsoft Annual Report FY2023, p.58], $245,122 million for fiscal year 2024 [Source: Microsoft Annual Report FY2024, p.61], and $281,724 million for fiscal year 2025 [Source: Microsoft Annual Report FY2025, p.53].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2023, p.24",
+        "Apple Annual Report FY2024, p.25",
+        "Apple Annual Report FY2025, p.25",
+        "Microsoft Annual Report FY2023, p.58",
+        "Microsoft Annual Report FY2024, p.80",
+        "Microsoft Annual Report FY2024, p.61",
+        "Microsoft Annual Report FY2025, p.53"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": []
+    },
+    {
+      "id": "extra",
+      "category": "pipeline_sample",
+      "question": "What risks does Apple mention?",
+      "answer": "Apple mentions several risks across categories such as competition and rapid technological change [Source: Apple Annual Report FY2025, p.10], macroeconomic and global economic conditions [Source: Apple Annual Report FY2025, p.8], supply chain disruptions and natural disasters [Source: Apple Annual Report FY2025, p.9], cybersecurity and data privacy concerns [Source: Apple Annual Report FY2025, p.14], design and manufacturing defects [Source: Apple Annual Report FY2025, p.12], and regulatory or legal proceedings including antitrust and tax law changes [Source: Apple Annual Report FY2025, p.15, 17, 19].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.10",
+        "Apple Annual Report FY2025, p.8",
+        "Apple Annual Report FY2025, p.9",
+        "Apple Annual Report FY2025, p.14",
+        "Apple Annual Report FY2025, p.12",
+        "Apple Annual Report FY2025, p.15",
+        "Apple Annual Report FY2025, p.17",
+        "Apple Annual Report FY2025, p.19"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": []
+    }
+  ]
+}

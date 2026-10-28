@@ -196,8 +196,11 @@ def evaluate(driver, database=None, llm=None, cases_path=em.CASES_PATH, extra_qu
             "has_citation": bool(r["sources"]), "invalid_citations": r["invalid_citations"],
             "unverified_numbers": r["unverified_numbers"], "expected_figures_present": correct,
             "trap_figure_used": trap_used if trap_figs else None,
-            "declined": declined, "correct_decline": (declined and not _numbers(CITATION_RE.sub("", r["answer"]))
-                                                      - {"2025", "2026"}) if is_missing else None,
+            # A correct decline gives no figures; fiscal years echoed from the
+            # question ("fiscal 2024") are labels, not figures.
+            "declined": declined, "correct_decline": (declined and not {
+                n for n in _numbers(CITATION_RE.sub("", r["answer"])) if not re.fullmatch(r"(19|20)\d{2}", n)})
+                if is_missing else None,
         })
     for q in extra_questions:
         r = ask(q, driver, database, llm)

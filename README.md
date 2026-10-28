@@ -11,12 +11,12 @@ are in [CLAUDE.md](CLAUDE.md).
 | PDF extraction | Done (`fin_graph_rag/pdf_extractor.py`). Run on all 6 reports: 682 pages, 1 empty. |
 | Preprocessing / chunking | Done - phase 1 (`fin_graph_rag/preprocess.py`). 617 non-empty pages → 1,432 chunks, all ≤ 500 tokens incl. overlap (bert-base-uncased); 375 tables (365 whole, 10 split into labelled parts); 20-30 token overlap between prose chunks. |
 | Embeddings / index | Local (`fin_graph_rag/embeddings.py`): `BAAI/bge-small-en-v1.5` on CPU, 1,432 × 384-d flat cosine index, chunks embedded with a context header. Gemini / Hugging Face free tiers not yet compared. |
-| Entity & relation extraction | Done - phase 3 (`fin_graph_rag/entity_extractor.py`). 214 financial facts parsed from tables (no LLM); 247 risks, 78 executive/board entries, 73 competitor mentions via Gemini free tier (46 calls), every LLM item validated against a verbatim quote. |
+| Entity & relation extraction | Done - phase 3 (`fin_graph_rag/entity_extractor.py`). 286 financial facts parsed from tables (no LLM); 247 risks, 78 executive/board entries, 73 competitor mentions via Gemini free tier (46 calls), every LLM item validated against a verbatim quote. |
 | Knowledge graph (Neo4j) | Done - phase 3 (`fin_graph_rag/graph_builder.py`, `run_ingestion.py`). AuraDB Free; MERGE-only, idempotent. Phase 4: + 1,432 `TextChunk` nodes with bge-small vectors and the `chunk_embeddings` vector index (ONLINE). Totals: 2,007 nodes, 4,612 relationships. |
-| Retrieval | Done - phase 5 (`fin_graph_rag/hybrid.py`): graph facts (`cypher_retriever.py`) + text chunks (Neo4j vector index fused with BM25). On 39 eval cases: answer supported by graph or top-5 text = 37/39 (text alone 27/39); top-10 = 38/39. |
-| Answer generation | Done - phase 6 (`fin_graph_rag/answer.py`): Gemini free tier, pipeline.txt system prompt verbatim, citations and numbers checked against the retrieved context. 44 questions: 41/41 answers with a valid citation, 0 invalid citations, 0 unverified numbers, 3/3 missing-evidence questions declined; manual review 38/39 correct + 1 partial. |
+| Retrieval | Done - phase 5 (`fin_graph_rag/hybrid.py`): graph facts (`cypher_retriever.py`) + text chunks (Neo4j vector index fused with BM25). On 95 eval cases (89 answerable): answer supported by graph or top-5 text = 83/89 (93%), top-10 = 86/89 (text alone 60/89, 74/89). |
+| Answer generation | Done - phase 6 (`fin_graph_rag/answer.py`): Gemini free tier, pipeline.txt system prompt verbatim, citations and numbers checked against the retrieved context. 95 eval questions + 2 samples: 0 invalid citations, 0 unverified numbers, 0 wrong figures found; manual review of the 89 answerable: 85 correct, 1 partial, 3 declined although the reports contain the answer; 6/6 missing-evidence questions handled correctly. |
 | Web UI | Done - phase 7 (`app.py`, `fin_graph_rag/graph_view.py`): Streamlit Q&A with confidence badge, sources and history; Knowledge Graph tab rendered with pyvis. Checked end to end headless (Streamlit AppTest, live Neo4j). |
-| Testing & validation | Done - phase 8: 88 unit tests (offline) + 8 integration tests (`pytest -m integration`, live Neo4j / Gemini / local model) all pass; golden set 4/4; 42 eval cases in `eval/cases.jsonl` (every citation verified against page text), results in `eval/results/` (one file per run, never overwritten). |
+| Testing & validation | Done - phase 8: 90 unit tests (offline) + 8 integration tests (`pytest -m integration`, live Neo4j / Gemini / local model) all pass; golden set 4/4; 95 eval cases in `eval/cases.jsonl` (every citation verified against page text), results in `eval/results/` (one file per run, never overwritten). |
 
 ## Setup
 
@@ -84,16 +84,26 @@ Schema (all writes `MERGE`, uniqueness constraints per `pipeline.txt`):
 (:Company)-[:COMPETES_WITH {fiscal_year, context, page, quote}]->(:Company | :Offering)
 ```
 
-**Table facts** (214): revenue, gross margin, operating income, net income,
+**Table facts** (286): revenue, gross margin, operating income, net income,
 R&D, SG&A, tax provision, diluted EPS, operating cash flow, buybacks,
-dividends, total assets - company-level, per segment (Apple geographic,
+dividends, total assets, and (added after the 95-case eval) income before
+taxes, cash and cash equivalents, capital expenditures, depreciation and
+amortization (Microsoft's "depreciation, amortization, and other" kept as a
+separate metric - not the same measure), share-based compensation, total
+current assets, total liabilities, shareholders' equity - company-level, per segment (Apple geographic,
 Microsoft P&BP / IC / MPC) and per Apple product category. Rules: only an
 allow-list of statement/MD&A tables (statement titles matched in CAPITALS, so
 Microsoft's Activision "net impact" table - "...consolidated income statements
 since..." - is excluded); values must line up one-to-one with the table's year
 columns; units only from a stated "in millions" line; "Diluted" share counts
 are not mistaken for EPS. GAAP, non-GAAP and pro forma are separate facts.
-Checked: 37/37 hand-verified eval figures extracted with the exact value.
+Checked: 37/37 hand-verified eval figures extracted with the exact value, plus
+14/14 for the added metrics. The balance sheet's equity rows follow
+"Commitments and contingencies / Shareholders' equity:" and arrive as an
+untitled table without year columns; such a table inherits the previous
+table's header only when on the same page, separated by <= 5 prose lines that
+include a "...:" sub-header (affects exactly the 5 balance-sheet equity
+sections; never guessed otherwise).
 
 **Conflicts are kept, not resolved silently.** 12 facts are flagged
 `conflict=true` - all Microsoft segment figures for FY2023/FY2024 that the
@@ -174,7 +184,28 @@ Re-running is idempotent (same node and relationship counts).
 - **Sources**: `"<Company> Annual Report FY<year>, p.<page>"`, graph facts first,
   de-duplicated - always with a page (`pipeline.txt` acceptance).
 
-Measured 2026-10-28 on 42 cases (39 with an expected figure; `eval/results/*hybrid-graph*`).
+**95 cases** (89 with an expected figure; 53 added after phase 8, written
+before any retrieval ran on them; `eval/results/*hybrid-graph_n95*`):
+
+| | top-5 | top-10 |
+|---|---|---|
+| text only | 60/89 | 74/89 |
+| graph facts alone (14 metrics) | 57/89 | 57/89 |
+| graph + text, 14 metrics | 77/89 (87%) | 84/89 |
+| graph facts alone (+9 metrics) | 70/89 | 70/89 |
+| **graph + text, +9 metrics (current)** | **83/89 (93%)** | **86/89 (97%)** |
+
+The new questions were harder (40/50 at top-5 before the added metrics, 46/50
+after; the original 39 stay at 37/39), so 93% is the more representative
+figure. Remaining top-5 misses: five text-only facts that rank too low (Apple
+FY2024 buyback share count E24, Microsoft FY2024 gaming growth E36, Apple
+employees FY2023/FY2025 E63/E64, Azure FY2025 growth E86) and E92 ("net income
+in fiscal 2025?", no company named - the evaluation calls retrieval without the
+UI's company scope). Two missing-evidence questions retrieve related facts
+(iPhone units -> iPhone revenue; quarterly revenue -> annual revenue); only the
+answer evaluation can show whether the answer declines correctly.
+
+Earlier, on the first 42 cases (39 with an expected figure):
 "Supported" = a graph fact equals the expected figure, or a returned chunk has
 a line with the metric label and figure:
 
@@ -242,10 +273,37 @@ report's tax note) - both correct and cited; E24 says the share count is not
 in the context and gives the $94,949M cash outflow - honest but partial
 (known retrieval miss).
 
+**Measured again on all 95 questions** (2026-10-28,
+`eval/results/2026-10-28_233526_answers_n97.json`; ~55 new Gemini calls, no
+rate-limit errors):
+
+| check | result |
+|---|---|
+| answerable answers with >= 1 valid citation | 88/91 (the 3 without are "not enough information" answers) |
+| citations not in the retrieved context | **0** |
+| answers with numbers not found in the context | **0** |
+| expected figure present (automatic string check) | 81/89 |
+| missing-evidence questions declined without figures (automatic) | 5/6 |
+| **manual review, 89 answerable** | **85 correct, 1 partial, 3 wrongly declined, 0 wrong figures** |
+
+Manual review of the 8 automatically flagged answerable cases: correct - E36
+(gaming +$6,037M / 39% calculated), E37 (18% and 18.2%, both cited), E86 (Azure
++34%), E88 (Activision $75.4 billion = $75,408 million); partial - E24 (share
+count not retrieved; gives the $94,949M cash outflow); declined although the
+reports contain it - E63 / E64 (Apple employee counts: text chunk not
+retrieved) and E92 ("net income in fiscal 2025?" with no company - the
+evaluation calls `ask()` without the UI's company scope). E93 (iPhone units)
+declines and gives iPhone *net sales*, labelled as such - allowed by the case.
+Spot-checked trap/conflict answers were right: recast segment figures give both
+reports' values (E82, E83), non-GAAP EPS is labelled (E89), GAAP EPS is not
+confused with it (E71). Every failure is a "not enough information" answer,
+not a wrong number. Scoring bug fixed during this review: a decline that
+repeats the question's fiscal year ("fiscal 2024") was counted as giving a figure.
+
 Known limitations: text citations use the chunk's first page, so a figure on
-the second page of a two-page chunk is cited one page early (E36 cites p.130;
-the figures are on p.131) - TODO: cite chunk page ranges (needs a full re-run,
-~44 calls). Gemini free tier is slow at times (HTTP 503 "overloaded", retried):
+the second page of a two-page chunk is cited one page early (seen in 2 of 97
+answers: E36 cites p.130 and E61 p.25 for figures on p.131 and p.26) - TODO:
+cite chunk page ranges (needs a full answer re-run, ~97 calls). Gemini free tier is slow at times (HTTP 503 "overloaded", retried):
 the 44-question run took about 25 minutes. Answers are only checked
 automatically for citations and numbers; wording and completeness need review.
 
@@ -333,8 +391,7 @@ citations, 0 invalid citations, 0 unverified numbers, 3/3 missing-evidence
 questions declined, manual review 38/39 correct + 1 partial.
 
 Open items: text citations use a chunk's first page (one answer cites p.130
-for a figure on p.131); the Gemini embedding comparison stopped at the free
-tier's daily quota (1,000/1,432 chunks cached) and can resume; the eval set
+for a figure on p.131); the eval set
 (42 questions) is small - differences of a few cases are not significant.
 
 ## Embeddings (local baseline)
@@ -415,7 +472,30 @@ numbers are reproduced exactly by the E01-E09 subset of these runs.
 | **bge-small hybrid** | **16** | **27** | 31 | **0.538** | 21 / 24 / **0.502** |
 | bge-base hybrid | 13 | 26 | **33** | 0.489 | 21 / **25** / 0.491 |
 
-**No meaningful gain - bge-small stays the default.** Per case, bge-base
+**Gemini embeddings** (`gemini:gemini-embedding-001`, free tier, 768-d,
+RETRIEVAL_DOCUMENT / RETRIEVAL_QUERY task types; same inputs and questions;
+measured 2026-10-28, `eval/results/*gemini*`):
+
+| support (39 cases) | @1 | @5 | @10 | MRR | E10-E42: @5 / @10 / MRR |
+|---|---|---|---|---|---|
+| bge-small hybrid (current default) | 16 | 27 | 31 | 0.538 | 21 / 24 / 0.502 |
+| **Gemini vector + header** | **29** | **37** | **39** | **0.833** | **29 / 31 / 0.814** |
+| Gemini hybrid (+ BM25, RRF) | 26 | 31 | 38 | 0.732 | 23 / 30 / 0.679 |
+
+Gemini vector search is clearly better: per case vs bge-small vector it is
+better on 25, worse on 3, equal on 11 (vs bge-small hybrid: 19 / 3 / 17), and
+the gain holds on the 31 cases written after the design choices. Adding BM25
+*hurts* Gemini (support@5 37 -> 31): keyword fusion helped the weaker local
+model, not this one. Remaining misses rank 8-9 (E15 Apple Japan, E32 Microsoft
+dividends). **Decision (2026-10-28): not adopted - the local bge-small model
+stays the default.** Estimated end-to-end gain is small (graph + text support@5
+37/39 measured with bge-small vs ~39/39 estimated with Gemini), while Gemini
+would need a call per question (free
+tier: per-minute and daily limits, network required, questions sent to Google)
+and re-loading the 1,432 chunk vectors and the 768-d vector index in Neo4j.
+Building the index took 47 batch calls over two days (daily quota hit once).
+
+**bge-base: no meaningful gain over bge-small.** Per case, bge-base
 hybrid vs bge-small hybrid is better on 11, worse on 9, equal on 19 (noise).
 bge-base finds 2 more supporting chunks in the top 10 but ranks fewer first
 (13 vs 16) - and rank 1-5 matters most when only a few chunks go to the
