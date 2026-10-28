@@ -75,12 +75,12 @@ def test_stale_index_is_rejected(tmp_path, monkeypatch):
     d.mkdir(parents=True)
     (d / "manifest.json").write_text(json.dumps({"model": em.MODEL_NAME, "chunks_sha256": "old"}), encoding="utf-8")
     with pytest.raises(ValueError, match="changed since the index was built"):
-        em.Index(index_root=tmp_path / "index", chunks_path=chunks_path, model=object())
+        em.Index(index_root=tmp_path / "index", chunks_path=chunks_path, embedder=object())
 
 
 def test_missing_index_is_reported(tmp_path):
     with pytest.raises(FileNotFoundError, match="No index"):
-        em.Index(index_root=tmp_path / "none", model=object())
+        em.Index(index_root=tmp_path / "none", embedder=object())
 
 
 def meta_chunk(**kw):

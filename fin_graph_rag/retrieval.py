@@ -162,8 +162,10 @@ def main(argv: list[str] | None = None) -> int:
     for p in (s, e):
         p.add_argument("-k", type=int, default=5)
         p.add_argument("--mode", choices=["hybrid", "bm25", "vector"], default="hybrid")
+        p.add_argument("--model", help=f"embedding model for the vector side (default {em.MODEL_NAME})")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    em.set_model(args.model)
 
     try:
         r = Retriever(args.mode)

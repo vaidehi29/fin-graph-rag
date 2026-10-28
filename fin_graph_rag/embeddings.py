@@ -1,6 +1,6 @@
 """
 COMPONENT : Embeddings and index
-PURPOSE   : Embed every chunk with a local sentence-embedding model, persist
+PURPOSE   : Embed every chunk with a sentence-embedding model, persist
             the vectors as a flat index, run cosine-similarity search over it,
             and score retrieval against eval/cases.jsonl so embedding backends
             can be compared on the same questions.
@@ -12,7 +12,8 @@ OUTPUTS   : data/index/<model-slug>/embeddings.npy  - float32 [n_chunks, dim],
             data/index/<model-slug>/manifest.json    - model, dims, chunks
                                                        file hash, timings
             eval/results/<date>_<model-slug>.json   - retrieval eval results
-DEPENDS ON: sentence-transformers (torch, CPU), numpy
+DEPENDS ON: fin_graph_rag.embedders (local sentence-transformers or Gemini
+            API), tokenizers, numpy
 PANEL NOTE: Free and local: the model is downloaded once from Hugging Face
             and then runs offline on CPU - no API key, no per-call cost, no
             report text leaves the machine. bge-small-en-v1.5 uses the same
@@ -24,6 +25,7 @@ Usage:
     python -m fin_graph_rag.embeddings build [--no-header]
     python -m fin_graph_rag.embeddings search "Microsoft net income fiscal 2024" [-k 5]
     python -m fin_graph_rag.embeddings evaluate [-k 5]
+    Add --model gemini:gemini-embedding-001 to any command to use Gemini.
 """
 
 from __future__ import annotations
@@ -42,15 +44,17 @@ from pathlib import Path
 
 import numpy as np
 
+from fin_graph_rag.embedders import get_embedder
+
 log = logging.getLogger("embeddings")
 
-# DEMO-KNOB: embedding model. Must have a 512-token (or larger) input limit
-# and a vocabulary compatible with the chunker's token counts.
+# DEMO-KNOB: embedding model - a sentence-transformers name or
+# "gemini:<model>". Must accept at least 512 tokens.
 MODEL_NAME = os.getenv("FGR_EMBED_MODEL", "BAAI/bge-small-en-v1.5")
-# BGE v1.5 recommends this instruction on short retrieval queries only;
-# passages are embedded without it.
-QUERY_PREFIX = os.getenv("FGR_QUERY_PREFIX", "Represent this sentence for searching relevant passages: ")
-BATCH_SIZE = 32
+# Inputs (chunk + header) are always fitted with this tokenizer and limit, for
+# every backend, so all models embed exactly the same text.
+INPUT_TOKENIZER = os.getenv("FGR_TOKENIZER", "bert-base-uncased")
+INPUT_LIMIT = 512
 
 CHUNKS_PATH = Path(os.getenv("FGR_PROCESSED_DIR", "data/processed")) / "chunks.jsonl"
 INDEX_ROOT = Path(os.getenv("FGR_INDEX_DIR", "data/index"))
@@ -73,15 +77,11 @@ def load_chunks(path: Path = CHUNKS_PATH) -> list[dict]:
         return [json.loads(l) for l in f if l.strip()]
 
 
-def load_model(name: str = MODEL_NAME):
-    from sentence_transformers import SentenceTransformer
-    try:
-        return SentenceTransformer(name, device="cpu")
-    except Exception as e:
-        # FALLBACK: no silent substitute model - a different model would make
-        # the index incomparable. Fail with a clear message instead.
-        raise RuntimeError(f"Could not load embedding model {name!r} (first run needs network "
-                           f"access to download it from Hugging Face): {e}") from e
+def input_tokenizer():
+    """Callable shaped like a HF tokenizer: tok(text, add_special_tokens) -> {"input_ids": [...]}."""
+    from tokenizers import Tokenizer
+    tok = Tokenizer.from_pretrained(INPUT_TOKENIZER)
+    return lambda s, add_special_tokens=True: {"input_ids": tok.encode(s, add_special_tokens=add_special_tokens).ids}
 
 
 # ---------------------------------------------------------------------------
@@ -161,6 +161,13 @@ def embed_inputs(chunks: list[dict], tokenizer, limit: int, header: bool) -> tup
     return inputs, dict(levels)
 
 
+def set_model(name: str | None) -> None:
+    """Select the embedding model for this process (CLI --model)."""
+    global MODEL_NAME
+    if name:
+        MODEL_NAME = name
+
+
 def index_dir(index_root: Path, header: bool) -> Path:
     return index_root / (slug(MODEL_NAME) + ("-hdr" if header else ""))
 
@@ -173,20 +180,21 @@ def build(chunks_path: Path = CHUNKS_PATH, index_root: Path = INDEX_ROOT, header
     chunks = load_chunks(chunks_path)
     if not chunks:
         raise ValueError(f"{chunks_path} is empty - nothing to index")
-    model = load_model()
-    limit = model.max_seq_length
-    inputs, header_levels = embed_inputs(chunks, model.tokenizer, limit, header)
+    embedder = get_embedder(MODEL_NAME)
+    tok = input_tokenizer()
+    inputs, header_levels = embed_inputs(chunks, tok, INPUT_LIMIT, header)
 
-    # The model silently truncates long inputs; refuse to build instead.
-    lengths = [len(model.tokenizer(t, add_special_tokens=True)["input_ids"]) for t in inputs]
-    too_long = [(c["chunk_id"], n) for c, n in zip(chunks, lengths) if n > limit]
+    # Models silently truncate long inputs; refuse to build instead. Use the
+    # model's own tokenizer where we have it (local), else the input tokenizer.
+    count = getattr(embedder, "count_tokens", None) or (lambda t: len(tok(t)["input_ids"]))
+    lengths = [count(t) for t in inputs]
+    too_long = [(c["chunk_id"], n) for c, n in zip(chunks, lengths) if n > embedder.max_tokens]
     if too_long:
-        raise ValueError(f"{len(too_long)} chunks exceed the model's {limit}-token limit "
+        raise ValueError(f"{len(too_long)} chunks exceed the model's {embedder.max_tokens}-token limit "
                          f"(e.g. {too_long[:3]}); re-run preprocess with a matching tokenizer")
 
     t0 = time.time()
-    vecs = model.encode(inputs, batch_size=BATCH_SIZE, normalize_embeddings=True,
-                        convert_to_numpy=True, show_progress_bar=True).astype(np.float32)
+    vecs = embedder.embed_documents(inputs)
     seconds = time.time() - t0
 
     out = index_dir(index_root, header)
@@ -200,16 +208,17 @@ def build(chunks_path: Path = CHUNKS_PATH, index_root: Path = INDEX_ROOT, header
         "n_chunks": int(vecs.shape[0]),
         "normalized": True,
         "similarity": "cosine (dot product of normalised vectors)",
-        "query_prefix": QUERY_PREFIX,
+        **embedder.info,
         "chunk_header": HEADER_VERSION if header else None,
         "header_levels": header_levels if header else None,
         "example_input": inputs[min(100, len(inputs) - 1)][:300],
-        "max_seq_length": limit,
+        "max_seq_length": embedder.max_tokens,
         "max_input_tokens_seen": max(lengths),
+        "input_tokenizer": INPUT_TOKENIZER,
         "chunks_file": str(chunks_path),
         "chunks_sha256": sha256_of(chunks_path),
         "encode_seconds": round(seconds, 1),
-        "device": "cpu",
+        "api_calls": getattr(embedder, "api_calls", None),
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     log.info("Indexed %d chunks (dim %d) in %.1fs -> %s", len(chunks), vecs.shape[1], seconds, out)
@@ -223,7 +232,7 @@ def build(chunks_path: Path = CHUNKS_PATH, index_root: Path = INDEX_ROOT, header
 class Index:
     """Flat in-memory cosine index over one model's embeddings."""
 
-    def __init__(self, index_root: Path = INDEX_ROOT, chunks_path: Path = CHUNKS_PATH, model=None,
+    def __init__(self, index_root: Path = INDEX_ROOT, chunks_path: Path = CHUNKS_PATH, embedder=None,
                  header: bool = True):
         d = index_dir(index_root, header)
         if not (d / "manifest.json").exists():
@@ -239,10 +248,13 @@ class Index:
         ids = json.loads((d / "chunk_ids.json").read_text(encoding="utf-8"))
         by_id = {c["chunk_id"]: c for c in load_chunks(chunks_path)}
         self.chunks = [by_id[i] for i in ids]
-        self.model = model or load_model()
+        self.embedder = embedder or get_embedder(MODEL_NAME)
+        dim = getattr(self.embedder, "dim", self.vecs.shape[1])
+        if dim != self.vecs.shape[1]:
+            raise ValueError(f"Index has {self.vecs.shape[1]}-d vectors but the query model gives {dim}-d")
 
     def search(self, query: str, k: int = 5) -> list[dict]:
-        q = self.model.encode([QUERY_PREFIX + query], normalize_embeddings=True, convert_to_numpy=True)[0]
+        q = self.embedder.embed_query(query)
         scores = self.vecs @ q.astype(np.float32)
         top = np.argsort(-scores)[:k]
         return [{"rank": r + 1, "score": round(float(scores[i]), 4), **self.chunks[i]} for r, i in enumerate(top)]
@@ -339,11 +351,14 @@ def main(argv: list[str] | None = None) -> int:
     s = sub.add_parser("search"); s.add_argument("query"); s.add_argument("-k", type=int, default=5)
     e = sub.add_parser("evaluate"); e.add_argument("-k", type=int, default=5)
     for p in (b, s, e):
+        p.add_argument("--model", help=f"embedding model (default {MODEL_NAME}); "
+                                       "e.g. gemini:gemini-embedding-001")
         # Default: chunks embedded with a context header (measured better, see README).
         p.add_argument("--no-header", dest="header", action="store_false",
                        help="use the plain index (chunks embedded without a context header)")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    set_model(args.model)
 
     try:
         if args.cmd == "build":
