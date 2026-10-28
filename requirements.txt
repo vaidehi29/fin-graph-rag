@@ -4,6 +4,8 @@ tokenizers==0.22.2
 # Local embeddings (CPU). Pulls in torch, transformers, numpy.
 sentence-transformers==3.2.1
 numpy==2.4.6
+# Knowledge graph (Neo4j AuraDB Free)
+neo4j==5.28.2
 
 # Dev / tests
 pytest==8.3.3

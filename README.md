@@ -11,8 +11,8 @@ are in [CLAUDE.md](CLAUDE.md).
 | PDF extraction | Done (`fin_graph_rag/pdf_extractor.py`). Run on all 6 reports: 682 pages, 1 empty. |
 | Preprocessing / chunking | Done - phase 1 (`fin_graph_rag/preprocess.py`). 617 non-empty pages → 1,432 chunks, all ≤ 500 tokens incl. overlap (bert-base-uncased); 375 tables (365 whole, 10 split into labelled parts); 20-30 token overlap between prose chunks. |
 | Embeddings / index | Local (`fin_graph_rag/embeddings.py`): `BAAI/bge-small-en-v1.5` on CPU, 1,432 × 384-d flat cosine index, chunks embedded with a context header. Gemini / Hugging Face free tiers not yet compared. |
-| Entity & relation extraction | Not started |
-| Knowledge graph (Neo4j) | Not started |
+| Entity & relation extraction | Done - phase 3 (`fin_graph_rag/entity_extractor.py`). 214 financial facts parsed from tables (no LLM); 247 risks, 78 executive/board entries, 73 competitor mentions via Gemini free tier (46 calls), every LLM item validated against a verbatim quote. |
+| Knowledge graph (Neo4j) | Done - phase 3 (`fin_graph_rag/graph_builder.py`, `run_ingestion.py`). AuraDB Free; MERGE-only, idempotent; 575 nodes, 1,748 relationships. |
 | Retrieval | Hybrid (vector + BM25, RRF) recommended, in `fin_graph_rag/retrieval.py`. On 39 eval cases: support@5 = 27/39, support@10 = 31/39 (vector + header: 24, 28). |
 | Answer generation | Not started |
 | Evaluation | Unit tests + real-corpus checks; 42 eval cases in `eval/cases.jsonl` (every citation verified against page text), retrieval scored in `eval/results/` (one file per run, never overwritten). |
@@ -49,8 +49,76 @@ python -m fin_graph_rag.embeddings search "Microsoft net income fiscal 2024"
 python -m fin_graph_rag.embeddings evaluate -k 5   # writes eval/results/
 python -m fin_graph_rag.retrieval search "..." --mode hybrid   # or bm25 / vector
 python -m fin_graph_rag.retrieval evaluate -k 5 --mode hybrid
+python -m fin_graph_rag.run_ingestion --dry-run   # extract facts/entities, print, no DB writes
+python -m fin_graph_rag.run_ingestion        # load into Neo4j (needs NEO4J_* and GEMINI_API_KEY in .env)
 python -m pytest -q                          # real-corpus tests skip if data is absent
+FGR_RUN_INTEGRATION=1 python -m pytest -q -k integration   # read-only check against live Neo4j
 ```
+
+## Knowledge graph (phase 3)
+
+**Numbers from tables, text facts from Gemini.** Financial figures are read
+directly from the parsed statement and MD&A tables, so each value is exactly
+the figure on its cited page - no LLM reads numbers. Gemini (free tier,
+`gemini-3.5-flash-lite`) extracts only risks, executives and competitors from
+Item 1A, Item 1 / Item 10 and the signature page - 46 calls, inside one day's
+free quota, cached so re-runs cost nothing.
+
+Schema (all writes `MERGE`, uniqueness constraints per `pipeline.txt`):
+
+```
+(:Company)-[:FILED]->(:Report {company, year})
+(:Company)-[:HAS_METRIC]->(:FinancialMetric {metric, fiscal_year, basis, unit, value, segment, product, conflict})
+(:Company)-[:HAS_SEGMENT]->(:BusinessSegment)-[:HAS_METRIC]->(:FinancialMetric)
+(:Company)-[:SELLS]->(:Product)-[:HAS_METRIC]->(:FinancialMetric)
+(:FinancialMetric)-[:REPORTED_IN {page, table_id, chunk_id, row_text, value}]->(:Report)
+(:Company)-[:FACES_RISK]->(:Risk)-[:IN_CATEGORY]->(:RiskCategory);  (:Risk)-[:DISCLOSED_IN {page, chunk_id, quote}]->(:Report)
+(:Company)-[:HAS_EXECUTIVE | BOARD_MEMBER {fiscal_year, role, page, quote}]->(:Person)
+(:Company)-[:COMPETES_WITH {fiscal_year, context, page, quote}]->(:Company | :Offering)
+```
+
+**Table facts** (214): revenue, gross margin, operating income, net income,
+R&D, SG&A, tax provision, diluted EPS, operating cash flow, buybacks,
+dividends, total assets - company-level, per segment (Apple geographic,
+Microsoft P&BP / IC / MPC) and per Apple product category. Rules: only an
+allow-list of statement/MD&A tables (statement titles matched in CAPITALS, so
+Microsoft's Activision "net impact" table - "...consolidated income statements
+since..." - is excluded); values must line up one-to-one with the table's year
+columns; units only from a stated "in millions" line; "Diluted" share counts
+are not mistaken for EPS. GAAP, non-GAAP and pro forma are separate facts.
+Checked: 37/37 hand-verified eval figures extracted with the exact value.
+
+**Conflicts are kept, not resolved silently.** 12 facts are flagged
+`conflict=true` - all Microsoft segment figures for FY2023/FY2024 that the
+FY2025 report recast after a segment reorganisation (e.g. FY2023 Intelligent
+Cloud revenue: 87,907 in the FY2023 report, 72,944 in the FY2025 report).
+Each report's value stays on its `REPORTED_IN` edge; the node's `value` is the
+figure from that fiscal year's own report.
+
+**LLM output is validated, not trusted.** Each item must cite a chunk from its
+batch and quote it verbatim (risks >= 4 words, competitors >= 3, executives
+>= 2 - the person's name must also be in that chunk); risk categories come
+from a fixed list of 12. Rejected in the final run: 6 risks, 10 executive
+entries, 1 competitor. Competitors are classified as company / product /
+open-source project; only companies become `Company` nodes (Linux, MySQL, PHP
+are `Offering`s). Microsoft's FY2025 10-K names no competitor companies (it
+mentions only Linux and Unix), so that year has none - verified against the text.
+
+Example queries that search could not answer well:
+
+```cypher
+// E39: which company had higher FY2025 net income?  (search: evidence at rank 43)
+MATCH (c:Company)-[:HAS_METRIC]->(m:FinancialMetric {metric:'net_income', fiscal_year:2025, basis:'gaap'})
+WHERE m.segment IS NULL RETURN c.name, m.value ORDER BY m.value DESC
+// Apple CFO by year, with source page
+MATCH (:Company {id:'apple'})-[h:HAS_EXECUTIVE]->(p) WHERE h.role CONTAINS 'Chief Financial'
+RETURN h.fiscal_year, p.name, h.page ORDER BY h.fiscal_year
+```
+
+Known limitations: "Cisco" and "Cisco Systems" are separate nodes (not merged
+on a guess); LLM categories and titles for risks are model judgements (the
+quote is verified, the label is not); Apple's 10-K lists only signing officers,
+not its full executive team (that is in its proxy statement, not indexed).
 
 ## Embeddings (local baseline)
 
@@ -119,6 +187,22 @@ the evidence in either header-based config (plain vector: 2).
 This **reverses the earlier 8-case result** ("hybrid no better"): one case
 moving changed that score by 12.5 points, so it was noise. Those earlier
 numbers are reproduced exactly by the E01-E09 subset of these runs.
+
+**Larger local model: `BAAI/bge-base-en-v1.5`** (768-d, same vocabulary and
+512-token limit, same inputs; measured 2026-10-28, `eval/results/*bge-base*`):
+
+| support (39 cases) | @1 | @5 | @10 | MRR | E10-E42: @5 / @10 / MRR |
+|---|---|---|---|---|---|
+| bge-small vector + header | 11 | 24 | 28 | 0.430 | 18 / 20 / 0.403 |
+| bge-base vector + header | 9 | 25 | 30 | 0.395 | 20 / 22 / 0.412 |
+| **bge-small hybrid** | **16** | **27** | 31 | **0.538** | 21 / 24 / **0.502** |
+| bge-base hybrid | 13 | 26 | **33** | 0.489 | 21 / **25** / 0.491 |
+
+**No meaningful gain - bge-small stays the default.** Per case, bge-base
+hybrid vs bge-small hybrid is better on 11, worse on 9, equal on 19 (noise).
+bge-base finds 2 more supporting chunks in the top 10 but ranks fewer first
+(13 vs 16) - and rank 1-5 matters most when only a few chunks go to the
+answer step. It costs 2x: 457 s vs 217 s to embed on CPU, 768-d vs 384-d index.
 
 Remaining misses at top-10 (hybrid): Apple Greater China / Japan FY2025 (the
 adjacent prose chunk ranks #1, the segment table #29-40 - passing neighbouring
