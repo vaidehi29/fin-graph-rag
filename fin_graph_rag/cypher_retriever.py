@@ -38,10 +38,20 @@ METRIC_KEYWORDS = [
     ("selling_general_and_administrative", r"selling, general|\bsg&a\b"),
     ("sales_and_marketing", r"sales and marketing"),
     ("general_and_administrative", r"general and administrative"),
+    # Before the tax provision: its phrase is removed once matched (see detect_metrics).
+    ("income_before_taxes", r"income before (?:provision for )?income taxes|pre-?tax income|before (?:income )?taxes"),
     ("provision_for_income_taxes", r"provision for income tax|income tax (?:provision|expense)"),
     ("total_assets", r"total assets|\bassets\b"),
     ("gross_margin", r"gross margin"),
     ("operating_income", r"operating income|operating profit"),
+    ("cash_and_cash_equivalents", r"cash and cash equivalents|cash holdings|cash on hand"),
+    ("capital_expenditures", r"capital expenditure|\bcapex\b|property, plant and equipment|property and equipment"),
+    ("depreciation_and_amortization", r"depreciation"),
+    ("depreciation_amortization_and_other", r"depreciation"),
+    ("share_based_compensation", r"(?:share|stock)-based compensation"),
+    ("total_current_assets", r"current assets"),
+    ("total_liabilities", r"\bliabilities\b"),
+    ("shareholders_equity", r"(?:shareholders|stockholders)['’]? equity"),
     ("net_income", r"net income|\bprofit\b|\bearnings\b|\bearn\b"),
     ("revenue", r"revenue|net sales|\bsales\b|\bsell\b|\bsold\b|top line|generate"),
 ]
@@ -77,7 +87,9 @@ def detect_metrics(q: str) -> list[str]:
     for metric, pattern in METRIC_KEYWORDS:
         if re.search(pattern, ql):
             found.append(metric)
-            if metric == "diluted_eps":           # "earnings per share" must not also mean net income
+            # "earnings per share" must not also mean net income; "income before
+            # provision for income taxes" must not also mean the tax provision.
+            if metric in ("diluted_eps", "income_before_taxes"):
                 ql = re.sub(pattern, " ", ql)
     return found
 

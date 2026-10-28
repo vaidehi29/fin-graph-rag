@@ -97,3 +97,12 @@ def test_dedupe_keeps_one_chunk_per_company_year_page(monkeypatch):
     chunks = [_c("m1", "microsoft", 7), _c("m2", "microsoft", 7), _c("m3", "microsoft", 8)]
     _fake_retrieval(monkeypatch, chunks, ["m1", "m2", "m3"])
     assert [c["chunk_id"] for c in hybrid.text_search(None, "Microsoft", 3, dedupe=True)] == ["m1", "m3"]
+
+
+def test_new_balance_sheet_and_cash_flow_metrics_are_detected():
+    assert cr.detect_metrics("What was Apple's income before provision for income taxes in fiscal 2024?") == ["income_before_taxes"]
+    assert cr.detect_metrics("How did Microsoft's capital expenditures change?") == ["capital_expenditures"]
+    assert cr.detect_metrics("How much did Microsoft spend on additions to property and equipment?") == ["capital_expenditures"]
+    assert cr.detect_metrics("What was Microsoft's total stockholders’ equity?") == ["shareholders_equity"]
+    assert cr.detect_metrics("How much cash and cash equivalents did Apple hold?") == ["cash_and_cash_equivalents"]
+    assert cr.detect_metrics("What was Microsoft's provision for income taxes in fiscal 2024?") == ["provision_for_income_taxes"]

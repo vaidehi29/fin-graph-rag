@@ -116,6 +116,12 @@ EXPECTED = [
     ("apple|revenue||iPhone|2023|gaap", 200583), ("apple|revenue||Services|2025|gaap", 109158),
     ("apple|diluted_eps|||2025|gaap", 7.46), ("apple|share_repurchases|||2025|gaap", -90711),
     ("apple|net_income|||2025|gaap", 112010), ("apple|operating_cash_flow|||2023|gaap", 110543),
+    # Balance-sheet / cash-flow metrics added after the 95-case eval (hand-verified lines in eval/cases.jsonl).
+    ("apple|income_before_taxes|||2024|gaap", 123485), ("apple|cash_and_cash_equivalents|||2024|gaap", 29943),
+    ("apple|capital_expenditures|||2024|gaap", -9447), ("apple|depreciation_and_amortization|||2023|gaap", 11519),
+    ("apple|total_liabilities|||2024|gaap", 308030), ("apple|shareholders_equity|||2024|gaap", 56950),
+    ("microsoft|capital_expenditures|||2025|gaap", -64551), ("microsoft|cash_and_cash_equivalents|||2025|gaap", 30242),
+    ("microsoft|shareholders_equity|||2025|gaap", 343479), ("microsoft|income_before_taxes|||2025|gaap", 123627),
 ]
 
 
@@ -228,3 +234,26 @@ def test_chunk_rows_carry_provenance_and_the_vector():
     assert row["chunk_index"] == 102 and row["page_num"] == 32 and row["year"] == 2024
     assert row["report_name"] == "Apple 10-K FY2024" and row["company_name"] == "Apple Inc."
     assert row["vector"] == [0.5, -0.25, 0.0] and row["embedding_model"] == "BAAI/bge-small-en-v1.5"
+
+
+def test_untitled_equity_section_inherits_balance_sheet_header_only_when_it_is_a_continuation():
+    from fin_graph_rag.preprocess import Unit as U
+    def lines(*texts):
+        return [Line(t, 34, None, "Item 8", False) for t in texts]
+    sheet = U("table", lines("CONSOLIDATED BALANCE SHEETS", "(In millions)", "2024 2023", "Total liabilities 308,030 290,437"),
+              title="CONSOLIDATED BALANCE SHEETS / (In millions)", n_header=2)
+    sheet.years = [2024, 2023]
+    gap = U("prose", lines("Commitments and contingencies", "Shareholders’ equity:", "Common stock ... outstanding 83,276"))
+    equity = U("table", lines("Accumulated deficit (19,154) (214)", "Total shareholders’ equity 56,950 62,146"))
+    units = [sheet, gap, equity]
+    ex.inherit_header(units, 2)
+    assert equity.years == [2024, 2023] and "BALANCE SHEETS" in equity.title
+    facts = [f for f, _ in ex.table_facts(equity, {"doc_id": "apple_2024", "company": "apple"}, {}, ex.Counter())]
+    assert {(f.metric, f.fiscal_year, f.value) for f in facts} == {
+        ("shareholders_equity", 2024, 56950), ("shareholders_equity", 2023, 62146)}
+    # An ordinary paragraph (no "...:" sub-header) between tables is not a continuation.
+    para = U("prose", lines("The Company's investments are described in Note 4 and elsewhere."))
+    orphan = U("table", lines("Total liabilities 1,000 2,000"))
+    units = [sheet, para, orphan]
+    ex.inherit_header(units, 2)
+    assert orphan.years == [] and orphan.title == ""

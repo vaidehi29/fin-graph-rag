@@ -69,6 +69,19 @@ METRICS = {
     "share_repurchases": ["repurchases of common stock", "common stock repurchased"],
     "dividends_paid": ["payments for dividends and dividend equivalents", "common stock cash dividends paid"],
     "total_assets": ["total assets"],
+    # Added after the 95-case eval showed these lookups missing from the graph.
+    "income_before_taxes": ["income before provision for income taxes", "income before income taxes"],
+    "cash_and_cash_equivalents": ["cash and cash equivalents"],
+    "capital_expenditures": ["payments for acquisition of property, plant and equipment",
+                             "additions to property and equipment"],
+    # Kept apart: Microsoft's line includes "other", so it is not the same measure as Apple's.
+    "depreciation_and_amortization": ["depreciation and amortization"],
+    "depreciation_amortization_and_other": ["depreciation, amortization, and other"],
+    "share_based_compensation": ["share-based compensation expense", "stock-based compensation expense"],
+    "total_current_assets": ["total current assets"],
+    "total_liabilities": ["total liabilities"],
+    "shareholders_equity": ["total shareholders’ equity", "total shareholders' equity",
+                            "total stockholders’ equity", "total stockholders' equity"],
 }
 # Non-GAAP rows in Microsoft's reconciliation tables.
 NON_GAAP = {
@@ -179,7 +192,7 @@ def table_facts(unit, doc: dict, chunk_of: dict[str, str], skipped: Counter) -> 
     if not table_allowed(unit.title) or not unit.years:
         return []
     segment_table = bool(SEGMENT_TABLES.search(unit.title))
-    if not re.search(r"in millions", unit.text, re.I):
+    if not re.search(r"in millions", unit.text + " " + unit.title, re.I):   # title may be inherited
         skipped["no_unit"] += 1
         return []
     pro_forma = re.search(r"pro forma", unit.title, re.I) is not None
@@ -260,6 +273,36 @@ def merge_facts(pairs: list[tuple[Fact, Evidence]]) -> list[Fact]:
     return sorted(merged.values(), key=lambda f: f.key)
 
 
+def inherit_header(units: list, i: int) -> None:
+    """Treat an untitled, year-less table as the continuation of the table just before it.
+
+    The balance sheet is split by the line "Commitments and contingencies"
+    between liabilities and equity ("Commitments and contingencies /
+    Shareholders' equity: / <share count text>"), so the equity rows arrive as
+    a table with no title and no year columns. They take the previous table's
+    title and years only when: same page, one prose unit of <= 5 lines in
+    between, and that gap contains a statement sub-header ending in ":"
+    (e.g. "Shareholders' equity:"). Rows must still have one value per year
+    column. Otherwise the table stays untitled and is skipped - years are never
+    guessed.
+    """
+    unit = units[i]
+    if unit.title or unit.years:
+        return
+    j, gap = i - 1, []
+    while j >= 0 and units[j].kind == "prose" and len(gap) < 2:
+        gap.append(units[j])
+        j -= 1
+    if j < 0 or units[j].kind != "table" or len(gap) > 1:
+        return
+    gap_lines = [l.text for g in gap for l in g.lines]
+    if len(gap_lines) > 5 or (gap_lines and not any(t.rstrip().endswith(":") for t in gap_lines)):
+        return
+    prev = units[j]
+    if prev.years and prev.lines[-1].page == unit.lines[0].page:
+        unit.title, unit.years = prev.title, prev.years
+
+
 def extract_table_facts(pages_path: Path = PAGES_PATH, chunks_path: Path = CHUNKS_PATH) -> tuple[list[Fact], dict]:
     by_doc: dict[str, list[dict]] = defaultdict(list)
     for line in pages_path.read_text(encoding="utf-8").splitlines():
@@ -274,8 +317,10 @@ def extract_table_facts(pages_path: Path = PAGES_PATH, chunks_path: Path = CHUNK
     pairs, skipped = [], Counter()
     for doc_id, pages in sorted(by_doc.items()):
         doc = {"doc_id": doc_id, "company": pages[0]["company"]}
-        for unit in to_units(clean_doc(pages, DocStats(doc_id))):
+        units = to_units(clean_doc(pages, DocStats(doc_id)))
+        for i, unit in enumerate(units):
             if unit.kind == "table" and not unit.lines[0].in_exhibits:
+                inherit_header(units, i)
                 pairs.extend(table_facts(unit, doc, chunk_of, skipped))
     facts = merge_facts(pairs)
     stats = {"rows_matched": len(pairs), "facts": len(facts),
