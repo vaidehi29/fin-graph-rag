@@ -1,0 +1,191 @@
+Financial Graph RAG — Claude Code Pipeline
+Oct 28, 2026 · @Vaidehi Sonavane
+Overview
+This pipeline builds a Financial Graph RAG system that ingests annual reports from Apple, Microsoft, Tesla, and NVIDIA into a Neo4j knowledge graph, then answers natural-language financial questions using hybrid graph + vector retrieval backed by an LLM via OpenRouter.
+Stack: Python · Neo4j AuraDB (free tier) · OpenRouter · Gemini API · Streamlit
+8 phases, in order:
+1. Project setup
+2. PDF ingestion
+3. Neo4j graph construction
+4. Embedding and vector index
+5. Hybrid retrieval
+6. LLM generation
+7. Streamlit UI
+8. Testing and validation
+Phase 1 — Project setup
+Claude Code tasks:
+1. Create the project directory structure exactly as specified in the system design.
+2. Create requirements.txt with pinned versions:
+    ◦ neo4j>=5.0
+    ◦ openai>=1.0 (OpenRouter uses the OpenAI SDK)
+    ◦ google-generativeai>=0.5
+    ◦ pdfplumber>=0.10
+    ◦ pymupdf>=1.23
+    ◦ sentence-transformers>=2.6
+    ◦ streamlit>=1.35
+    ◦ python-dotenv>=1.0
+    ◦ pyvis>=0.3
+    ◦ tqdm>=4.0
+3. Create config.py that loads all secrets from .env using python-dotenv. Expose: NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD, OPENROUTER_API_KEY, GEMINI_API_KEY, EMBED_MODEL, LLM_MODEL.
+4. Create .env.example with placeholder values and add .env to .gitignore.
+5. Create a data/reports/ directory and a README.md explaining where to drop PDF files.
+6. Run pip install -r requirements.txt and confirm all packages install cleanly.
+Acceptance criteria: python -c "import neo4j, pdfplumber, streamlit" exits with no errors.
+Phase 2 — PDF ingestion
+File: ingestion/pdf_parser.py
+Claude Code tasks:
+1. Write a parse_pdf(filepath: str) -> dict function that returns:
+   {
+     "company": str,         # inferred from filename, e.g. "Apple"
+     "year": int,            # fiscal year, e.g. 2024
+     "pages": [
+       {"page_num": int, "text": str, "tables": list[list]}
+     ]
+   }
+2. Use pdfplumber as the primary parser. Extract tables from each page using page.extract_tables(). Fall back to pymupdf if pdfplumber raises an exception.
+3. Write a chunk_pages(parsed: dict, chunk_size: int = 512, overlap: int = 50) -> list[dict] function that splits page text into overlapping token chunks. Each chunk must carry company, year, page_num, and chunk_index.
+4. Write a __main__ block that accepts a PDF path as a CLI argument, parses it, and prints a summary: page count, chunk count, first 3 chunk previews.
+5. Test against one real annual report PDF. Confirm tables are extracted correctly from the financials section.
+Acceptance criteria: Running python ingestion/pdf_parser.py data/reports/Apple.pdf prints a valid summary with no errors.
+Phase 3 — Neo4j graph construction
+Files: ingestion/entity_extractor.py, ingestion/graph_builder.py
+Claude Code tasks:
+1. Entity extractor. Write extract_entities(chunk_text: str, company: str, year: int) -> dict that calls the Gemini Flash API with a strict JSON-only prompt. The prompt must instruct the model to return this exact shape — nothing else, no markdown fences:
+   {
+     "metrics": [{"type": str, "value": float, "unit": str}],
+     "segments": [{"name": str, "revenue": float, "unit": str}],
+     "risks": [{"category": str, "description": str}],
+     "competitors": [str],
+     "executives": [{"name": str, "role": str}]
+   }
+   Parse the response with json.loads. On parse failure, log the raw response and return empty lists.
+2. Graph builder. Write build_graph(driver, entities: dict, company: str, year: int, source_page: int) using the Neo4j Python driver. Use MERGE for every node and relationship — never CREATE. Constraints to create on first run:
+   CREATE CONSTRAINT IF NOT EXISTS FOR (c:Company) REQUIRE c.name IS UNIQUE;
+   CREATE CONSTRAINT IF NOT EXISTS FOR (r:Report) REQUIRE (r.company, r.year) IS UNIQUE;
+3. Ingest pipeline. Write ingestion/run_ingestion.py that: (a) loops over all PDFs in data/reports/, (b) parses each with pdf_parser, (c) for each chunk calls extract_entities, (d) calls build_graph, (e) shows a tqdm progress bar per chunk. Add a --dry-run flag that prints extracted entities without writing to Neo4j.
+4. After a full ingestion run, open the Neo4j browser and confirm nodes exist for all 4 companies. Run MATCH (c:Company) RETURN c.name, count{(c)-[]->()} as degree and paste the result as a comment in graph_builder.py.
+Acceptance criteria: All 4 companies have at least 5 HAS_METRIC relationships in Neo4j.
+Phase 4 — Embedding and vector index
+File: ingestion/embedder.py
+Claude Code tasks:
+1. Write embed_chunks(chunks: list[dict]) -> list[dict] that calls the OpenRouter embeddings endpoint (text-embedding-3-small) for each chunk and attaches a "vector": list[float] key to each chunk dict. Batch requests in groups of 50 to respect rate limits.
+2. Write store_vectors(driver, chunks: list[dict]) that:
+    ◦ Creates a TextChunk node for each chunk with properties: text, company, year, page_num, chunk_index.
+    ◦ Uses db.create.setNodeVectorProperty to store the embedding on each node.
+    ◦ Links each chunk to its parent Company node: (chunk)-[:SOURCED_FROM]->(company).
+3. Create the Neo4j vector index after storing:
+   CREATE VECTOR INDEX chunk_embeddings IF NOT EXISTS
+   FOR (c:TextChunk) ON c.embedding
+   OPTIONS {indexConfig: {`vector.dimensions`: 1536, `vector.similarity_function`: 'cosine'}};
+4. Extend run_ingestion.py to call embed_chunks and store_vectors after graph building. Add a --skip-embed flag to re-run graph ingestion without re-embedding (embeddings are slow and cost money).
+5. Verify the index with SHOW VECTOR INDEXES in the Neo4j browser. Confirm chunk count matches expected total.
+Acceptance criteria: MATCH (c:TextChunk) RETURN count(c) returns at least 500 nodes. Vector index status is ONLINE.
+Phase 5 — Hybrid retrieval
+Files: retrieval/cypher_retriever.py, retrieval/vector_retriever.py, retrieval/hybrid.py
+Claude Code tasks:
+1. Cypher retriever. Write cypher_search(driver, query: str) -> list[dict] that:
+    ◦ Detects company name(s) in the query using simple string matching against ["Apple", "Microsoft", "Tesla", "NVIDIA"].
+    ◦ Detects intent using keyword matching: revenue/profit/earnings → metric query; segment/product → segment query; risk/challenge/threat → risk query; CEO/executive/leadership → person query.
+    ◦ Runs the matching Cypher template and returns structured results as a list of dicts.
+    ◦ Supports a compare intent when two companies are detected — queries both and returns side by side.
+2. Vector retriever. Write vector_search(driver, query: str, top_k: int = 5) -> list[dict] that:
+    ◦ Embeds the query using the same OpenRouter embedding model.
+    ◦ Runs db.index.vector.queryNodes('chunk_embeddings', top_k, $vector) in Cypher.
+    ◦ Returns each result with text, company, year, page_num, and similarity score.
+3. Hybrid merger. Write hybrid_search(driver, query: str) -> dict in retrieval/hybrid.py that:
+    ◦ Calls both retrievers.
+    ◦ Deduplicates vector results by page_num.
+    ◦ Returns {"graph_facts": list, "text_chunks": list, "sources": list[str]} where sources is formatted as "Apple Annual Report 2024, p.42".
+4. Write a CLI test: python retrieval/hybrid.py "Compare Apple and Microsoft revenue" — prints graph facts, top 3 chunks, and sources.
+Acceptance criteria: The compare query returns facts for both companies. Sources always include page numbers.
+Phase 6 — LLM generation
+File: generation/answer.py
+Claude Code tasks:
+1. Write build_context(retrieval_result: dict) -> str that formats graph facts and text chunks into a single context string. Graph facts come first (they are higher confidence), then text chunks with their source labels.
+2. Write generate_answer(question: str, context: str) -> dict that calls OpenRouter with the model from config.LLM_MODEL. Use this system prompt verbatim:
+   You are a financial analyst assistant. Answer only using the provided context.
+   Always cite sources using the format [Source: Company Annual Report YEAR, p.N].
+   If the context doesn't contain enough information, say so explicitly.
+   Never invent numbers or facts.
+   Return {"answer": str, "sources": list[str], "model": str}.
+3. Write ask(question: str, driver) -> dict as the single public entry point that calls hybrid_search then generate_answer and returns the combined result.
+4. Add confidence labeling: if the answer is based entirely on graph facts, add "confidence": "high"; if it relies on vector chunks, "confidence": "medium". This is determined by whether graph_facts in the retrieval result is non-empty.
+5. Test with all 4 sample questions from the brief. Print question, answer, sources, and confidence for each.
+Acceptance criteria: Every answer includes at least one source citation. The "What risks does Apple mention?" query returns at least 2 distinct risk categories.
+Phase 7 — Streamlit UI
+File: app.py
+Claude Code tasks:
+1. Layout. Build a two-column layout: left sidebar for settings, main area for Q&A. Sidebar contains: company multiselect (all 4 preselected), model selector (dropdown from a list in config.py), confidence threshold toggle.
+2. Q&A panel. Main area has:
+    ◦ Text input: st.text_input("Ask a financial question…")
+    ◦ Search button that calls generation.answer.ask()
+    ◦ Answer block rendered with st.markdown()
+    ◦ Expandable sources section: each source as a bullet with company, year, and page number
+    ◦ Confidence badge: green = high, yellow = medium
+3. Graph visualisation tab. Add a second tab "Knowledge Graph" that:
+    ◦ Lets the user pick a company from a selectbox
+    ◦ Queries Neo4j for that company's 2-hop subgraph
+    ◦ Renders it with pyvis (save to a temp HTML file, embed with st.components.v1.html())
+    ◦ Nodes are color-coded by label: Company = blue, FinancialMetric = green, Risk = red, BusinessSegment = orange
+4. Session state. Store the last 5 Q&A pairs in st.session_state["history"] and render them below the main answer in a collapsed expander.
+5. Error handling. If Neo4j is unreachable, show st.error() with the connection string (masked password). If the LLM call fails, show st.warning() and the raw error message.
+6. Run streamlit run app.py and verify all panels render without errors.
+Acceptance criteria: The full Q&A flow works end-to-end in the browser. The graph tab renders a visible subgraph for at least one company.
+Phase 8 — Testing and validation
+File: tests/test_pipeline.py
+Claude Code tasks:
+1. Unit tests (no Neo4j required). Write pytest tests for:
+    ◦ pdf_parser.parse_pdf — mock a 2-page PDF and assert the returned dict shape.
+    ◦ entity_extractor.extract_entities — mock the Gemini API call and assert JSON parsing succeeds even when the model returns extra whitespace.
+    ◦ generation.answer.build_context — assert that graph facts appear before text chunks in the output string.
+2. Integration tests (require live Neo4j). Mark with @pytest.mark.integration. Write tests for:
+    ◦ cypher_retriever.cypher_search("Apple revenue") — assert at least one result with type == "revenue".
+    ◦ vector_retriever.vector_search("AI chips demand") — assert top result's company is "NVIDIA" (or at least present in results).
+    ◦ hybrid_search("Compare Tesla and Microsoft margins") — assert both companies appear in sources.
+3. Golden-set evaluation. Create tests/golden_questions.py with the 4 sample questions. For each, call ask(), then assert:
+    ◦ Answer length > 50 characters (not empty).
+    ◦ At least 1 source citation present.
+    ◦ No phrases like "I don't know" or "not in my training" appear (guard against hallucination fallback).
+4. Run pytest tests/ -v --ignore-glob="*integration*" and confirm all unit tests pass. Run integration tests separately with pytest -m integration.
+5. Fix any failures before marking this phase done.
+Acceptance criteria: All unit tests pass. At least 3 of 4 golden questions return answers with citations.
+Appendix — Config and env vars
+.env.example — copy to .env and fill in your values:
+# Neo4j (AuraDB free tier or local)
+NEO4J_URI=neo4j+s://xxxxxxxx.databases.neo4j.io
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=your-password-here
+
+# OpenRouter (https://openrouter.ai/keys)
+OPENROUTER_API_KEY=sk-or-v1-...
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+
+# Gemini (https://aistudio.google.com/apikey)
+GEMINI_API_KEY=AIza...
+
+# Model selection
+EMBED_MODEL=text-embedding-3-small
+LLM_MODEL=openai/gpt-4o-mini
+EXTRACT_MODEL=gemini-1.5-flash
+
+# Ingestion tuning
+CHUNK_SIZE=512
+CHUNK_OVERLAP=50
+EMBED_BATCH_SIZE=50
+config.py pattern:
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+NEO4J_URI      = os.environ["NEO4J_URI"]
+NEO4J_USER     = os.environ["NEO4J_USER"]
+NEO4J_PASSWORD = os.environ["NEO4J_PASSWORD"]
+OPENROUTER_API_KEY = os.environ["OPENROUTER_API_KEY"]
+GEMINI_API_KEY = os.environ["GEMINI_API_KEY"]
+EMBED_MODEL    = os.getenv("EMBED_MODEL", "text-embedding-3-small")
+LLM_MODEL      = os.getenv("LLM_MODEL", "openai/gpt-4o-mini")
+EXTRACT_MODEL  = os.getenv("EXTRACT_MODEL", "gemini-1.5-flash")
+CHUNK_SIZE     = int(os.getenv("CHUNK_SIZE", 512))
+CHUNK_OVERLAP  = int(os.getenv("CHUNK_OVERLAP", 50))
+Use os.environ["KEY"] (not os.getenv) for required secrets so the app fails fast with a clear KeyError if a secret is missing, rather than silently passing None to an API call.
