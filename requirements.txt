@@ -6,6 +6,9 @@ sentence-transformers==3.2.1
 numpy==2.4.6
 # Knowledge graph (Neo4j AuraDB Free)
 neo4j==5.28.2
+# Web UI (phase 7)
+streamlit==1.66.1
+pyvis==0.3.2
 
 # Dev / tests
 pytest==8.3.3

@@ -15,6 +15,7 @@ are in [CLAUDE.md](CLAUDE.md).
 | Knowledge graph (Neo4j) | Done - phase 3 (`fin_graph_rag/graph_builder.py`, `run_ingestion.py`). AuraDB Free; MERGE-only, idempotent. Phase 4: + 1,432 `TextChunk` nodes with bge-small vectors and the `chunk_embeddings` vector index (ONLINE). Totals: 2,007 nodes, 4,612 relationships. |
 | Retrieval | Done - phase 5 (`fin_graph_rag/hybrid.py`): graph facts (`cypher_retriever.py`) + text chunks (Neo4j vector index fused with BM25). On 39 eval cases: answer supported by graph or top-5 text = 37/39 (text alone 27/39); top-10 = 38/39. |
 | Answer generation | Done - phase 6 (`fin_graph_rag/answer.py`): Gemini free tier, pipeline.txt system prompt verbatim, citations and numbers checked against the retrieved context. 44 questions: 41/41 answers with a valid citation, 0 invalid citations, 0 unverified numbers, 3/3 missing-evidence questions declined; manual review 38/39 correct + 1 partial. |
+| Web UI | Done - phase 7 (`app.py`, `fin_graph_rag/graph_view.py`): Streamlit Q&A with confidence badge, sources and history; Knowledge Graph tab rendered with pyvis. Checked end to end headless (Streamlit AppTest, live Neo4j). |
 | Evaluation | Unit tests + real-corpus checks; 42 eval cases in `eval/cases.jsonl` (every citation verified against page text), retrieval scored in `eval/results/` (one file per run, never overwritten). |
 
 ## Setup
@@ -56,6 +57,7 @@ python -m fin_graph_rag.hybrid "Compare Apple and Microsoft revenue"   # graph f
 python -m fin_graph_rag.hybrid --evaluate -k 5    # writes eval/results/*_hybrid-graph_*
 python -m fin_graph_rag.answer "What was Microsoft's net income in fiscal 2024?"   # cited answer
 python -m fin_graph_rag.answer --evaluate         # 42 eval cases + 2 pipeline samples (~44 Gemini calls)
+streamlit run app.py                              # web UI at http://localhost:8501
 FGR_RUN_INTEGRATION=1 python -m pytest -q -k integration   # read-only check against live Neo4j
 ```
 
@@ -245,6 +247,49 @@ the figures are on p.131) - TODO: cite chunk page ranges (needs a full re-run,
 ~44 calls). Gemini free tier is slow at times (HTTP 503 "overloaded", retried):
 the 44-question run took about 25 minutes. Answers are only checked
 automatically for citations and numbers; wording and completeness need review.
+
+## Web UI (phase 7)
+
+`streamlit run app.py` (needs `NEO4J_*` and `GEMINI_API_KEY` in `.env`).
+
+- **Sidebar**: company multiselect (Apple, Microsoft - used as the scope when
+  a question names no company), answer-model dropdown (free-tier Gemini models
+  from `fin_graph_rag/config.py`), and a toggle that hides answers not backed
+  by graph facts.
+- **Q&A tab**: question box + Search -> `fin_graph_rag.answer.ask` (the same
+  code the evaluation measured). Shows the answer, a confidence badge (green =
+  high: graph facts; yellow = medium: text only), any invalid citations or
+  unverified numbers as warnings, an expandable source list (company - fiscal
+  year - page), and the last 5 questions in a collapsed history.
+- **Knowledge Graph tab**: company, relationship groups, fiscal year and a
+  node budget -> read-only, parameterised 2-hop Cypher -> pyvis network
+  (Company blue, FinancialMetric green, Risk red, BusinessSegment orange per
+  pipeline.txt; others distinct). The budget is split across relationship
+  types so 109 metrics cannot crowd out risks and people. The page's JS is
+  inlined (works without CDN access). Labels and tooltips are HTML-escaped,
+  because some stored text was written by the LLM - nothing from the database
+  can inject markup or script (tested).
+- **Errors**: Neo4j unreachable -> `st.error` with the connection string and
+  the password masked; model failures (quota, network, API errors) ->
+  `st.warning` with the raw error. Nothing is substituted.
+
+Verified 2026-10-28: Streamlit `AppTest` runs the real app against live Neo4j
+(`FGR_RUN_INTEGRATION=1`): it starts without exceptions, the graph tab renders
+(Apple: 108 nodes, 156 relationships), and a search returns the cited answer
+"$88,136 million (GAAP) [Source: Microsoft Annual Report FY2024, p.61]" with a
+high-confidence badge, a source list and one history entry (uses a cached
+answer - no quota). `streamlit run app.py` serves and passes the health check.
+
+Checked in Chrome (`streamlit run app.py`, http://localhost:8501): sidebar,
+Q&A with pipeline.txt's "Compare Apple and Microsoft revenue" (green
+high-confidence badge, both companies FY2021-FY2025, every figure cited, 7
+sources listed as company - fiscal year - page) and the Knowledge Graph tab
+(108 nodes / 156 relationships for Apple, colour legend, interactive network).
+The browser check found two issues the headless test could not see, both
+fixed: (1) markdown rendered text between two "$" signs as a LaTeX formula -
+dollar signs are now escaped (asserted in the end-to-end test); (2) the graph
+layout spread most nodes outside the frame - it now settles and zooms to fit,
+with on-screen zoom buttons.
 
 ## Embeddings (local baseline)
 

@@ -57,7 +57,8 @@ def _keyword_index():
 
 
 def text_search(driver, query: str, top_k: int = 5, database=None, embedder=None,
-                dedupe: bool | None = None, company_filter: bool | None = None) -> list[dict]:
+                dedupe: bool | None = None, company_filter: bool | None = None,
+                default_companies: list[str] | None = None) -> list[dict]:
     dedupe = DEDUPE_BY_PAGE if dedupe is None else dedupe
     company_filter = FILTER_BY_COMPANY if company_filter is None else company_filter
     vec = vector_search(driver, query, CANDIDATES, database, embedder)
@@ -67,7 +68,7 @@ def text_search(driver, query: str, top_k: int = 5, database=None, embedder=None
     fused = rrf([[v["chunk_id"] for v in vec], kw])
     by_id = {v["chunk_id"]: v for v in vec}
     chunk_by_id = {c["chunk_id"]: c for c in chunks}
-    companies = detect_companies(query)
+    companies = detect_companies(query) or list(default_companies or [])
     ranked = sorted(fused.items(), key=lambda x: -x[1])
     if len(companies) > 1:
         # Comparison question: alternate between the named companies so the
@@ -95,9 +96,11 @@ def text_search(driver, query: str, top_k: int = 5, database=None, embedder=None
     return out
 
 
-def hybrid_search(driver, query: str, top_k: int = 5, database=None, embedder=None, **text_opts) -> dict:
-    facts = cypher_search(driver, query, database)
-    chunks = text_search(driver, query, top_k, database, embedder, **text_opts)
+def hybrid_search(driver, query: str, top_k: int = 5, database=None, embedder=None,
+                  default_companies: list[str] | None = None, **text_opts) -> dict:
+    facts = cypher_search(driver, query, database, default_companies=default_companies)
+    chunks = text_search(driver, query, top_k, database, embedder, default_companies=default_companies,
+                         **text_opts)
     sources: list[str] = []
     for s in [s for f in facts for s in f["sources"]] + [c["source"] for c in chunks]:
         if s not in sources:

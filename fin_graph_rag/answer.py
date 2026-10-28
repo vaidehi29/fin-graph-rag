@@ -143,10 +143,11 @@ def generate_answer(question: str, context: str, llm=None) -> dict:
     }
 
 
-def ask(question: str, driver, database=None, llm=None, top_k: int = 5) -> dict:
+def ask(question: str, driver, database=None, llm=None, top_k: int = 5,
+        default_companies: list[str] | None = None) -> dict:
     """Single entry point: hybrid retrieval, then a verified answer."""
     from fin_graph_rag.hybrid import hybrid_search
-    retrieval = hybrid_search(driver, question, top_k, database)
+    retrieval = hybrid_search(driver, question, top_k, database, default_companies=default_companies)
     result = generate_answer(question, build_context(retrieval), llm)
     # pipeline.txt: graph facts present -> high confidence; text only -> medium.
     result["confidence"] = "high" if retrieval["graph_facts"] else "medium"

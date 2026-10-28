@@ -184,9 +184,12 @@ def metric_text(r: dict) -> str:
     return text
 
 
-def cypher_search(driver, query: str, database=None, max_items: int = 40) -> list[dict]:
+def cypher_search(driver, query: str, database=None, max_items: int = 40,
+                  default_companies: list[str] | None = None) -> list[dict]:
     """Structured facts for `query`; [] if no company or intent is recognised."""
-    companies = detect_companies(query)
+    # A question that names no company uses the caller's scope (e.g. the UI's
+    # company selection); one that names a company always uses that company.
+    companies = detect_companies(query) or list(default_companies or [])
     intents = detect_intents(query)
     if not companies or not intents:
         return []

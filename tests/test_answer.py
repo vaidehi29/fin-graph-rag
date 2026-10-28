@@ -73,9 +73,9 @@ def test_numbers_not_in_context_are_reported_unless_marked_calculated():
 
 def test_ask_sets_confidence_from_graph_facts(monkeypatch):
     import fin_graph_rag.hybrid as hybrid
-    monkeypatch.setattr(hybrid, "hybrid_search", lambda d, q, k, db: RETRIEVAL)
+    monkeypatch.setattr(hybrid, "hybrid_search", lambda d, q, k, db, **kw: RETRIEVAL)
     r = ans.ask("q", None, llm=FakeLLM("ok [Source: Microsoft Annual Report FY2024, p.56]"))
     assert r["confidence"] == "high"
-    monkeypatch.setattr(hybrid, "hybrid_search", lambda d, q, k, db: {**RETRIEVAL, "graph_facts": []})
+    monkeypatch.setattr(hybrid, "hybrid_search", lambda d, q, k, db, **kw: {**RETRIEVAL, "graph_facts": []})
     r = ans.ask("q", None, llm=FakeLLM("ok [Source: Microsoft Annual Report FY2024, p.56]"))
     assert r["confidence"] == "medium"
