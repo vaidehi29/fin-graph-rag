@@ -13,7 +13,7 @@ are in [CLAUDE.md](CLAUDE.md).
 | Embeddings / index | Local (`fin_graph_rag/embeddings.py`): `BAAI/bge-small-en-v1.5` on CPU, 1,432 × 384-d flat cosine index, chunks embedded with a context header. Gemini / Hugging Face free tiers not yet compared. |
 | Entity & relation extraction | Done - phase 3 (`fin_graph_rag/entity_extractor.py`). 214 financial facts parsed from tables (no LLM); 247 risks, 78 executive/board entries, 73 competitor mentions via Gemini free tier (46 calls), every LLM item validated against a verbatim quote. |
 | Knowledge graph (Neo4j) | Done - phase 3 (`fin_graph_rag/graph_builder.py`, `run_ingestion.py`). AuraDB Free; MERGE-only, idempotent. Phase 4: + 1,432 `TextChunk` nodes with bge-small vectors and the `chunk_embeddings` vector index (ONLINE). Totals: 2,007 nodes, 4,612 relationships. |
-| Retrieval | Hybrid (vector + BM25, RRF) recommended, in `fin_graph_rag/retrieval.py`. On 39 eval cases: support@5 = 27/39, support@10 = 31/39 (vector + header: 24, 28). |
+| Retrieval | Done - phase 5 (`fin_graph_rag/hybrid.py`): graph facts (`cypher_retriever.py`) + text chunks (Neo4j vector index fused with BM25). On 39 eval cases: answer supported by graph or top-5 text = 37/39 (text alone 27/39); top-10 = 38/39. |
 | Answer generation | Not started |
 | Evaluation | Unit tests + real-corpus checks; 42 eval cases in `eval/cases.jsonl` (every citation verified against page text), retrieval scored in `eval/results/` (one file per run, never overwritten). |
 
@@ -52,6 +52,8 @@ python -m fin_graph_rag.retrieval evaluate -k 5 --mode hybrid
 python -m fin_graph_rag.run_ingestion --dry-run   # extract facts/entities, print, no DB writes
 python -m fin_graph_rag.run_ingestion        # load into Neo4j (needs NEO4J_* and GEMINI_API_KEY in .env)
 python -m pytest -q                          # real-corpus tests skip if data is absent
+python -m fin_graph_rag.hybrid "Compare Apple and Microsoft revenue"   # graph facts + text + sources
+python -m fin_graph_rag.hybrid --evaluate -k 5    # writes eval/results/*_hybrid-graph_*
 FGR_RUN_INTEGRATION=1 python -m pytest -q -k integration   # read-only check against live Neo4j
 ```
 
@@ -146,6 +148,49 @@ questions: identical top-1 chunk 42/42, top-10 overlap 9.86/10 on average
 (min 8; Neo4j's index is approximate). Neo4j reports scores as
 `(1 + cosine) / 2` (verified to within 0.00003), so 0.85 there = 0.70 cosine.
 Re-running is idempotent (same node and relationship counts).
+
+## Hybrid graph + text retrieval (phase 5)
+
+`hybrid_search(driver, query)` returns
+`{"graph_facts": [...], "text_chunks": [...], "sources": [...]}`:
+
+- **Graph facts** (`cypher_retriever.cypher_search`): keyword detection of the
+  company (Apple / Microsoft, plus the alias "iPhone maker"), fiscal years,
+  metric, segment/product, basis and intent - metric, segment, risk, person
+  (CEO / CFO / board), competitor - then parameterised Cypher. Two companies
+  named = side-by-side results. GAAP by default; pro forma / non-GAAP only when
+  the question asks. Conflicting reports are shown in the fact text. An
+  unrecognised company (e.g. NVIDIA) returns no facts.
+- **Text chunks** (`vector_retriever.vector_search` + BM25, fused with RRF):
+  Neo4j vector index candidates fused with keyword ranking - the combination
+  that measured best. The query model is read from the stored chunks, so a
+  model mismatch fails loudly. If the question names one company, other
+  companies' chunks are dropped; if it names two, results alternate between them.
+- **Sources**: `"<Company> Annual Report FY<year>, p.<page>"`, graph facts first,
+  de-duplicated - always with a page (`pipeline.txt` acceptance).
+
+Measured 2026-10-28 on 42 cases (39 with an expected figure; `eval/results/*hybrid-graph*`).
+"Supported" = a graph fact equals the expected figure, or a returned chunk has
+a line with the metric label and figure:
+
+| | top-5 | top-10 |
+|---|---|---|
+| text only (previous best: vector + header + BM25) | 27/39 | 31/39 |
+| graph facts alone | 32/39 | 32/39 |
+| **graph + text (hybrid_search)** | **37/39** | **38/39** |
+
+The 3 missing-evidence questions (NVIDIA, FY2026) get no graph facts. Still
+missing at top-5: Apple's FY2024 share count bought back (E24 - text only; the
+graph returns the $94,949M cash outflow) and Microsoft's FY2024 gaming growth
+(E36 - text only, chunk ranks 6-10). Graph misses are text facts by design
+(employees, Microsoft Cloud revenue, tax rate) plus Activision's 5,729
+contribution, deliberately kept out of company revenue.
+
+Options measured, no difference on this set, so the simpler defaults stay:
+de-duplicating chunks by (company, year, page) - `pipeline.txt` says by page,
+but page 32 exists in every report - is off; filtering text to the named
+company is on. A question-parsing bug found by the eval was fixed: "the
+iPhone maker" also triggered the iPhone *product* filter.
 
 ## Embeddings (local baseline)
 
