@@ -16,7 +16,7 @@ are in [CLAUDE.md](CLAUDE.md).
 | Retrieval | Done - phase 5 (`fin_graph_rag/hybrid.py`): graph facts (`cypher_retriever.py`) + text chunks (Neo4j vector index fused with BM25). On 39 eval cases: answer supported by graph or top-5 text = 37/39 (text alone 27/39); top-10 = 38/39. |
 | Answer generation | Done - phase 6 (`fin_graph_rag/answer.py`): Gemini free tier, pipeline.txt system prompt verbatim, citations and numbers checked against the retrieved context. 44 questions: 41/41 answers with a valid citation, 0 invalid citations, 0 unverified numbers, 3/3 missing-evidence questions declined; manual review 38/39 correct + 1 partial. |
 | Web UI | Done - phase 7 (`app.py`, `fin_graph_rag/graph_view.py`): Streamlit Q&A with confidence badge, sources and history; Knowledge Graph tab rendered with pyvis. Checked end to end headless (Streamlit AppTest, live Neo4j). |
-| Evaluation | Unit tests + real-corpus checks; 42 eval cases in `eval/cases.jsonl` (every citation verified against page text), retrieval scored in `eval/results/` (one file per run, never overwritten). |
+| Testing & validation | Done - phase 8: 88 unit tests (offline) + 8 integration tests (`pytest -m integration`, live Neo4j / Gemini / local model) all pass; golden set 4/4; 42 eval cases in `eval/cases.jsonl` (every citation verified against page text), results in `eval/results/` (one file per run, never overwritten). |
 
 ## Setup
 
@@ -52,13 +52,14 @@ python -m fin_graph_rag.retrieval search "..." --mode hybrid   # or bm25 / vecto
 python -m fin_graph_rag.retrieval evaluate -k 5 --mode hybrid
 python -m fin_graph_rag.run_ingestion --dry-run   # extract facts/entities, print, no DB writes
 python -m fin_graph_rag.run_ingestion        # load into Neo4j (needs NEO4J_* and GEMINI_API_KEY in .env)
-python -m pytest -q                          # real-corpus tests skip if data is absent
+python -m pytest -q                          # offline unit tests; integration tests are skipped
 python -m fin_graph_rag.hybrid "Compare Apple and Microsoft revenue"   # graph facts + text + sources
 python -m fin_graph_rag.hybrid --evaluate -k 5    # writes eval/results/*_hybrid-graph_*
 python -m fin_graph_rag.answer "What was Microsoft's net income in fiscal 2024?"   # cited answer
 python -m fin_graph_rag.answer --evaluate         # 42 eval cases + 2 pipeline samples (~44 Gemini calls)
 streamlit run app.py                              # web UI at http://localhost:8501
-FGR_RUN_INTEGRATION=1 python -m pytest -q -k integration   # read-only check against live Neo4j
+python -m pytest tests/ -v --ignore-glob="*integration*"   # pipeline.txt unit command
+python -m pytest -m integration -v           # live Neo4j + Gemini + local model (read-only)
 ```
 
 ## Knowledge graph (phase 3)
@@ -290,6 +291,51 @@ fixed: (1) markdown rendered text between two "$" signs as a LaTeX formula -
 dollar signs are now escaped (asserted in the end-to-end test); (2) the graph
 layout spread most nodes outside the frame - it now settles and zooms to fit,
 with on-screen zoom buttons.
+
+## Testing and validation (phase 8)
+
+| suite | command | what it covers | result (2026-10-28) |
+|---|---|---|---|
+| unit | `pytest tests/ -v --ignore-glob="*integration*"` | every component with fakes / synthetic data, plus real-corpus checks when `data/` is present | **88 passed** |
+| integration | `pytest -m integration -v` | live Neo4j, local model, Gemini: retrieval, golden set, acceptance checks of phases 3-7, the Streamlit app end to end | **8 passed** (1 min 52 s) |
+
+A plain `pytest` runs the unit tests and skips the integration tests
+(`tests/conftest.py`), so it never touches the database or spends API quota.
+
+**pipeline.txt phase 8, mapped to this project** (module names follow the
+`fin_graph_rag/` layout; NVIDIA / Tesla are not indexed, so those checks use
+the closest Apple / Microsoft equivalent):
+
+| pipeline.txt test | here | result |
+|---|---|---|
+| `parse_pdf` on a mocked 2-page PDF - dict shape | `test_pipeline.py::test_parse_two_page_pdf_returns_expected_shape` | pass |
+| `extract_entities` JSON parsing with extra whitespace | `test_llm_json_with_extra_whitespace_is_parsed` (+ thinking parts skipped, malformed JSON logged and skipped) | pass |
+| `build_context`: graph facts before text chunks | `test_build_context_graph_facts_before_text` | pass |
+| `cypher_search("Apple revenue")` has a revenue result | `test_integration.py::test_cypher_search_apple_revenue` | pass |
+| `vector_search("AI chips demand")` -> NVIDIA | Microsoft-only topic -> top hit is a Microsoft chunk | pass |
+| `hybrid_search("Compare Tesla and Microsoft margins")` -> both in sources | "Compare Apple and Microsoft gross margin" -> both in sources and facts | pass |
+| golden set (`tests/golden_questions.py`): answer > 50 chars, >= 1 citation, no "I don't know"; >= 3/4 | same checks + no invalid citation + the verified figure/name present | **4/4** |
+
+Golden answers (cached, cited): Apple vs Microsoft revenue FY2021-FY2025 (7
+sources); Apple risks across 6 categories (8 sources); Apple FY2025 net income
+$112,010 million (p.32); Microsoft FY2025 CEO Satya Nadella (p.19).
+
+**Failure handling** (CLAUDE.md 5.1 #10, `tests/test_pipeline.py`): malformed
+model JSON is logged and that extraction batch skipped (not cached, retried
+next run) - this was a crash before phase 8 wrote the test; a malformed answer
+is reported as a model error, not shown as an answer; missing Gemini key ->
+setup message; HTTP 503 is retried; unreachable Neo4j -> clear error without
+the password; missing vector index -> the build command to run.
+
+**End-to-end measurements** (earlier phases, `eval/results/`): retrieval
+37/39 supported in the top 5 (graph + text); answers 41/41 with valid
+citations, 0 invalid citations, 0 unverified numbers, 3/3 missing-evidence
+questions declined, manual review 38/39 correct + 1 partial.
+
+Open items: text citations use a chunk's first page (one answer cites p.130
+for a figure on p.131); the Gemini embedding comparison stopped at the free
+tier's daily quota (1,000/1,432 chunks cached) and can resume; the eval set
+(42 questions) is small - differences of a few cases are not significant.
 
 ## Embeddings (local baseline)
 

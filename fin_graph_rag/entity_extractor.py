@@ -459,7 +459,13 @@ def extract_text_entities(llm, chunks_path: Path = CHUNKS_PATH, tasks=tuple(TASK
     entities, rejected, calls = [], Counter(), Counter()
     for task in tasks:
         for batch in select_batches(chunks, task)[:limit]:
-            result = llm.generate(build_prompt(task, batch), TASKS[task]["schema"], SYSTEM)
+            try:
+                result = llm.generate(build_prompt(task, batch), TASKS[task]["schema"], SYSTEM)
+            except json.JSONDecodeError:
+                # FALLBACK: malformed model output (already logged by the client, not
+                # cached) - skip this batch with no entities; the next run retries it.
+                rejected[f"{task}:malformed_json_batch"] += 1
+                continue
             calls[task] += 1
             entities.extend(validate(task, result.get("items", []), batch, rejected))
     # The same item can come back twice (repeated text): keep one per report.

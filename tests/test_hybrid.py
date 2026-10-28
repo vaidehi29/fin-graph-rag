@@ -8,14 +8,11 @@ OUTPUTS   : pytest results.
 DEPENDS ON: pytest, numpy
 PANEL NOTE: MOCK: text ranking tests replace Neo4j vector search and the BM25
             index with fixed rankings. The live acceptance check (compare query
-            returns both companies, every source has a page) runs only with
-            FGR_RUN_INTEGRATION=1.
+            returns both companies, every source has a page) is in
+            tests/test_integration.py (pytest -m integration).
 """
 
-import os
-
 import numpy as np
-import pytest
 
 from fin_graph_rag import cypher_retriever as cr
 from fin_graph_rag import hybrid
@@ -100,14 +97,3 @@ def test_dedupe_keeps_one_chunk_per_company_year_page(monkeypatch):
     chunks = [_c("m1", "microsoft", 7), _c("m2", "microsoft", 7), _c("m3", "microsoft", 8)]
     _fake_retrieval(monkeypatch, chunks, ["m1", "m2", "m3"])
     assert [c["chunk_id"] for c in hybrid.text_search(None, "Microsoft", 3, dedupe=True)] == ["m1", "m3"]
-
-
-@pytest.mark.skipif(os.getenv("FGR_RUN_INTEGRATION") != "1", reason="needs Neo4j; set FGR_RUN_INTEGRATION=1")
-def test_integration_compare_query_returns_both_companies_with_pages():
-    # pipeline.txt phase 5 acceptance.
-    from fin_graph_rag.graph_builder import driver_session
-    with driver_session() as (driver, db):
-        res = hybrid.hybrid_search(driver, "Compare Apple and Microsoft revenue", 5, db)
-    assert {f["company"] for f in res["graph_facts"]} == {"apple", "microsoft"}
-    assert {c["company"] for c in res["text_chunks"]} == {"apple", "microsoft"}
-    assert res["sources"] and all(", p." in s for s in res["sources"])

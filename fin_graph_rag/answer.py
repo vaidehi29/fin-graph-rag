@@ -129,7 +129,11 @@ def generate_answer(question: str, context: str, llm=None) -> dict:
         from fin_graph_rag.llm import GeminiJSON
         llm = GeminiJSON(model=ANSWER_MODEL)
     prompt = f"Question: {question}\n\nContext:\n{context}\n\nInstructions: {INSTRUCTIONS}"
-    out = llm.generate(prompt, ANSWER_SCHEMA, SYSTEM_PROMPT)
+    try:
+        out = llm.generate(prompt, ANSWER_SCHEMA, SYSTEM_PROMPT)
+    except json.JSONDecodeError as e:
+        # Reported as a model failure (the UI shows it as such), never as an answer.
+        raise RuntimeError(f"The answer model returned malformed output ({e})") from None
     answer = out.get("answer", "").strip()
     allowed = context_sources(context)
     cited = cited_sources(answer)

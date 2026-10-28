@@ -8,8 +8,8 @@ OUTPUTS   : pytest results.
 DEPENDS ON: pytest
 PANEL NOTE: MOCK: unit tests use synthetic Unit objects. The real-corpus test
             compares against figures verified on the PDF pages (eval/cases.jsonl).
-            Graph-loading tests that need Neo4j run only when
-            FGR_RUN_INTEGRATION=1, so the default suite never touches the database.
+            Checks against the live graph are in tests/test_integration.py
+            (pytest -m integration), so this file never touches the database.
 """
 
 import os
@@ -138,14 +138,6 @@ def test_real_corpus_facts_match_verified_figures():
                for f in facts if f.conflict)
 
 
-@pytest.mark.skipif(os.getenv("FGR_RUN_INTEGRATION") != "1", reason="needs Neo4j; set FGR_RUN_INTEGRATION=1")
-def test_integration_graph_has_metrics_for_both_companies():
-    from fin_graph_rag.graph_builder import driver_session, graph_summary
-    with driver_session() as (driver, db):
-        s = graph_summary(driver, db)
-    assert all(n >= 5 for n in s["has_metric_per_company"].values()) and len(s["has_metric_per_company"]) == 2
-
-
 # --- LLM text entities: validation (MOCK: hand-written "model outputs") -------
 
 def chunk(cid, text, company="microsoft", fy=2024):
@@ -236,15 +228,3 @@ def test_chunk_rows_carry_provenance_and_the_vector():
     assert row["chunk_index"] == 102 and row["page_num"] == 32 and row["year"] == 2024
     assert row["report_name"] == "Apple 10-K FY2024" and row["company_name"] == "Apple Inc."
     assert row["vector"] == [0.5, -0.25, 0.0] and row["embedding_model"] == "BAAI/bge-small-en-v1.5"
-
-
-@pytest.mark.skipif(os.getenv("FGR_RUN_INTEGRATION") != "1", reason="needs Neo4j; set FGR_RUN_INTEGRATION=1")
-def test_integration_text_chunks_and_vector_index_online():
-    # pipeline.txt phase 4 acceptance: >= 500 TextChunk nodes, vector index ONLINE.
-    from fin_graph_rag.graph_builder import VECTOR_INDEX, driver_session
-    with driver_session() as (driver, db):
-        n = driver.execute_query("MATCH (t:TextChunk)-[:SOURCED_FROM]->(:Company) RETURN count(t) AS n",
-                                 database_=db).records[0]["n"]
-        state = driver.execute_query("SHOW VECTOR INDEXES YIELD name, state WHERE name = $n RETURN state",
-                                     n=VECTOR_INDEX, database_=db).records[0]["state"]
-    assert n >= 500 and state == "ONLINE"
