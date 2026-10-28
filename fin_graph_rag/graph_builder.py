@@ -11,7 +11,7 @@ DEPENDS ON: neo4j Python driver, fin_graph_rag.embedders.load_env
 
 Graph schema (as written by this module):
 
-    (:Company {name, id})-[:FILED]->(:Report {company, year, doc_id, source_file})
+    (:Company {name, id})-[:FILED]->(:Report {name, company, year, doc_id, source_file})
     (:Company)-[:HAS_METRIC]->(:FinancialMetric {key, metric, fiscal_year, basis,
                                                  unit, value, segment, product, conflict})
     (:Company)-[:HAS_SEGMENT]->(:BusinessSegment {key, company, name})-[:HAS_METRIC]->(:FinancialMetric)
@@ -61,6 +61,7 @@ WRITE_RISKS = """
 UNWIND $rows AS row
 MERGE (c:Company {name: row.company_name})
 MERGE (r:Report {company: row.company, year: row.fiscal_year})
+  SET r.name = row.report_name
 MERGE (k:Risk {key: row.key})
   SET k.company = row.company, k.fiscal_year = row.fiscal_year, k.category = row.category,
       k.title = row.title, k.description = row.description
@@ -111,6 +112,7 @@ def entity_rows(entities: list[TextEntity]) -> dict[str, list[dict]]:
     rows: dict[str, list[dict]] = {"risk": [], "executive": [], "competitor": []}
     for e in entities:
         base = {"company": e.company, "company_name": COMPANY_NAMES[e.company], "fiscal_year": e.fiscal_year,
+                "report_name": report_name(e.company, e.fiscal_year),
                 "page": e.page, "chunk_id": e.chunk_id, "quote": e.quote}
         if e.kind == "risk":
             title_key = " ".join(re.sub(r"[^a-z0-9 ]", " ", e.fields["title"].lower()).split())
@@ -153,11 +155,19 @@ FOREACH (_ IN CASE WHEN row.product IS NULL THEN [] ELSE [1] END |
 WITH c, m, row
 UNWIND row.evidence AS ev
 MERGE (r:Report {company: row.company, year: ev.report_year})
-  SET r.doc_id = ev.doc_id, r.source_file = ev.doc_id + '.pdf', r.form = '10-K'
+  SET r.doc_id = ev.doc_id, r.source_file = ev.doc_id + '.pdf', r.form = '10-K', r.name = ev.report_name
 MERGE (c)-[:FILED]->(r)
 MERGE (m)-[e:REPORTED_IN {page: ev.page, table_id: ev.table_id}]->(r)
   SET e.chunk_id = ev.chunk_id, e.row_text = ev.row_text, e.value = ev.value
 """
+
+
+SHORT_NAMES = {"apple": "Apple", "microsoft": "Microsoft"}
+
+
+def report_name(company: str, year: int) -> str:
+    """Readable Report caption, e.g. "Apple 10-K FY2024" (Neo4j Browser shows `name`)."""
+    return f"{SHORT_NAMES.get(company, company.title())} 10-K FY{year}"
 
 
 def connection_settings() -> dict:
@@ -195,7 +205,8 @@ def fact_rows(facts: list[Fact]) -> list[dict]:
             "key": f.key, "company": f.company, "company_name": COMPANY_NAMES[f.company],
             "metric": f.metric, "fiscal_year": f.fiscal_year, "basis": f.basis, "unit": f.unit,
             "value": f.value, "segment": f.segment, "product": f.product, "conflict": f.conflict,
-            "evidence": [{"doc_id": e.doc_id, "report_year": int(e.doc_id.rsplit("_", 1)[1]), "page": e.page,
+            "evidence": [{"doc_id": e.doc_id, "report_year": int(e.doc_id.rsplit("_", 1)[1]),
+                          "report_name": report_name(f.company, int(e.doc_id.rsplit("_", 1)[1])), "page": e.page,
                           "table_id": e.table_id, "chunk_id": e.chunk_id, "row_text": e.row_text,
                           "value": e.value} for e in f.evidence],
         })

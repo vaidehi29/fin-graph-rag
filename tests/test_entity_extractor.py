@@ -215,3 +215,13 @@ def test_competitor_rows_carry_kind_so_only_companies_become_company_nodes():
                                           {"name": name, "kind": kind, "context": "x"})
     rows = entity_rows([mk("Linux", "open_source_project"), mk("Apple Inc.", "company")])["competitor"]
     assert [(r["name"], r["kind"]) for r in rows] == [("Linux", "open_source_project"), ("Apple Inc.", "company")]
+
+
+def test_report_nodes_get_a_readable_name():
+    from fin_graph_rag.graph_builder import entity_rows, report_name
+    assert report_name("apple", 2024) == "Apple 10-K FY2024"
+    f = ex.Fact("microsoft", "net_income", 2024, "gaap", "USD millions", 88136)
+    f.evidence.append(ex.Evidence("microsoft_2025", 69, "c", "t", "title", "row", 88136))
+    assert fact_rows([f])[0]["evidence"][0]["report_name"] == "Microsoft 10-K FY2025"   # the report it came from
+    risk = ex.TextEntity("risk", "apple", 2023, "apple_2023", "a_c1", 8, "q", {"category": "other", "title": "T", "description": "d"})
+    assert entity_rows([risk])["risk"][0]["report_name"] == "Apple 10-K FY2023"
