@@ -1,0 +1,3721 @@
+{
+  "run_at": "2026-10-28T10:41:08+00:00",
+  "model": "BAAI/bge-small-en-v1.5 (bm25)",
+  "k": 10,
+  "index_manifest": {
+    "mode": "bm25",
+    "rrf_k": 60,
+    "bm25_k1": 1.5,
+    "bm25_b": 0.75,
+    "bm25_text": "chunk_header + chunk text",
+    "vector_index": null
+  },
+  "summary": {
+    "cases_with_evidence": 39,
+    "hit@10": 19,
+    "support@10": 24,
+    "trap_above_evidence": 0,
+    "note": "39 cases only - indicative, not statistically meaningful"
+  },
+  "cases": [
+    {
+      "id": "E01",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's net income for fiscal year 2024?",
+      "evidence_ranks": [
+        40
+      ],
+      "trap_ranks": [
+        55
+      ],
+      "support_ranks": [
+        31
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 16.366379,
+          "chunk_id": "microsoft_2024_c0127",
+          "pages": "67-67",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 15.745039,
+          "chunk_id": "microsoft_2024_c0126",
+          "pages": "66-66",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 15.260851,
+          "chunk_id": "microsoft_2025_c0109",
+          "pages": "57-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 15.194875,
+          "chunk_id": "microsoft_2024_c0192",
+          "pages": "114-114",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 15.189193,
+          "chunk_id": "microsoft_2025_c0110",
+          "pages": "59-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 15.067692,
+          "chunk_id": "microsoft_2023_c0187",
+          "pages": "84-84",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 15.057741,
+          "chunk_id": "microsoft_2024_c0193",
+          "pages": "114-114",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 14.956878,
+          "chunk_id": "microsoft_2025_c0173",
+          "pages": "102-102",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 14.914482,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 14.664986,
+          "chunk_id": "microsoft_2024_c0191",
+          "pages": "114-114",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E02",
+      "category": "conflicting_evidence",
+      "question": "According to Microsoft's fiscal 2025 annual report, what was net income?",
+      "evidence_ranks": [
+        55
+      ],
+      "trap_ranks": [
+        258
+      ],
+      "support_ranks": [
+        6
+      ],
+      "hit@10": false,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 14.889896,
+          "chunk_id": "microsoft_2024_c0195",
+          "pages": "115-115",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 14.609459,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 14.442329,
+          "chunk_id": "microsoft_2023_c0189",
+          "pages": "84-85",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 14.148416,
+          "chunk_id": "microsoft_2025_c0174",
+          "pages": "102-102",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 13.47816,
+          "chunk_id": "microsoft_2025_c0110",
+          "pages": "59-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 13.242192,
+          "chunk_id": "microsoft_2025_c0154",
+          "pages": "85-85",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 13.168459,
+          "chunk_id": "microsoft_2025_c0109",
+          "pages": "57-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 13.116948,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 12.91657,
+          "chunk_id": "microsoft_2025_c0173",
+          "pages": "102-102",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 12.622644,
+          "chunk_id": "apple_2025_c0000",
+          "pages": "1-1",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E03",
+      "category": "conflicting_evidence",
+      "question": "What was Microsoft's net income in fiscal year 2023?",
+      "evidence_ranks": [
+        43
+      ],
+      "trap_ranks": [
+        101
+      ],
+      "support_ranks": [
+        14
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 16.538475,
+          "chunk_id": "microsoft_2024_c0127",
+          "pages": "67-67",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 16.453861,
+          "chunk_id": "microsoft_2023_c0187",
+          "pages": "84-84",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 15.860919,
+          "chunk_id": "microsoft_2023_c0119",
+          "pages": "47-48",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 15.817776,
+          "chunk_id": "microsoft_2024_c0126",
+          "pages": "66-66",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 15.20947,
+          "chunk_id": "microsoft_2024_c0193",
+          "pages": "114-114",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 15.188099,
+          "chunk_id": "microsoft_2023_c0120",
+          "pages": "48-48",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 15.11941,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 15.057667,
+          "chunk_id": "microsoft_2024_c0192",
+          "pages": "114-114",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 14.97226,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 14.851346,
+          "chunk_id": "microsoft_2023_c0186",
+          "pages": "83-83",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E04",
+      "category": "direct_lookup",
+      "question": "What would Microsoft's fiscal 2024 revenue have been if the Activision Blizzard acquisition had closed on July 1, 2022?",
+      "evidence_ranks": [
+        1
+      ],
+      "trap_ranks": [
+        139
+      ],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 33.583176,
+          "chunk_id": "microsoft_2024_c0183",
+          "pages": "108-108",
+          "qualifiers": [
+            "pro_forma",
+            "unaudited"
+          ]
+        },
+        {
+          "rank": 2,
+          "score": 29.004364,
+          "chunk_id": "microsoft_2025_c0164",
+          "pages": "94-94",
+          "qualifiers": [
+            "pro_forma",
+            "unaudited"
+          ]
+        },
+        {
+          "rank": 3,
+          "score": 28.133915,
+          "chunk_id": "microsoft_2023_c0130",
+          "pages": "52-52",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 26.231133,
+          "chunk_id": "microsoft_2024_c0125",
+          "pages": "64-66",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 25.585251,
+          "chunk_id": "microsoft_2025_c0108",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 23.316519,
+          "chunk_id": "microsoft_2024_c0115",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 23.08412,
+          "chunk_id": "microsoft_2023_c0176",
+          "pages": "79-79",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 22.705276,
+          "chunk_id": "microsoft_2024_c0114",
+          "pages": "56-56",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 22.66991,
+          "chunk_id": "microsoft_2024_c0182",
+          "pages": "106-108",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 20.598797,
+          "chunk_id": "microsoft_2024_c0196",
+          "pages": "115-117",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E05",
+      "category": "entity_resolution",
+      "question": "How much revenue did Activision Blizzard contribute to Microsoft in fiscal 2024 after the acquisition?",
+      "evidence_ranks": [
+        5
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        5
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 24.857481,
+          "chunk_id": "microsoft_2024_c0125",
+          "pages": "64-66",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 24.442297,
+          "chunk_id": "microsoft_2025_c0108",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 22.272915,
+          "chunk_id": "microsoft_2024_c0114",
+          "pages": "56-56",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 21.202744,
+          "chunk_id": "microsoft_2025_c0164",
+          "pages": "94-94",
+          "qualifiers": [
+            "pro_forma",
+            "unaudited"
+          ]
+        },
+        {
+          "rank": 5,
+          "score": 21.181446,
+          "chunk_id": "microsoft_2024_c0183",
+          "pages": "108-108",
+          "qualifiers": [
+            "pro_forma",
+            "unaudited"
+          ]
+        },
+        {
+          "rank": 6,
+          "score": 21.000702,
+          "chunk_id": "microsoft_2024_c0115",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 19.651897,
+          "chunk_id": "microsoft_2024_c0182",
+          "pages": "106-108",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 18.927223,
+          "chunk_id": "microsoft_2023_c0130",
+          "pages": "52-52",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 18.685219,
+          "chunk_id": "microsoft_2023_c0176",
+          "pages": "79-79",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 18.600355,
+          "chunk_id": "microsoft_2024_c0059",
+          "pages": "34-34",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E06",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's total net sales change from fiscal 2023 to fiscal 2024?",
+      "evidence_ranks": [
+        27,
+        40
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1,
+        1
+      ],
+      "hit@10": false,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 20.06901,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 17.272676,
+          "chunk_id": "apple_2024_c0078",
+          "pages": "26-27",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 17.118248,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 16.612167,
+          "chunk_id": "apple_2024_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 16.229059,
+          "chunk_id": "apple_2025_c0079",
+          "pages": "27-28",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 16.208281,
+          "chunk_id": "apple_2025_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 15.132738,
+          "chunk_id": "apple_2023_c0073",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 14.785084,
+          "chunk_id": "apple_2023_c0072",
+          "pages": "23-24",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 14.774028,
+          "chunk_id": "apple_2024_c0089",
+          "pages": "32-33",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 14.666426,
+          "chunk_id": "microsoft_2024_c0125",
+          "pages": "64-66",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E07",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in the Americas segment in fiscal 2023?",
+      "evidence_ranks": [
+        2
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 25.401596,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 21.969965,
+          "chunk_id": "apple_2023_c0072",
+          "pages": "23-24",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 19.958197,
+          "chunk_id": "apple_2023_c0118",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 19.866859,
+          "chunk_id": "apple_2025_c0122",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 19.793907,
+          "chunk_id": "apple_2024_c0120",
+          "pages": "49-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 19.630167,
+          "chunk_id": "apple_2023_c0117",
+          "pages": "49-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 19.363317,
+          "chunk_id": "apple_2025_c0123",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 18.1674,
+          "chunk_id": "apple_2025_c0124",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 17.255096,
+          "chunk_id": "apple_2025_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 15.380125,
+          "chunk_id": "apple_2025_c0076",
+          "pages": "25-25",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E08",
+      "category": "missing_evidence",
+      "question": "What was Apple's total net sales in fiscal 2026?",
+      "evidence_ranks": [],
+      "trap_ranks": [],
+      "support_ranks": [],
+      "hit@10": null,
+      "support@10": null,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 15.544437,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 14.462027,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 11.704119,
+          "chunk_id": "apple_2025_c0101",
+          "pages": "38-39",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 11.675888,
+          "chunk_id": "apple_2023_c0071",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 11.576842,
+          "chunk_id": "apple_2024_c0078",
+          "pages": "26-27",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 11.017392,
+          "chunk_id": "apple_2023_c0074",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 10.931244,
+          "chunk_id": "apple_2023_c0119",
+          "pages": "51-52",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 10.846642,
+          "chunk_id": "apple_2024_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 10.843721,
+          "chunk_id": "apple_2025_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 10.840918,
+          "chunk_id": "apple_2023_c0073",
+          "pages": "24-25",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E09",
+      "category": "ambiguous_question",
+      "question": "What was Microsoft's revenue in 2024?",
+      "evidence_ranks": [
+        45
+      ],
+      "trap_ranks": [
+        60
+      ],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": false,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 6.373379,
+          "chunk_id": "microsoft_2025_c0104",
+          "pages": "51-53",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 6.236322,
+          "chunk_id": "microsoft_2025_c0105",
+          "pages": "53-54",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 6.230716,
+          "chunk_id": "microsoft_2025_c0106",
+          "pages": "54-54",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 6.157668,
+          "chunk_id": "microsoft_2024_c0119",
+          "pages": "58-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 6.083236,
+          "chunk_id": "microsoft_2024_c0114",
+          "pages": "56-56",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 6.01376,
+          "chunk_id": "microsoft_2025_c0098",
+          "pages": "49-49",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 5.949903,
+          "chunk_id": "microsoft_2024_c0134",
+          "pages": "70-70",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 5.836464,
+          "chunk_id": "microsoft_2024_c0120",
+          "pages": "59-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 5.721138,
+          "chunk_id": "microsoft_2024_c0198",
+          "pages": "118-119",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 5.677028,
+          "chunk_id": "microsoft_2024_c0197",
+          "pages": "117-117",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E10",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend on research and development in fiscal 2023?",
+      "evidence_ranks": [
+        25
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        20
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 13.225174,
+          "chunk_id": "microsoft_2024_c0125",
+          "pages": "64-66",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 13.112577,
+          "chunk_id": "microsoft_2023_c0118",
+          "pages": "46-47",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 12.310757,
+          "chunk_id": "microsoft_2025_c0144",
+          "pages": "79-79",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 11.526278,
+          "chunk_id": "microsoft_2025_c0108",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 10.895988,
+          "chunk_id": "microsoft_2025_c0024",
+          "pages": "16-16",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 10.550428,
+          "chunk_id": "microsoft_2023_c0099",
+          "pages": "37-37",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 10.331688,
+          "chunk_id": "microsoft_2023_c0040",
+          "pages": "17-17",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 10.281399,
+          "chunk_id": "microsoft_2023_c0041",
+          "pages": "18-18",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 9.528625,
+          "chunk_id": "microsoft_2023_c0156",
+          "pages": "67-67",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 9.227946,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E11",
+      "category": "direct_lookup",
+      "question": "What were Apple's Services net sales in fiscal 2025?",
+      "evidence_ranks": [
+        2
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        2
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 14.38605,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 13.866952,
+          "chunk_id": "apple_2025_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 13.752102,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 13.089113,
+          "chunk_id": "apple_2025_c0078",
+          "pages": "26-27",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 12.900122,
+          "chunk_id": "apple_2025_c0014",
+          "pages": "7-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 12.617413,
+          "chunk_id": "apple_2025_c0101",
+          "pages": "38-39",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 11.87342,
+          "chunk_id": "apple_2024_c0057",
+          "pages": "18-19",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 11.855953,
+          "chunk_id": "apple_2023_c0054",
+          "pages": "18-18",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 11.651523,
+          "chunk_id": "apple_2023_c0013",
+          "pages": "6-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 11.651523,
+          "chunk_id": "apple_2024_c0013",
+          "pages": "6-7",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E12",
+      "category": "direct_lookup",
+      "question": "How much revenue did iPhone generate for Apple in fiscal 2023?",
+      "evidence_ranks": [
+        10
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        9
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 14.314205,
+          "chunk_id": "apple_2025_c0074",
+          "pages": "24-24",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 14.292745,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 13.052304,
+          "chunk_id": "apple_2023_c0071",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 13.029427,
+          "chunk_id": "apple_2023_c0007",
+          "pages": "4-4",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 12.356022,
+          "chunk_id": "apple_2024_c0007",
+          "pages": "4-4",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 12.343233,
+          "chunk_id": "apple_2025_c0007",
+          "pages": "4-4",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 11.843012,
+          "chunk_id": "microsoft_2023_c0105",
+          "pages": "40-40",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 11.120981,
+          "chunk_id": "microsoft_2024_c0114",
+          "pages": "56-56",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 10.884577,
+          "chunk_id": "apple_2024_c0099",
+          "pages": "38-39",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 10.519658,
+          "chunk_id": "apple_2023_c0073",
+          "pages": "24-25",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E13",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's Mac sales change between fiscal 2022 and fiscal 2023?",
+      "evidence_ranks": [
+        2
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        2
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 21.986685,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 21.157564,
+          "chunk_id": "apple_2023_c0073",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 20.216932,
+          "chunk_id": "apple_2023_c0072",
+          "pages": "23-24",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 19.045513,
+          "chunk_id": "apple_2024_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 17.51013,
+          "chunk_id": "apple_2025_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 17.402031,
+          "chunk_id": "apple_2025_c0074",
+          "pages": "24-24",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 16.729931,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 16.558384,
+          "chunk_id": "apple_2023_c0071",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 16.179667,
+          "chunk_id": "apple_2023_c0074",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 15.45372,
+          "chunk_id": "microsoft_2023_c0118",
+          "pages": "46-47",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E14",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in Greater China in fiscal 2025?",
+      "evidence_ranks": [
+        21
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        21
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 23.402693,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 19.626671,
+          "chunk_id": "apple_2025_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 19.522152,
+          "chunk_id": "apple_2023_c0072",
+          "pages": "23-24",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 18.841331,
+          "chunk_id": "apple_2025_c0122",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 18.021275,
+          "chunk_id": "apple_2025_c0009",
+          "pages": "5-5",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 17.938507,
+          "chunk_id": "apple_2025_c0123",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 17.730885,
+          "chunk_id": "apple_2023_c0117",
+          "pages": "49-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 16.940331,
+          "chunk_id": "apple_2023_c0009",
+          "pages": "5-5",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 16.940331,
+          "chunk_id": "apple_2024_c0009",
+          "pages": "5-5",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 16.090698,
+          "chunk_id": "apple_2025_c0101",
+          "pages": "38-39",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E15",
+      "category": "segment_breakdown",
+      "question": "How much did Apple sell in Japan in fiscal 2025?",
+      "evidence_ranks": [
+        37
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        37
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 10.926601,
+          "chunk_id": "apple_2025_c0075",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 9.436486,
+          "chunk_id": "apple_2025_c0028",
+          "pages": "11-11",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 8.908841,
+          "chunk_id": "apple_2024_c0026",
+          "pages": "11-11",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 8.582031,
+          "chunk_id": "apple_2023_c0025",
+          "pages": "10-10",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 8.33722,
+          "chunk_id": "apple_2025_c0123",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 7.904483,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 7.641524,
+          "chunk_id": "apple_2025_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 7.483167,
+          "chunk_id": "apple_2025_c0124",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 7.453543,
+          "chunk_id": "apple_2025_c0199",
+          "pages": "75-76",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 7.450356,
+          "chunk_id": "apple_2025_c0074",
+          "pages": "24-24",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E16",
+      "category": "direct_lookup",
+      "question": "What were Apple's diluted earnings per share for fiscal 2025?",
+      "evidence_ranks": [
+        7
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 25.50145,
+          "chunk_id": "apple_2025_c0102",
+          "pages": "39-39",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 23.37714,
+          "chunk_id": "microsoft_2025_c0154",
+          "pages": "85-85",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 23.347221,
+          "chunk_id": "apple_2024_c0100",
+          "pages": "39-39",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 23.120518,
+          "chunk_id": "apple_2023_c0095",
+          "pages": "38-38",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 21.686806,
+          "chunk_id": "microsoft_2023_c0113",
+          "pages": "43-44",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 6,
+          "score": 21.357843,
+          "chunk_id": "microsoft_2024_c0172",
+          "pages": "95-96",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 20.01944,
+          "chunk_id": "apple_2025_c0089",
+          "pages": "31-32",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 19.599211,
+          "chunk_id": "microsoft_2023_c0165",
+          "pages": "70-70",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 18.997421,
+          "chunk_id": "microsoft_2024_c0121",
+          "pages": "59-61",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 10,
+          "score": 18.308809,
+          "chunk_id": "apple_2023_c0083",
+          "pages": "30-31",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E17",
+      "category": "direct_lookup",
+      "question": "What was Apple's total gross margin in fiscal 2025?",
+      "evidence_ranks": [
+        13
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        13
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 19.180128,
+          "chunk_id": "apple_2025_c0078",
+          "pages": "26-27",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 18.182421,
+          "chunk_id": "apple_2024_c0078",
+          "pages": "26-27",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 17.118668,
+          "chunk_id": "apple_2023_c0074",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 17.056633,
+          "chunk_id": "microsoft_2024_c0122",
+          "pages": "61-62",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 5,
+          "score": 15.814513,
+          "chunk_id": "microsoft_2025_c0105",
+          "pages": "53-54",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 12.962046,
+          "chunk_id": "microsoft_2023_c0116",
+          "pages": "45-46",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 12.923738,
+          "chunk_id": "microsoft_2025_c0108",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 12.867048,
+          "chunk_id": "microsoft_2023_c0113",
+          "pages": "43-44",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 9,
+          "score": 12.729753,
+          "chunk_id": "microsoft_2023_c0118",
+          "pages": "46-47",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 12.669397,
+          "chunk_id": "microsoft_2023_c0115",
+          "pages": "44-45",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E18",
+      "category": "direct_lookup",
+      "question": "How much cash did Apple's operations generate in fiscal 2023?",
+      "evidence_ranks": [
+        69
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        69
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 10.625107,
+          "chunk_id": "microsoft_2023_c0127",
+          "pages": "50-51",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 10.088195,
+          "chunk_id": "apple_2023_c0090",
+          "pages": "35-36",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 10.044331,
+          "chunk_id": "microsoft_2023_c0105",
+          "pages": "40-40",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 9.898105,
+          "chunk_id": "apple_2024_c0095",
+          "pages": "36-37",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 9.425791,
+          "chunk_id": "microsoft_2025_c0116",
+          "pages": "60-61",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 9.34785,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 9.329558,
+          "chunk_id": "apple_2025_c0074",
+          "pages": "24-24",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 9.288023,
+          "chunk_id": "microsoft_2024_c0133",
+          "pages": "70-70",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 9.225445,
+          "chunk_id": "microsoft_2024_c0114",
+          "pages": "56-56",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 8.886621,
+          "chunk_id": "microsoft_2024_c0055",
+          "pages": "32-32",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E19",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend buying back its own stock in fiscal 2025?",
+      "evidence_ranks": [
+        161
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        161
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 10.987663,
+          "chunk_id": "microsoft_2025_c0062",
+          "pages": "32-32",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 10.294594,
+          "chunk_id": "apple_2025_c0037",
+          "pages": "13-13",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 10.203794,
+          "chunk_id": "microsoft_2024_c0014",
+          "pages": "8-8",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 9.504629,
+          "chunk_id": "microsoft_2024_c0076",
+          "pages": "40-42",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 9.217649,
+          "chunk_id": "microsoft_2023_c0185",
+          "pages": "83-83",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 9.030531,
+          "chunk_id": "microsoft_2023_c0014",
+          "pages": "6-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 8.607827,
+          "chunk_id": "microsoft_2025_c0184",
+          "pages": "109-110",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 8.261526,
+          "chunk_id": "apple_2025_c0028",
+          "pages": "11-11",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 8.23926,
+          "chunk_id": "microsoft_2025_c0183",
+          "pages": "109-109",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 7.882531,
+          "chunk_id": "apple_2025_c0004",
+          "pages": "2-3",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E20",
+      "category": "direct_lookup",
+      "question": "How much did Apple pay in dividends in fiscal 2023?",
+      "evidence_ranks": [
+        71
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        71
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 10.747963,
+          "chunk_id": "microsoft_2023_c0127",
+          "pages": "50-51",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 10.332808,
+          "chunk_id": "microsoft_2023_c0102",
+          "pages": "38-38",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 10.160906,
+          "chunk_id": "microsoft_2024_c0136",
+          "pages": "72-72",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 10.096102,
+          "chunk_id": "microsoft_2024_c0204",
+          "pages": "124-124",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 9.833887,
+          "chunk_id": "microsoft_2025_c0181",
+          "pages": "106-107",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 9.674972,
+          "chunk_id": "microsoft_2023_c0020",
+          "pages": "9-9",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 9.506637,
+          "chunk_id": "microsoft_2023_c0130",
+          "pages": "52-52",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 9.374415,
+          "chunk_id": "microsoft_2023_c0198",
+          "pages": "90-91",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 8.970906,
+          "chunk_id": "microsoft_2025_c0119",
+          "pages": "62-62",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 8.78853,
+          "chunk_id": "microsoft_2024_c0126",
+          "pages": "66-66",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E21",
+      "category": "direct_lookup",
+      "question": "What were Apple's total assets at the end of fiscal 2025?",
+      "evidence_ranks": [
+        3
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        3
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 10.686861,
+          "chunk_id": "apple_2025_c0112",
+          "pages": "44-45",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 10.344061,
+          "chunk_id": "microsoft_2023_c0179",
+          "pages": "80-81",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 10.144185,
+          "chunk_id": "apple_2025_c0091",
+          "pages": "33-34",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 10.103561,
+          "chunk_id": "microsoft_2025_c0173",
+          "pages": "102-102",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 10.019516,
+          "chunk_id": "microsoft_2025_c0167",
+          "pages": "97-98",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 9.886009,
+          "chunk_id": "microsoft_2024_c0186",
+          "pages": "111-112",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 9.85511,
+          "chunk_id": "microsoft_2025_c0189",
+          "pages": "113-113",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 9.811966,
+          "chunk_id": "apple_2025_c0125",
+          "pages": "51-52",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 9.806623,
+          "chunk_id": "apple_2025_c0114",
+          "pages": "45-46",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 9.545577,
+          "chunk_id": "microsoft_2025_c0166",
+          "pages": "95-97",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E22",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's provision for income taxes change from fiscal 2024 to fiscal 2025?",
+      "evidence_ranks": [
+        1
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 21.359171,
+          "chunk_id": "apple_2025_c0079",
+          "pages": "27-28",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 21.042622,
+          "chunk_id": "apple_2025_c0111",
+          "pages": "43-44",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 18.667543,
+          "chunk_id": "microsoft_2025_c0171",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 17.372141,
+          "chunk_id": "apple_2025_c0110",
+          "pages": "43-43",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 16.98361,
+          "chunk_id": "apple_2025_c0080",
+          "pages": "28-28",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 16.76218,
+          "chunk_id": "microsoft_2024_c0190",
+          "pages": "113-113",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 16.407764,
+          "chunk_id": "apple_2023_c0075",
+          "pages": "26-27",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 16.385782,
+          "chunk_id": "apple_2024_c0109",
+          "pages": "43-43",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 16.057508,
+          "chunk_id": "apple_2024_c0079",
+          "pages": "27-28",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 15.850107,
+          "chunk_id": "microsoft_2025_c0182",
+          "pages": "107-107",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E23",
+      "category": "direct_lookup",
+      "question": "How many full-time employees did Apple have at the end of fiscal 2024?",
+      "evidence_ranks": [
+        2
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        2
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 13.494176,
+          "chunk_id": "microsoft_2025_c0021",
+          "pages": "13-15",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 12.828928,
+          "chunk_id": "apple_2024_c0014",
+          "pages": "7-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 12.69671,
+          "chunk_id": "microsoft_2024_c0019",
+          "pages": "12-12",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 12.461029,
+          "chunk_id": "apple_2025_c0015",
+          "pages": "7-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 11.875118,
+          "chunk_id": "apple_2025_c0014",
+          "pages": "7-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 11.16037,
+          "chunk_id": "apple_2023_c0014",
+          "pages": "7-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 10.297056,
+          "chunk_id": "microsoft_2023_c0019",
+          "pages": "9-9",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 10.090651,
+          "chunk_id": "microsoft_2024_c0116",
+          "pages": "57-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 9.41725,
+          "chunk_id": "microsoft_2023_c0020",
+          "pages": "9-9",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 9.201979,
+          "chunk_id": "microsoft_2025_c0100",
+          "pages": "50-50",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E24",
+      "category": "direct_lookup",
+      "question": "How many shares did Apple repurchase during fiscal 2024 and for how much?",
+      "evidence_ranks": [
+        12
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        12
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 19.966736,
+          "chunk_id": "microsoft_2024_c0203",
+          "pages": "122-124",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 19.187304,
+          "chunk_id": "microsoft_2023_c0197",
+          "pages": "89-90",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 17.782978,
+          "chunk_id": "microsoft_2024_c0136",
+          "pages": "72-72",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 17.563257,
+          "chunk_id": "microsoft_2025_c0119",
+          "pages": "62-62",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 16.003746,
+          "chunk_id": "microsoft_2025_c0181",
+          "pages": "106-107",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 15.456284,
+          "chunk_id": "apple_2024_c0072",
+          "pages": "22-22",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 14.569162,
+          "chunk_id": "apple_2023_c0067",
+          "pages": "21-21",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 14.484833,
+          "chunk_id": "apple_2025_c0071",
+          "pages": "22-22",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 14.455952,
+          "chunk_id": "microsoft_2023_c0130",
+          "pages": "52-52",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 13.747126,
+          "chunk_id": "microsoft_2025_c0180",
+          "pages": "106-106",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E25",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's total revenue in fiscal 2025?",
+      "evidence_ranks": [
+        34
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": false,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 11.071979,
+          "chunk_id": "microsoft_2025_c0105",
+          "pages": "53-54",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 10.494929,
+          "chunk_id": "microsoft_2025_c0188",
+          "pages": "112-112",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 10.225374,
+          "chunk_id": "microsoft_2025_c0189",
+          "pages": "113-113",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 9.826835,
+          "chunk_id": "microsoft_2024_c0122",
+          "pages": "61-62",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 5,
+          "score": 9.481783,
+          "chunk_id": "microsoft_2023_c0108",
+          "pages": "41-41",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 9.470777,
+          "chunk_id": "microsoft_2025_c0101",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 9.386851,
+          "chunk_id": "microsoft_2025_c0098",
+          "pages": "49-49",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 9.385798,
+          "chunk_id": "microsoft_2025_c0108",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 9.362409,
+          "chunk_id": "microsoft_2023_c0115",
+          "pages": "44-45",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 9.32576,
+          "chunk_id": "microsoft_2025_c0104",
+          "pages": "51-53",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E26",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's operating income in fiscal 2023?",
+      "evidence_ranks": [
+        4
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        4
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 12.069456,
+          "chunk_id": "microsoft_2024_c0192",
+          "pages": "114-114",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 11.577718,
+          "chunk_id": "microsoft_2023_c0186",
+          "pages": "83-83",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 11.288044,
+          "chunk_id": "microsoft_2024_c0122",
+          "pages": "61-62",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 4,
+          "score": 11.149282,
+          "chunk_id": "microsoft_2023_c0113",
+          "pages": "43-44",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 5,
+          "score": 11.016393,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 10.873432,
+          "chunk_id": "microsoft_2024_c0127",
+          "pages": "67-67",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 10.795791,
+          "chunk_id": "microsoft_2023_c0115",
+          "pages": "44-45",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 10.788754,
+          "chunk_id": "microsoft_2023_c0118",
+          "pages": "46-47",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 10.693781,
+          "chunk_id": "microsoft_2025_c0188",
+          "pages": "112-112",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 10.686019,
+          "chunk_id": "microsoft_2023_c0189",
+          "pages": "84-85",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E27",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's diluted earnings per share in fiscal 2025?",
+      "evidence_ranks": [
+        15
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        2
+      ],
+      "hit@10": false,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 24.822397,
+          "chunk_id": "apple_2025_c0102",
+          "pages": "39-39",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 23.983334,
+          "chunk_id": "microsoft_2025_c0154",
+          "pages": "85-85",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 22.668169,
+          "chunk_id": "apple_2024_c0100",
+          "pages": "39-39",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 22.490448,
+          "chunk_id": "apple_2023_c0095",
+          "pages": "38-38",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 22.274784,
+          "chunk_id": "microsoft_2023_c0113",
+          "pages": "43-44",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 6,
+          "score": 21.903646,
+          "chunk_id": "microsoft_2024_c0172",
+          "pages": "95-96",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 20.204065,
+          "chunk_id": "microsoft_2023_c0165",
+          "pages": "70-70",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 19.524326,
+          "chunk_id": "microsoft_2024_c0121",
+          "pages": "59-61",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 9,
+          "score": 19.077614,
+          "chunk_id": "apple_2025_c0089",
+          "pages": "31-32",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 17.85198,
+          "chunk_id": "microsoft_2023_c0123",
+          "pages": "49-50",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E28",
+      "category": "segment_breakdown",
+      "question": "How much revenue did Microsoft's Intelligent Cloud segment generate in fiscal 2025?",
+      "evidence_ranks": [
+        1
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 21.499107,
+          "chunk_id": "microsoft_2025_c0105",
+          "pages": "53-54",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 20.52076,
+          "chunk_id": "microsoft_2023_c0027",
+          "pages": "12-13",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 19.64851,
+          "chunk_id": "microsoft_2025_c0013",
+          "pages": "10-10",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 19.371767,
+          "chunk_id": "microsoft_2024_c0024",
+          "pages": "15-15",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 19.075426,
+          "chunk_id": "microsoft_2025_c0101",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 18.969234,
+          "chunk_id": "microsoft_2024_c0122",
+          "pages": "61-62",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 7,
+          "score": 18.763664,
+          "chunk_id": "microsoft_2023_c0115",
+          "pages": "44-45",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 18.731668,
+          "chunk_id": "microsoft_2025_c0104",
+          "pages": "51-53",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 17.146933,
+          "chunk_id": "microsoft_2025_c0098",
+          "pages": "49-49",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 16.894926,
+          "chunk_id": "microsoft_2025_c0102",
+          "pages": "50-51",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E29",
+      "category": "segment_breakdown",
+      "question": "What was revenue for Microsoft's More Personal Computing segment in fiscal 2023?",
+      "evidence_ranks": [
+        2
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 23.202555,
+          "chunk_id": "microsoft_2024_c0122",
+          "pages": "61-62",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 2,
+          "score": 21.980076,
+          "chunk_id": "microsoft_2023_c0115",
+          "pages": "44-45",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 21.798859,
+          "chunk_id": "microsoft_2025_c0105",
+          "pages": "53-54",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 19.055319,
+          "chunk_id": "microsoft_2023_c0032",
+          "pages": "14-14",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 19.002903,
+          "chunk_id": "microsoft_2025_c0101",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 18.820028,
+          "chunk_id": "microsoft_2024_c0117",
+          "pages": "57-58",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 18.610106,
+          "chunk_id": "microsoft_2025_c0188",
+          "pages": "112-112",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 18.360458,
+          "chunk_id": "microsoft_2024_c0029",
+          "pages": "17-18",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 18.249577,
+          "chunk_id": "microsoft_2023_c0204",
+          "pages": "94-94",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 18.054232,
+          "chunk_id": "microsoft_2024_c0210",
+          "pages": "130-130",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E30",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft spend on research and development in fiscal 2025?",
+      "evidence_ranks": [
+        1
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 14.088062,
+          "chunk_id": "microsoft_2025_c0108",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 13.784151,
+          "chunk_id": "microsoft_2025_c0144",
+          "pages": "79-79",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 12.515289,
+          "chunk_id": "microsoft_2025_c0024",
+          "pages": "16-16",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 12.292099,
+          "chunk_id": "microsoft_2024_c0125",
+          "pages": "64-66",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 12.132551,
+          "chunk_id": "microsoft_2023_c0118",
+          "pages": "46-47",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 10.685303,
+          "chunk_id": "microsoft_2023_c0041",
+          "pages": "18-18",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 10.422069,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 10.364797,
+          "chunk_id": "microsoft_2025_c0173",
+          "pages": "102-102",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 10.264752,
+          "chunk_id": "microsoft_2023_c0040",
+          "pages": "17-17",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 9.955982,
+          "chunk_id": "microsoft_2023_c0099",
+          "pages": "37-37",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E31",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's net cash from operations in fiscal 2025?",
+      "evidence_ranks": [
+        4
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        4
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 14.891719,
+          "chunk_id": "microsoft_2025_c0116",
+          "pages": "60-61",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 12.521282,
+          "chunk_id": "microsoft_2024_c0133",
+          "pages": "70-70",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 12.326846,
+          "chunk_id": "microsoft_2023_c0127",
+          "pages": "50-51",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 12.128427,
+          "chunk_id": "microsoft_2025_c0132",
+          "pages": "72-72",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 11.354467,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 11.219699,
+          "chunk_id": "microsoft_2025_c0110",
+          "pages": "59-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 10.615238,
+          "chunk_id": "microsoft_2025_c0133",
+          "pages": "72-72",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 10.567552,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 10.519891,
+          "chunk_id": "apple_2025_c0125",
+          "pages": "51-52",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 10.451148,
+          "chunk_id": "microsoft_2023_c0144",
+          "pages": "61-61",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E32",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft pay out in cash dividends in fiscal 2025?",
+      "evidence_ranks": [
+        23
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        23
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 14.15694,
+          "chunk_id": "microsoft_2023_c0127",
+          "pages": "50-51",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 13.896109,
+          "chunk_id": "microsoft_2025_c0119",
+          "pages": "62-62",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 13.419212,
+          "chunk_id": "microsoft_2025_c0116",
+          "pages": "60-61",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 13.134812,
+          "chunk_id": "microsoft_2025_c0181",
+          "pages": "106-107",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 13.044126,
+          "chunk_id": "microsoft_2024_c0136",
+          "pages": "72-72",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 12.056158,
+          "chunk_id": "microsoft_2023_c0130",
+          "pages": "52-52",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 12.013821,
+          "chunk_id": "microsoft_2025_c0118",
+          "pages": "61-62",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 11.973101,
+          "chunk_id": "microsoft_2024_c0135",
+          "pages": "72-72",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 11.51915,
+          "chunk_id": "microsoft_2025_c0095",
+          "pages": "47-47",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 11.194441,
+          "chunk_id": "apple_2025_c0097",
+          "pages": "37-37",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E33",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's total assets as of June 30, 2025?",
+      "evidence_ranks": [
+        13
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        13
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 15.238916,
+          "chunk_id": "microsoft_2025_c0167",
+          "pages": "97-98",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 14.944217,
+          "chunk_id": "microsoft_2025_c0162",
+          "pages": "91-92",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 14.648136,
+          "chunk_id": "microsoft_2023_c0179",
+          "pages": "80-81",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 14.248796,
+          "chunk_id": "microsoft_2024_c0186",
+          "pages": "111-112",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 13.864719,
+          "chunk_id": "microsoft_2025_c0189",
+          "pages": "113-113",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 13.846716,
+          "chunk_id": "microsoft_2024_c0212",
+          "pages": "131-132",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 13.698481,
+          "chunk_id": "microsoft_2023_c0206",
+          "pages": "95-96",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 13.577479,
+          "chunk_id": "microsoft_2025_c0166",
+          "pages": "95-97",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 13.576228,
+          "chunk_id": "microsoft_2025_c0178",
+          "pages": "104-105",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 13.351369,
+          "chunk_id": "microsoft_2024_c0221",
+          "pages": "136-136",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E34",
+      "category": "entity_resolution",
+      "question": "How large was Microsoft Cloud revenue in fiscal 2024?",
+      "evidence_ranks": [
+        2
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        2
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 14.446017,
+          "chunk_id": "microsoft_2023_c0105",
+          "pages": "40-40",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 12.374663,
+          "chunk_id": "microsoft_2024_c0114",
+          "pages": "56-56",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 12.336026,
+          "chunk_id": "microsoft_2025_c0104",
+          "pages": "51-53",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 12.208698,
+          "chunk_id": "microsoft_2025_c0098",
+          "pages": "49-49",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 12.158278,
+          "chunk_id": "microsoft_2025_c0105",
+          "pages": "53-54",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 12.157701,
+          "chunk_id": "microsoft_2024_c0122",
+          "pages": "61-62",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 7,
+          "score": 11.795053,
+          "chunk_id": "microsoft_2024_c0211",
+          "pages": "130-131",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 10.873874,
+          "chunk_id": "microsoft_2024_c0030",
+          "pages": "18-18",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 10.778753,
+          "chunk_id": "microsoft_2025_c0189",
+          "pages": "113-113",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 10.642586,
+          "chunk_id": "microsoft_2023_c0205",
+          "pages": "94-95",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E35",
+      "category": "direct_lookup",
+      "question": "How many people did Microsoft employ full-time as of June 30, 2024?",
+      "evidence_ranks": [
+        1
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 17.714535,
+          "chunk_id": "microsoft_2024_c0019",
+          "pages": "12-12",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 15.324073,
+          "chunk_id": "microsoft_2025_c0021",
+          "pages": "13-15",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 15.199916,
+          "chunk_id": "microsoft_2023_c0019",
+          "pages": "9-9",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 14.077661,
+          "chunk_id": "apple_2024_c0014",
+          "pages": "7-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 13.201196,
+          "chunk_id": "microsoft_2025_c0048",
+          "pages": "26-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 12.3873,
+          "chunk_id": "apple_2025_c0015",
+          "pages": "7-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 12.366851,
+          "chunk_id": "microsoft_2023_c0007",
+          "pages": "4-4",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 11.888308,
+          "chunk_id": "apple_2025_c0014",
+          "pages": "7-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 10.708919,
+          "chunk_id": "apple_2023_c0014",
+          "pages": "7-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 10.007665,
+          "chunk_id": "microsoft_2025_c0179",
+          "pages": "105-106",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E36",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft's gaming revenue grow in fiscal 2024?",
+      "evidence_ranks": [
+        29
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        29
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 14.085292,
+          "chunk_id": "microsoft_2024_c0036",
+          "pages": "21-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 13.464497,
+          "chunk_id": "microsoft_2024_c0125",
+          "pages": "64-66",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 13.179948,
+          "chunk_id": "microsoft_2024_c0122",
+          "pages": "61-62",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        },
+        {
+          "rank": 4,
+          "score": 12.865733,
+          "chunk_id": "microsoft_2025_c0108",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 12.639605,
+          "chunk_id": "microsoft_2025_c0105",
+          "pages": "53-54",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 11.549245,
+          "chunk_id": "microsoft_2023_c0105",
+          "pages": "40-40",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 10.990167,
+          "chunk_id": "microsoft_2024_c0154",
+          "pages": "87-88",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 10.801543,
+          "chunk_id": "microsoft_2023_c0014",
+          "pages": "6-7",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 10.789956,
+          "chunk_id": "microsoft_2025_c0104",
+          "pages": "51-53",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 10.416168,
+          "chunk_id": "microsoft_2024_c0211",
+          "pages": "130-131",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E37",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's effective tax rate in fiscal 2024?",
+      "evidence_ranks": [
+        1
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        1
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 19.876171,
+          "chunk_id": "microsoft_2024_c0127",
+          "pages": "67-67",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 19.308252,
+          "chunk_id": "microsoft_2024_c0193",
+          "pages": "114-114",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 19.194267,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 19.024334,
+          "chunk_id": "microsoft_2025_c0110",
+          "pages": "59-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 18.085045,
+          "chunk_id": "microsoft_2024_c0191",
+          "pages": "114-114",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 16.925482,
+          "chunk_id": "microsoft_2023_c0184",
+          "pages": "83-83",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 16.885609,
+          "chunk_id": "microsoft_2023_c0187",
+          "pages": "84-84",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 16.770304,
+          "chunk_id": "microsoft_2025_c0173",
+          "pages": "102-102",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 16.43548,
+          "chunk_id": "microsoft_2023_c0120",
+          "pages": "48-48",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 15.132179,
+          "chunk_id": "apple_2024_c0079",
+          "pages": "27-28",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E38",
+      "category": "cross_year_comparison",
+      "question": "How did Microsoft's net income change from fiscal 2023 to fiscal 2025?",
+      "evidence_ranks": [
+        6
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        6,
+        6
+      ],
+      "hit@10": true,
+      "support@10": true,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 14.587937,
+          "chunk_id": "apple_2025_c0090",
+          "pages": "32-33",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 14.546042,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 14.188298,
+          "chunk_id": "microsoft_2023_c0109",
+          "pages": "41-42",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 13.939662,
+          "chunk_id": "microsoft_2025_c0173",
+          "pages": "102-102",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 13.862853,
+          "chunk_id": "apple_2025_c0079",
+          "pages": "27-28",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 13.755843,
+          "chunk_id": "microsoft_2025_c0129",
+          "pages": "69-70",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 13.643254,
+          "chunk_id": "microsoft_2024_c0127",
+          "pages": "67-67",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 13.528576,
+          "chunk_id": "microsoft_2023_c0148",
+          "pages": "63-63",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 13.5192,
+          "chunk_id": "microsoft_2023_c0115",
+          "pages": "44-45",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 13.478159,
+          "chunk_id": "microsoft_2025_c0110",
+          "pages": "59-59",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E39",
+      "category": "cross_document",
+      "question": "Which company reported higher net income in fiscal 2025, Apple or Microsoft?",
+      "evidence_ranks": [
+        15,
+        68
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        15,
+        68
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 18.427528,
+          "chunk_id": "microsoft_2025_c0109",
+          "pages": "57-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 15.439638,
+          "chunk_id": "microsoft_2025_c0110",
+          "pages": "59-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 15.418048,
+          "chunk_id": "microsoft_2025_c0173",
+          "pages": "102-102",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 15.403528,
+          "chunk_id": "microsoft_2025_c0145",
+          "pages": "79-80",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 15.17902,
+          "chunk_id": "microsoft_2024_c0126",
+          "pages": "66-66",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 14.950531,
+          "chunk_id": "microsoft_2023_c0119",
+          "pages": "47-48",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 14.419181,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 13.786126,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 13.71341,
+          "chunk_id": "microsoft_2025_c0101",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 13.226596,
+          "chunk_id": "microsoft_2023_c0158",
+          "pages": "67-67",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E40",
+      "category": "missing_evidence",
+      "question": "What was NVIDIA's data center revenue in fiscal 2025?",
+      "evidence_ranks": [],
+      "trap_ranks": [],
+      "support_ranks": [],
+      "hit@10": null,
+      "support@10": null,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 12.358882,
+          "chunk_id": "microsoft_2025_c0172",
+          "pages": "100-100",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 12.23913,
+          "chunk_id": "microsoft_2024_c0192",
+          "pages": "114-114",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 11.693455,
+          "chunk_id": "microsoft_2023_c0186",
+          "pages": "83-83",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 10.120791,
+          "chunk_id": "microsoft_2025_c0110",
+          "pages": "59-59",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 9.845332,
+          "chunk_id": "microsoft_2024_c0127",
+          "pages": "67-67",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 9.158232,
+          "chunk_id": "microsoft_2025_c0102",
+          "pages": "50-51",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 8.8517,
+          "chunk_id": "microsoft_2025_c0108",
+          "pages": "56-57",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 8.759825,
+          "chunk_id": "microsoft_2023_c0120",
+          "pages": "48-48",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 8.517057,
+          "chunk_id": "microsoft_2025_c0101",
+          "pages": "50-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 8.489612,
+          "chunk_id": "microsoft_2025_c0173",
+          "pages": "102-102",
+          "qualifiers": []
+        }
+      ]
+    },
+    {
+      "id": "E41",
+      "category": "missing_evidence",
+      "question": "What was Microsoft's revenue in fiscal 2026?",
+      "evidence_ranks": [],
+      "trap_ranks": [],
+      "support_ranks": [],
+      "hit@10": null,
+      "support@10": null,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 8.358714,
+          "chunk_id": "microsoft_2025_c0117",
+          "pages": "61-61",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 8.216629,
+          "chunk_id": "microsoft_2025_c0118",
+          "pages": "61-62",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 8.089681,
+          "chunk_id": "microsoft_2023_c0105",
+          "pages": "40-40",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 8.050128,
+          "chunk_id": "microsoft_2025_c0098",
+          "pages": "49-49",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 7.94991,
+          "chunk_id": "microsoft_2023_c0108",
+          "pages": "41-41",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 7.947018,
+          "chunk_id": "microsoft_2025_c0153",
+          "pages": "83-83",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 7.923509,
+          "chunk_id": "microsoft_2025_c0119",
+          "pages": "62-62",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 7.913553,
+          "chunk_id": "microsoft_2024_c0114",
+          "pages": "56-56",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 7.801486,
+          "chunk_id": "microsoft_2025_c0105",
+          "pages": "53-54",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 7.75852,
+          "chunk_id": "microsoft_2024_c0122",
+          "pages": "61-62",
+          "qualifiers": [
+            "non_gaap"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E42",
+      "category": "entity_resolution",
+      "question": "What net income did the iPhone maker report for fiscal 2023?",
+      "evidence_ranks": [
+        23
+      ],
+      "trap_ranks": [],
+      "support_ranks": [
+        17
+      ],
+      "hit@10": false,
+      "support@10": false,
+      "trap_above_evidence": false,
+      "top": [
+        {
+          "rank": 1,
+          "score": 16.859303,
+          "chunk_id": "apple_2024_c0076",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 2,
+          "score": 16.819103,
+          "chunk_id": "apple_2023_c0070",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 3,
+          "score": 15.104239,
+          "chunk_id": "apple_2025_c0074",
+          "pages": "24-24",
+          "qualifiers": []
+        },
+        {
+          "rank": 4,
+          "score": 14.651073,
+          "chunk_id": "apple_2023_c0071",
+          "pages": "23-23",
+          "qualifiers": []
+        },
+        {
+          "rank": 5,
+          "score": 13.878901,
+          "chunk_id": "apple_2023_c0073",
+          "pages": "24-25",
+          "qualifiers": []
+        },
+        {
+          "rank": 6,
+          "score": 13.750416,
+          "chunk_id": "apple_2025_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 7,
+          "score": 12.668307,
+          "chunk_id": "apple_2024_c0120",
+          "pages": "49-50",
+          "qualifiers": []
+        },
+        {
+          "rank": 8,
+          "score": 12.665468,
+          "chunk_id": "apple_2024_c0077",
+          "pages": "25-26",
+          "qualifiers": []
+        },
+        {
+          "rank": 9,
+          "score": 12.344925,
+          "chunk_id": "apple_2023_c0072",
+          "pages": "23-24",
+          "qualifiers": []
+        },
+        {
+          "rank": 10,
+          "score": 12.097587,
+          "chunk_id": "microsoft_2023_c0119",
+          "pages": "47-48",
+          "qualifiers": []
+        }
+      ]
+    }
+  ]
+}
