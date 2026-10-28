@@ -88,7 +88,13 @@ class LocalEmbedder:
     def __init__(self, name: str):
         from sentence_transformers import SentenceTransformer
         try:
-            self.model = SentenceTransformer(name, device="cpu")
+            # Already downloaded: load from disk without contacting huggingface.co
+            # (its update check can time out and stall every run).
+            self.model = SentenceTransformer(name, device="cpu", local_files_only=True)
+        except Exception:
+            self.model = None
+        try:
+            self.model = self.model or SentenceTransformer(name, device="cpu")   # first run: download
         except Exception as e:
             # FALLBACK: no silent substitute model - a different model would make
             # the index incomparable. Fail with a clear message instead.

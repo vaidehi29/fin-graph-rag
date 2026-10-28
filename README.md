@@ -14,7 +14,7 @@ are in [CLAUDE.md](CLAUDE.md).
 | Entity & relation extraction | Done - phase 3 (`fin_graph_rag/entity_extractor.py`). 214 financial facts parsed from tables (no LLM); 247 risks, 78 executive/board entries, 73 competitor mentions via Gemini free tier (46 calls), every LLM item validated against a verbatim quote. |
 | Knowledge graph (Neo4j) | Done - phase 3 (`fin_graph_rag/graph_builder.py`, `run_ingestion.py`). AuraDB Free; MERGE-only, idempotent. Phase 4: + 1,432 `TextChunk` nodes with bge-small vectors and the `chunk_embeddings` vector index (ONLINE). Totals: 2,007 nodes, 4,612 relationships. |
 | Retrieval | Done - phase 5 (`fin_graph_rag/hybrid.py`): graph facts (`cypher_retriever.py`) + text chunks (Neo4j vector index fused with BM25). On 39 eval cases: answer supported by graph or top-5 text = 37/39 (text alone 27/39); top-10 = 38/39. |
-| Answer generation | Not started |
+| Answer generation | Done - phase 6 (`fin_graph_rag/answer.py`): Gemini free tier, pipeline.txt system prompt verbatim, citations and numbers checked against the retrieved context. 44 questions: 41/41 answers with a valid citation, 0 invalid citations, 0 unverified numbers, 3/3 missing-evidence questions declined; manual review 38/39 correct + 1 partial. |
 | Evaluation | Unit tests + real-corpus checks; 42 eval cases in `eval/cases.jsonl` (every citation verified against page text), retrieval scored in `eval/results/` (one file per run, never overwritten). |
 
 ## Setup
@@ -54,6 +54,8 @@ python -m fin_graph_rag.run_ingestion        # load into Neo4j (needs NEO4J_* an
 python -m pytest -q                          # real-corpus tests skip if data is absent
 python -m fin_graph_rag.hybrid "Compare Apple and Microsoft revenue"   # graph facts + text + sources
 python -m fin_graph_rag.hybrid --evaluate -k 5    # writes eval/results/*_hybrid-graph_*
+python -m fin_graph_rag.answer "What was Microsoft's net income in fiscal 2024?"   # cited answer
+python -m fin_graph_rag.answer --evaluate         # 42 eval cases + 2 pipeline samples (~44 Gemini calls)
 FGR_RUN_INTEGRATION=1 python -m pytest -q -k integration   # read-only check against live Neo4j
 ```
 
@@ -191,6 +193,58 @@ de-duplicating chunks by (company, year, page) - `pipeline.txt` says by page,
 but page 32 exists in every report - is off; filtering text to the named
 company is on. A question-parsing bug found by the eval was fixed: "the
 iPhone maker" also triggered the iPhone *product* filter.
+
+## Answer generation (phase 6)
+
+`ask(question, driver)` = `hybrid_search` -> `build_context` -> `generate_answer`,
+returning `{answer, sources, model, confidence, insufficient_evidence,
+invalid_citations, unverified_numbers}`.
+
+- **Context**: graph facts first (exact figures, higher confidence), then text
+  excerpts, each labelled `[Source: <Company> Annual Report FY<year>, p.<page>]`.
+- **Model**: Gemini free tier (`gemini-3.5-flash-lite`, `FGR_ANSWER_MODEL`)
+  instead of pipeline.txt's OpenRouter; temperature 0; responses cached, so
+  re-asking costs no quota. The **pipeline.txt system prompt is used verbatim**;
+  extra rules (state figures as written with company / fiscal year / unit, flag
+  pro forma / non-GAAP / disagreeing reports, mark calculations "(calculated)",
+  say when the reports do not answer) go in the user message.
+- **Verification after generation** (a fluent answer is not evidence):
+  every `[Source: ...]` must exactly match a retrieved source - anything else
+  is returned in `invalid_citations`, never shown as a valid source; the
+  shorthand "p.15, 17" is expanded and checked page by page. Numbers in the
+  answer that appear nowhere in the context are returned in
+  `unverified_numbers` (fiscal years and "(calculated)" sentences excepted).
+- **Confidence** (pipeline.txt rule): `high` if graph facts were retrieved,
+  otherwise `medium`.
+
+**Measured 2026-10-28** (`eval/results/2026-10-28_195606_answers_n44.json`;
+42 eval cases + pipeline.txt's "Compare Apple and Microsoft revenue" and
+"What risks does Apple mention?"):
+
+| check | result |
+|---|---|
+| answers with >= 1 valid citation (answerable + samples) | **41/41** |
+| citations not in the retrieved context | **0** |
+| answers with numbers not found in the context | **0** |
+| missing-evidence questions (NVIDIA, FY2026) declined, no figures | **3/3** |
+| expected figure present (automatic string check) | 36/39 |
+| **manual review of the answers** | **38/39 correct, 1 partial** |
+| "What risks does Apple mention?" risk categories (acceptance >= 2) | 6 |
+
+Manual review of the 4 automatically flagged answers: E03 gives GAAP $72,361M
+and labels $73,307M as non-GAAP (allowed by the case - the trap check is
+over-strict); E36 computes gaming growth from $21,503M / $15,466M = +$6,037M,
+39% "(calculated)" - correct; E37 gives 18% (FY2024 report) and 18.2% (FY2025
+report's tax note) - both correct and cited; E24 says the share count is not
+in the context and gives the $94,949M cash outflow - honest but partial
+(known retrieval miss).
+
+Known limitations: text citations use the chunk's first page, so a figure on
+the second page of a two-page chunk is cited one page early (E36 cites p.130;
+the figures are on p.131) - TODO: cite chunk page ranges (needs a full re-run,
+~44 calls). Gemini free tier is slow at times (HTTP 503 "overloaded", retried):
+the 44-question run took about 25 minutes. Answers are only checked
+automatically for citations and numbers; wording and completeness need review.
 
 ## Embeddings (local baseline)
 

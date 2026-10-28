@@ -14,10 +14,17 @@ PANEL NOTE: The query model must be the model that embedded the chunks; it
 
 from __future__ import annotations
 
+import logging
+
 from fin_graph_rag.embedders import get_embedder
 from fin_graph_rag.graph_builder import VECTOR_INDEX
 
 _embedders: dict = {}
+
+# TODO: Neo4j 5.27 reports db.index.vector.queryNodes as deprecated in favour of
+# the Cypher SEARCH clause. pipeline.txt specifies queryNodes and it still works
+# on AuraDB; silence the per-query deprecation notice and migrate later.
+logging.getLogger("neo4j.notifications").setLevel(logging.ERROR)
 
 VECTOR_QUERY = f"""
 CALL db.index.vector.queryNodes('{VECTOR_INDEX}', $k, $vector) YIELD node, score
