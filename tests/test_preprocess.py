@@ -25,6 +25,10 @@ from fin_graph_rag.preprocess import is_row, preprocess_doc
 @pytest.fixture(autouse=True)
 def word_tokens(monkeypatch):
     monkeypatch.setattr(pp, "_counter", lambda s: len(s.split()))
+    # Overlap off by default so tests can compare exact chunk text;
+    # test_overlap_* turns it back on.
+    monkeypatch.setattr(pp, "OVERLAP_MIN_TOKENS", 0)
+    monkeypatch.setattr(pp, "OVERLAP_MAX_TOKENS", 0)
 
 WM = "Explore our developer-friendly HTML to PDF API Printed using PDFCrowd HTML to PDF"
 PROSE = ("Revenue increased due to growth in cloud services and higher sales of devices across all of our "
@@ -190,3 +194,24 @@ def test_pages_after_signatures_are_flagged_as_exhibits():
     assert stats.signatures_page == 2 and stats.exhibit_pages == 1
     assert [c.in_exhibits for c in chunks if c.page_start == 3] == [True]
     assert not any(c.in_exhibits for c in chunks if c.page_end <= 2)
+
+
+def test_overlap_repeats_tail_of_previous_prose_chunk(monkeypatch):
+    monkeypatch.setattr(pp, "TARGET_TOKENS", 40)
+    monkeypatch.setattr(pp, "MAX_TOKENS", 60)
+    monkeypatch.setattr(pp, "OVERLAP_MIN_TOKENS", 4)
+    monkeypatch.setattr(pp, "OVERLAP_MAX_TOKENS", 6)
+    para_a = " ".join(["Alpha"] * 30) + ". Supply risk remains high."      # 35 words
+    para_b = " ".join(["Beta"] * 34) + "."
+    # Too big to share a chunk with para_b, so it starts its own chunk.
+    table = "BALANCE SHEETS\n(In millions)\n" + "\n".join(f"Asset line {i} $ {i},000 $ {i},500" for i in range(1, 6))
+    chunks, _ = preprocess_doc([page(1, f"{para_a}\n{para_b}\n{table}\n{PROSE}")])
+    a, b, t = chunks[0], chunks[1], chunks[2]
+    # b starts with the tail of a, at the sentence start "Supply ..." (4 tokens, within 4-6).
+    assert b.overlap_from == a.chunk_id
+    assert b.text[:b.overlap_chars] == "Supply risk remains high.\n"
+    assert b.text[b.overlap_chars:] == para_b
+    assert a.overlap_chars == 0 and a.overlap_from is None
+    # A chunk starting with a table gets no overlap.
+    assert t.has_table and t.overlap_chars == 0
+    assert all(c.token_count <= 60 for c in chunks)

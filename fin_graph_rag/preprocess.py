@@ -54,6 +54,12 @@ MIN_TOKENS = 50
 # A trailing prose unit this small (typically a risk-factor heading) is moved
 # into the next chunk so it stays with the text it introduces.
 HEADING_TOKENS = 60
+# DEMO-KNOB: a chunk that starts with prose is prefixed with the last 20-30
+# tokens of the previous chunk in the same section (starting at a sentence
+# start when possible), so a sentence cut at a chunk boundary is still
+# retrievable. Packing reserves OVERLAP_MAX_TOKENS so chunks stay <= MAX_TOKENS.
+OVERLAP_MIN_TOKENS = 20
+OVERLAP_MAX_TOKENS = 30
 # Tables longer than MAX_TOKENS are split at row boundaries into parts. Each
 # part repeats the table's title/unit/year-header lines and starts with a
 # generated "[Table part i/n | FY... | title]" label, so no part loses context.
@@ -182,6 +188,10 @@ class Chunk:
     oversized: bool
     char_count: int
     token_count: int     # content tokens under TOKENIZER_NAME, excl. [CLS]/[SEP]
+    # text[:overlap_chars] is repeated from chunk `overlap_from` (incl. the
+    # separating newline); text[overlap_chars:] is this chunk's own text.
+    overlap_chars: int
+    overlap_from: str | None
     text: str
 
 
@@ -556,7 +566,13 @@ def same_scope(a: Unit, b: Unit) -> bool:
 
 
 def group_units(units: list[Unit]) -> list[list[Unit]]:
-    """Pack units into chunk-sized groups; every group stays <= MAX_TOKENS."""
+    """Pack units into chunk-sized groups, leaving room for overlap.
+
+    Groups are kept <= MAX_TOKENS - OVERLAP_MAX_TOKENS so that prefixing the
+    overlap never pushes a chunk past MAX_TOKENS. Split-table parts (sized
+    against MAX_TOKENS) get no overlap, so they are not affected.
+    """
+    cap = MAX_TOKENS - OVERLAP_MAX_TOKENS
     groups: list[list[Unit]] = []
     cur: list[Unit] = []
 
@@ -576,11 +592,11 @@ def group_units(units: list[Unit]) -> list[list[Unit]]:
             close()
             groups.append([u])
             continue
-        limit = MAX_TOKENS if u.kind == "table" or any(c.kind == "table" for c in cur) else TARGET_TOKENS
+        limit = cap if u.kind == "table" or any(c.kind == "table" for c in cur) else TARGET_TOKENS
         if cur and size(cur) + u.tokens() > limit:
             carry = []
             if cur[-1].kind == "prose" and cur[-1].tokens() <= HEADING_TOKENS \
-                    and cur[-1].tokens() + u.tokens() <= MAX_TOKENS:
+                    and cur[-1].tokens() + u.tokens() <= cap:
                 carry = [cur.pop()]
             close()
             cur.extend(carry)
@@ -596,24 +612,54 @@ def group_units(units: list[Unit]) -> list[list[Unit]]:
             prev = groups[i - 1] if i > 0 else None
             nxt = groups[i + 1] if i + 1 < len(groups) else None
             if prev and prev[0].n_parts == 1 and same_scope(prev[-1], g[0]) \
-                    and size(prev) + size(g) <= MAX_TOKENS:
+                    and size(prev) + size(g) <= cap:
                 prev.extend(g); del groups[i]
                 continue
             if nxt and nxt[0].n_parts == 1 and same_scope(g[-1], nxt[0]) \
-                    and size(g) + size(nxt) <= MAX_TOKENS:
+                    and size(g) + size(nxt) <= cap:
                 nxt[0:0] = g; del groups[i]
                 continue
         i += 1
     return groups
 
 
+def tail_overlap(text: str) -> str:
+    """Last OVERLAP_MIN..MAX tokens of `text`, cut at a word boundary.
+
+    Prefers the longest tail that starts at a sentence start; otherwise the
+    longest tail within OVERLAP_MAX_TOKENS. Returns "" if the text is too short.
+    """
+    words = list(re.finditer(r"\S+", text))
+    best, best_sentence, total = None, None, 0
+    for i in range(len(words) - 1, -1, -1):
+        total += count_tokens(words[i].group())
+        if total > OVERLAP_MAX_TOKENS:
+            break
+        if total >= OVERLAP_MIN_TOKENS:
+            best = words[i].start()
+            if i == 0 or SENTENCE_END_RE.search(words[i - 1].group()):
+                best_sentence = words[i].start()
+    start = best_sentence if best_sentence is not None else best
+    return "" if start is None else text[start:]
+
+
 def pack_chunks(units: list[Unit], doc: dict, stats: DocStats) -> list[Chunk]:
     chunks: list[Chunk] = []
+    prev: list[Unit] | None = None
 
     for cur in group_units(units):
         # Page range from source lines only, not from headers repeated into a part.
         ls = [l for u in cur for l in u.lines[u.repeated:]]
-        text = "\n".join(u.text for u in cur)
+        body = "\n".join(u.text for u in cur)
+        # Overlap only between prose in the same section: a table chunk already
+        # starts with its own title, and table rows make a poor lead-in.
+        overlap = ""
+        if prev and cur[0].kind == "prose" and prev[-1].kind == "prose" and same_scope(prev[-1], cur[0]):
+            overlap = tail_overlap("\n".join(u.text for u in prev))
+        text = f"{overlap}\n{body}" if overlap else body
+        if overlap and count_tokens(text) > MAX_TOKENS:     # safety net; packing reserves room
+            overlap, text = "", body
+        prev = cur
         tables = [{
             "table_id": f"{doc['doc_id']}_t{u.table_no:03d}",
             "part": u.part,
@@ -639,7 +685,10 @@ def pack_chunks(units: list[Unit], doc: dict, stats: DocStats) -> list[Chunk]:
             section=ls[0].section, in_exhibits=ls[0].in_exhibits,
             has_table=bool(tables), tables=tables, qualifiers=qualifiers_of(text),
             oversized=token_count > MAX_TOKENS, char_count=len(text),
-            token_count=token_count, text=text,
+            token_count=token_count,
+            overlap_chars=len(overlap) + 1 if overlap else 0,
+            overlap_from=chunks[-1].chunk_id if overlap else None,
+            text=text,
         ))
 
     stats.max_chunk_tokens = max((c.token_count for c in chunks), default=0)
@@ -695,6 +744,7 @@ def run(in_dir: Path, out_dir: Path) -> dict:
         "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "config": {"tokenizer": tokenizer_used, "MAX_TOKENS": MAX_TOKENS, "TARGET_TOKENS": TARGET_TOKENS,
                    "MIN_TOKENS": MIN_TOKENS, "HEADING_TOKENS": HEADING_TOKENS,
+                   "OVERLAP_MIN_TOKENS": OVERLAP_MIN_TOKENS, "OVERLAP_MAX_TOKENS": OVERLAP_MAX_TOKENS,
                    "MIN_TABLE_ROWS": MIN_TABLE_ROWS, "SHORT_LINE": SHORT_LINE,
                    "MAX_BRIDGE_LINES": MAX_BRIDGE_LINES, "MAX_HEADER_LINES": MAX_HEADER_LINES},
         "documents": docs,

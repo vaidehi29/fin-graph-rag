@@ -83,3 +83,17 @@ def test_income_statements_are_whole_with_title():
             "INCOME STATEMENTS" in t["title"] or "STATEMENTS OF OPERATIONS" in t["title"] for t in c["tables"])
             and net_income in c["text"]]
         assert "(In millions" in c["text"] and "Diluted" in c["text"]
+
+
+def test_overlap_is_20_to_30_tokens_copied_from_previous_chunk():
+    from fin_graph_rag.preprocess import OVERLAP_MAX_TOKENS, OVERLAP_MIN_TOKENS, count_tokens
+    chunks = load(CHUNKS)
+    by_id = {c["chunk_id"]: c for c in chunks}
+    with_overlap = [c for c in chunks if c["overlap_chars"]]
+    assert len(with_overlap) > len(chunks) / 2
+    for c in with_overlap:
+        overlap = c["text"][:c["overlap_chars"] - 1]
+        src = by_id[c["overlap_from"]]
+        assert src["text"][src["overlap_chars"]:].endswith(overlap), c["chunk_id"]
+        assert OVERLAP_MIN_TOKENS <= count_tokens(overlap) <= OVERLAP_MAX_TOKENS
+        assert not c["text"][c["overlap_chars"]:].startswith("[Table part")
