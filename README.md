@@ -1,13 +1,15 @@
 # Financial Graph RAG
 
 Answers questions about company annual reports (Apple and Microsoft, fiscal
-years 2023–2025) using retrieved evidence and a knowledge graph. Agent rules
-are in [CLAUDE.md](CLAUDE.md).
+years 2023–2025; IBM and NVIDIA added through phases 1-4 on 2026-10-29 - see
+[Adding IBM and NVIDIA](#adding-ibm-and-nvidia-phases-1-4-2026-10-29)) using
+retrieved evidence and a knowledge graph. Agent rules are in [CLAUDE.md](CLAUDE.md).
 
 ## Status
 
 | Component | State |
 |---|---|
+| IBM + NVIDIA | Phases 1-5 done 2026-10-29 (12 reports in total); phases 6-8 not yet updated - see [Adding IBM and NVIDIA](#adding-ibm-and-nvidia-phases-1-4-2026-10-29). The rows below describe the Apple/Microsoft baseline. |
 | PDF extraction | Done (`fin_graph_rag/pdf_extractor.py`). Run on all 6 reports: 682 pages, 1 empty. |
 | Preprocessing / chunking | Done - phase 1 (`fin_graph_rag/preprocess.py`). 617 non-empty pages → 1,432 chunks, all ≤ 500 tokens incl. overlap (bert-base-uncased); 375 tables (365 whole, 10 split into labelled parts); 20-30 token overlap between prose chunks. |
 | Embeddings / index | Local (`fin_graph_rag/embeddings.py`): `BAAI/bge-small-en-v1.5` on CPU, 1,432 × 384-d flat cosine index, chunks embedded with a context header. Gemini / Hugging Face free tiers not yet compared. |
@@ -17,6 +19,125 @@ are in [CLAUDE.md](CLAUDE.md).
 | Answer generation | Done - phase 6 (`fin_graph_rag/answer.py`): Gemini free tier, pipeline.txt system prompt verbatim, citations and numbers checked against the retrieved context. 95 eval questions + 2 samples: 0 invalid citations, 0 unverified numbers, 0 wrong figures found; manual review of the 89 answerable: 85 correct, 1 partial, 3 declined although the reports contain the answer; 6/6 missing-evidence questions handled correctly. |
 | Web UI | Done - phase 7 (`app.py`, `fin_graph_rag/graph_view.py`): Streamlit Q&A with confidence badge, sources and history; Knowledge Graph tab rendered with pyvis. Checked end to end headless (Streamlit AppTest, live Neo4j). |
 | Testing & validation | Done - phase 8: 90 unit tests (offline) + 8 integration tests (`pytest -m integration`, live Neo4j / Gemini / local model) all pass; golden set 4/4; 95 eval cases in `eval/cases.jsonl` (every citation verified against page text), results in `eval/results/` (one file per run, never overwritten). |
+
+## Adding IBM and NVIDIA (phases 1-4, 2026-10-29)
+
+Only the new companies were processed; Apple and Microsoft outputs were not
+re-run. Their lines in `pages.jsonl`, `chunks.jsonl`, `facts.jsonl` and
+`text_entities.jsonl` and their 1,432 index vectors are byte-identical to before
+(checked against a backup), and every chunking/fact rule change below was
+re-run on Apple/Microsoft in memory to confirm it reproduces their existing
+chunks exactly. Measured results:
+
+| Step | IBM (FY2023-25) | NVIDIA (FY2023-25) |
+|---|---|---|
+| Source check | full 10-K filings (cover, Items 1A/7/8, signatures p.26) + Exhibit 13 | standalone 10-Ks, cover p.1, signed p.91 / 84 / 86 |
+| Pages extracted (empty) | 345 / 270 / 272 (3 blank) | 169 / 96 / 130 (0) |
+| Chunks (max tokens) | 871 / 771 / 615 (500) | 436 / 267 / 371 (500) |
+| Table facts (company level) | 80 | 94 |
+| Gemini entities (45 calls, free tier) | 78 risks, 24 executive entries, 51 competitors | 173 risks, 15 executive entries, 49 competitors |
+| Neo4j | 80 HAS_METRIC, 2,257 TextChunks | 94 HAS_METRIC, 1,074 TextChunks |
+
+Graph after loading: 5,886 nodes, 12,852 relationships; `chunk_embeddings` index
+ONLINE, 100% populated, 4,763 vectors (384-d). Embedding the 3,331 new chunks
+took 341 s on CPU (`embeddings append`).
+
+**What had to change** (each rule is commented in the code with the case that
+needed it):
+
+- *Filing layout.* IBM's 10-K incorporates Items 7 and 8 from **Exhibit 13**
+  (the annual report), which follows the signatures page. Those pages are now
+  report content, not exhibits; their running header ("Consolidated Balance
+  Sheet", "Management Discussion") becomes the chunk `section`, e.g.
+  `Exhibit 13 Consolidated Income Statement`. The signatures page must now
+  contain "Pursuant to the requirements of Section 13 or 15(d)" (IBM's table of
+  contents has a bare "SIGNATURES" line; NVIDIA writes "Signatures"). The
+  "Table of Contents" link line on EDGAR-printed pages is removed.
+- *Oversized lines.* Some IBM benefit-plan exhibits extract a whole page as one
+  line (up to ~3,000 tokens); such lines are split at sentence ends (else words).
+- *Tables.* Year rows like "For the year ended December 31: Notes 2025 2024";
+  IBM Notes-column letters ("Total revenue C 67,535"); long-label balance-sheet
+  rows with a parenthetical; IBM's equity block split from the balance sheet by
+  three heading lines; NVIDIA rows whose label wraps above the figures.
+- *Metric labels.* "Gross profit" -> `gross_margin` (same measure);
+  IBM "Research, development and engineering" -> R&D (FY2025 report renames it,
+  same figures); IBM diluted EPS = "Assuming dilution / Total"; IBM equity =
+  "Total IBM stockholders' equity" (before noncontrolling interests). NVIDIA's
+  capex line includes intangibles, so it is a separate metric
+  (`purchases_of_property_equipment_and_intangibles`), as with Microsoft's
+  "depreciation, amortization, and other". Mixed-case statement titles must
+  equal a title part exactly, so NVIDIA's note "Consolidated Statements of
+  Income include stock-based compensation..." is not read as the statement.
+- *People.* Person keys fold accents ("Nicolás"/"Nicolas A. Fehring" = one node).
+
+Spot-checked against the statements: NVIDIA revenue 26,974 / 60,922 / 130,497
+and net income 4,368 / 29,760 / 72,880 (FY2023-25); IBM revenue 61,860 / 62,753 /
+67,535, net income 7,502 / 6,023 / 10,593, diluted EPS 8.14 / 6.43 / 11.17. Two
+new conflicts, both genuine: NVIDIA's FY2025 report restates FY2023/FY2024
+diluted EPS for the June 2024 10-for-1 split (1.74 -> 0.17, 11.93 -> 1.19);
+both values are kept on their `REPORTED_IN` edges.
+
+**Known limitations / not done:**
+
+- No segment or product facts for IBM/NVIDIA: their segment tables put segments
+  in columns (and IBM recast its revenue categories in 2025), which the
+  year-column parser does not read. Segment questions rely on text chunks.
+- Competitor names are not merged on a guess: "AMD" / "Advanced Micro Devices"
+  and "Huawei" / "Huawei Technologies Co." are separate nodes, and Microsoft's
+  existing competitor node "IBM" is separate from the reporting company
+  "International Business Machines Corporation" (merging would edit Microsoft's
+  edges).
+- IBM's income statement has no "operating income" line, so there is no IBM
+  `operating_income` fact.
+- Phase 5 (retrieval) is updated - see below. Phases 6-8 are **not**: the UI
+  company list (`config.COMPANIES`) still offers only Apple and Microsoft, and no
+  answers have been generated or reviewed for IBM/NVIDIA questions.
+
+### Phase 5 (hybrid retrieval) for IBM and NVIDIA
+
+- `cypher_retriever`: IBM ("IBM", "International Business Machines") and NVIDIA
+  ("NVIDIA", "NVDA") are recognised - legal name and ticker only, no guessed
+  descriptions. Question words added for the new labels: "gross profit",
+  "sales, general and administrative", "research, development", "income before
+  income tax" (the old pattern `taxes?` never matched "tax" - fixed). A capex
+  question also returns NVIDIA's separate capex-incl.-intangibles metric.
+- `hybrid.text_search`: text sources now use the graph's caption ("IBM Annual
+  Report FY2024, p.175"), not `company.title()` ("Ibm ...").
+- Eval: 16 new cases E96-E111 (IBM and NVIDIA: lookups, cross-year, the NVIDIA
+  split-adjusted EPS conflict, IBM's "Research, development and engineering"
+  label, an IBM-vs-NVIDIA comparison whose fiscal years end ~11 months apart, a
+  missing-evidence FY2026 question, and the first two person questions). E40
+  (NVIDIA data center revenue) was a missing-evidence case; it is now answerable
+  (115,186, p.80) and was revised. Every case's evidence is checked on its page.
+  `graph_supports` now also counts a non-numeric answer (a person and role) when
+  a graph fact's text contains both; the 95 earlier cases are all numeric, so
+  their scoring is unchanged.
+
+Measured 2026-10-29 (`eval/results/2026-10-29_14*_n111_*`; retrieval only):
+
+| | combined support@5 | combined support@10 |
+|---|---|---|
+| original 89 answerable cases, before IBM/NVIDIA | 83 | 86 |
+| same 89 cases, with IBM/NVIDIA indexed | **83** | **86** |
+| 16 new / revised cases | 14 | 15 |
+| all 105 answerable cases | **97** | **101** |
+
+Graph facts alone support 14 of the 16 new cases. Text-only support on the
+original cases moved 60 -> 61 (@5) and 74 -> 71 (@10): the corpus is three times
+larger, so BM25 statistics and the vector candidates change; graph facts cover
+those cases, so combined support is unchanged. A company pre-filter before
+taking candidates (`PREFILTER_BY_COMPANY`) was tried and did not help (96 vs 97
+@5, 101 vs 101 @10), so it is off. Remaining misses on the new cases: E107 (IBM
+Software segment revenue - text only, chunk not retrieved; no IBM segment facts
+in the graph) and E40 at top-5 (found at rank 6-10; the graph offers NVIDIA
+*total* revenue, which the answer step must not use for data center revenue).
+`pipeline.txt`'s "AI chips demand" vector test now returns NVIDIA (integration
+test updated); "Compare IBM and NVIDIA revenue" returns both companies' facts
+with paged sources.
+- Found while testing: the wrapped-row rule would also recover Microsoft's
+  FY2023 income-statement R&D row (label and figures on separate lines; FY2021
+  R&D 20,716 is currently missing from the graph). Not applied - Apple/Microsoft
+  were deliberately not re-run.
 
 ## Setup
 
@@ -35,10 +156,17 @@ Source PDFs are **not** committed. Place them in `data/raw/` named
 ```
 apple_2023.pdf  apple_2024.pdf  apple_2025.pdf
 microsoft_2023.pdf  microsoft_2024.pdf  microsoft_2025.pdf
+ibm_2023.pdf  ibm_2024.pdf  ibm_2025.pdf
+nvidia_2023.pdf  nvidia_2024.pdf  nvidia_2025.pdf
 ```
 
 The year is the company's **fiscal** year (Apple: ends late September;
-Microsoft: ends June 30). Files with other names are skipped and reported.
+Microsoft: ends June 30; IBM: December 31; NVIDIA: last Sunday of January, so
+`nvidia_2025.pdf` is the year ended January 26, 2025). Files with other names
+are skipped and reported. Each file must be the Form 10-K itself (checked for
+the IBM and NVIDIA files: SEC cover page, Items 1A/7/8, signatures page); IBM's
+files are the full filing including Exhibit 13, which holds its MD&A and
+financial statements.
 
 ## Run
 
@@ -52,6 +180,11 @@ python -m fin_graph_rag.retrieval search "..." --mode hybrid   # or bm25 / vecto
 python -m fin_graph_rag.retrieval evaluate -k 5 --mode hybrid
 python -m fin_graph_rag.run_ingestion --dry-run   # extract facts/entities, print, no DB writes
 python -m fin_graph_rag.run_ingestion        # load into Neo4j (needs NEO4J_* and GEMINI_API_KEY in .env)
+# Adding companies without touching the others (outputs merged; other companies' lines kept byte for byte):
+python -m fin_graph_rag.pdf_extractor --companies ibm nvidia
+python -m fin_graph_rag.preprocess --companies ibm nvidia
+python -m fin_graph_rag.embeddings append    # embeds only chunks not yet in the index
+python -m fin_graph_rag.run_ingestion --companies ibm nvidia
 python -m pytest -q                          # offline unit tests; integration tests are skipped
 python -m fin_graph_rag.hybrid "Compare Apple and Microsoft revenue"   # graph facts + text + sources
 python -m fin_graph_rag.hybrid --evaluate -k 5    # writes eval/results/*_hybrid-graph_*

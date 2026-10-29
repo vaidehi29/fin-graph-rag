@@ -46,10 +46,12 @@ def test_cypher_search_apple_revenue(neo4j):
 
 
 def test_vector_search_finds_the_right_company(neo4j):
-    # pipeline.txt: vector_search("AI chips demand") -> NVIDIA. NVIDIA is not indexed;
-    # the equivalent check: a Microsoft-only topic retrieves Microsoft chunks.
+    # pipeline.txt: vector_search("AI chips demand") -> NVIDIA (NVIDIA indexed since
+    # 2026-10-29), plus the earlier stand-in: a Microsoft-only topic -> Microsoft.
     from fin_graph_rag.vector_retriever import vector_search
     driver, db = neo4j
+    hits = vector_search(driver, "AI chips demand", 5, db)
+    assert hits and hits[0]["company"] == "nvidia"
     hits = vector_search(driver, "Azure and Microsoft Cloud revenue growth", 5, db)
     assert hits and hits[0]["company"] == "microsoft"
     assert all(h["page_num"] and h["report"] for h in hits)
@@ -87,12 +89,15 @@ def test_golden_questions(neo4j):
 
 # --- acceptance checks of earlier phases (moved here from the unit files) ----
 
-def test_graph_has_metrics_for_both_companies(neo4j):
-    # Phase 3: every company has >= 5 HAS_METRIC relationships.
+def test_graph_has_metrics_for_all_companies(neo4j):
+    # Phase 3 (pipeline.txt): every company has >= 5 HAS_METRIC relationships.
+    # IBM and NVIDIA were added on 2026-10-29.
     from fin_graph_rag.graph_builder import graph_summary
     driver, db = neo4j
     s = graph_summary(driver, db)
-    assert len(s["has_metric_per_company"]) == 2 and all(n >= 5 for n in s["has_metric_per_company"].values())
+    assert set(s["has_metric_per_company"]) == {"Apple Inc.", "Microsoft Corporation",
+                                                 "International Business Machines Corporation", "NVIDIA Corporation"}
+    assert all(n >= 5 for n in s["has_metric_per_company"].values())
 
 
 def test_text_chunks_and_vector_index_online(neo4j):

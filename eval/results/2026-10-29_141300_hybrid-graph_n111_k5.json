@@ -1,0 +1,2339 @@
+{
+  "k": 5,
+  "options": {
+    "dedupe": false,
+    "company_filter": true,
+    "prefilter": true,
+    "vector_oversample": 4,
+    "candidates": 100
+  },
+  "summary": {
+    "cases_with_support": 105,
+    "graph_support": 84,
+    "text_support@5": 62,
+    "combined_support@5": 96,
+    "missing_evidence_cases_with_graph_facts": 2,
+    "all_sources_have_pages": true
+  },
+  "cases": [
+    {
+      "id": "E01",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's net income for fiscal year 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: net income, fiscal year 2024: $88,136 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0193",
+        "microsoft_2024_c0122",
+        "microsoft_2024_c0126",
+        "microsoft_2023_c0113",
+        "microsoft_2025_c0110"
+      ]
+    },
+    {
+      "id": "E02",
+      "category": "conflicting_evidence",
+      "question": "According to Microsoft's fiscal 2025 annual report, what was net income?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Microsoft Corporation: net income, fiscal year 2025: $101,832 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0110",
+        "microsoft_2025_c0109",
+        "microsoft_2023_c0119",
+        "microsoft_2024_c0126",
+        "microsoft_2023_c0113"
+      ]
+    },
+    {
+      "id": "E03",
+      "category": "conflicting_evidence",
+      "question": "What was Microsoft's net income in fiscal year 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Microsoft Corporation: net income, fiscal year 2023: $72,361 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0113",
+        "microsoft_2023_c0119",
+        "microsoft_2024_c0122",
+        "microsoft_2024_c0193",
+        "microsoft_2023_c0187"
+      ]
+    },
+    {
+      "id": "E04",
+      "category": "direct_lookup",
+      "question": "What would Microsoft's fiscal 2024 revenue have been if the Activision Blizzard acquisition had closed on July 1, 2022?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2024: $247,442 million (unaudited pro forma)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0164",
+        "microsoft_2025_c0108",
+        "microsoft_2024_c0183",
+        "microsoft_2024_c0182",
+        "microsoft_2024_c0125"
+      ]
+    },
+    {
+      "id": "E05",
+      "category": "entity_resolution",
+      "question": "How much revenue did Activision Blizzard contribute to Microsoft in fiscal 2024 after the acquisition?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2024: $245,122 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0164",
+        "microsoft_2024_c0125",
+        "microsoft_2025_c0108",
+        "microsoft_2024_c0182",
+        "microsoft_2024_c0183"
+      ]
+    },
+    {
+      "id": "E06",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's total net sales change from fiscal 2023 to fiscal 2024?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Apple Inc.: revenue, fiscal year 2023: $383,285 million (GAAP)",
+        "Apple Inc.: revenue, fiscal year 2024: $391,035 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2024_c0078",
+        "apple_2024_c0077",
+        "apple_2023_c0070",
+        "apple_2023_c0072"
+      ]
+    },
+    {
+      "id": "E07",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in the Americas segment in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc. - Americas: revenue, fiscal year 2023: $162,560 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2023_c0072",
+        "apple_2025_c0077",
+        "apple_2023_c0118",
+        "apple_2024_c0120"
+      ]
+    },
+    {
+      "id": "E08",
+      "category": "missing_evidence",
+      "question": "What was Apple's total net sales in fiscal 2026?",
+      "graph_facts": 0,
+      "graph_support": null,
+      "text_support@5": null,
+      "combined_support@5": null,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2024_c0121",
+        "apple_2025_c0125",
+        "apple_2024_c0078",
+        "apple_2023_c0119"
+      ]
+    },
+    {
+      "id": "E09",
+      "category": "ambiguous_question",
+      "question": "What was Microsoft's revenue in 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2024: $245,122 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0114",
+        "microsoft_2025_c0105",
+        "microsoft_2025_c0098",
+        "microsoft_2024_c0122",
+        "microsoft_2025_c0189"
+      ]
+    },
+    {
+      "id": "E10",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend on research and development in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: research and development, fiscal year 2023: $29,915 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0079",
+        "apple_2023_c0075",
+        "apple_2024_c0076",
+        "apple_2025_c0123",
+        "apple_2025_c0111"
+      ]
+    },
+    {
+      "id": "E11",
+      "category": "direct_lookup",
+      "question": "What were Apple's Services net sales in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc. - Services: revenue, fiscal year 2025: $109,158 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0077",
+        "apple_2025_c0078",
+        "apple_2024_c0076",
+        "apple_2024_c0078",
+        "apple_2023_c0071"
+      ]
+    },
+    {
+      "id": "E12",
+      "category": "direct_lookup",
+      "question": "How much revenue did iPhone generate for Apple in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Apple Inc. - iPhone: revenue, fiscal year 2023: $200,583 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2024_c0099",
+        "apple_2023_c0071",
+        "apple_2023_c0095",
+        "apple_2023_c0094"
+      ]
+    },
+    {
+      "id": "E13",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's Mac sales change between fiscal 2022 and fiscal 2023?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Apple Inc. - Mac: revenue, fiscal year 2022: $40,177 million (GAAP)",
+        "Apple Inc. - Mac: revenue, fiscal year 2023: $29,357 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2023_c0070",
+        "apple_2023_c0072",
+        "apple_2023_c0074",
+        "apple_2023_c0073",
+        "apple_2023_c0071"
+      ]
+    },
+    {
+      "id": "E14",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in Greater China in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Apple Inc. - Greater China: revenue, fiscal year 2025: $64,377 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0077",
+        "apple_2024_c0076",
+        "apple_2023_c0072",
+        "apple_2025_c0125",
+        "apple_2023_c0119"
+      ]
+    },
+    {
+      "id": "E15",
+      "category": "segment_breakdown",
+      "question": "How much did Apple sell in Japan in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 4,
+      "facts": [
+        "Apple Inc. - Japan: revenue, fiscal year 2025: $28,703 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0124",
+        "apple_2025_c0123",
+        "apple_2025_c0075",
+        "apple_2024_c0076",
+        "apple_2025_c0077"
+      ]
+    },
+    {
+      "id": "E16",
+      "category": "direct_lookup",
+      "question": "What were Apple's diluted earnings per share for fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: diluted eps, fiscal year 2025: $7.46 per share (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0102",
+        "apple_2024_c0100",
+        "apple_2023_c0095",
+        "apple_2023_c0083",
+        "apple_2024_c0088"
+      ]
+    },
+    {
+      "id": "E17",
+      "category": "direct_lookup",
+      "question": "What was Apple's total gross margin in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc.: gross margin, fiscal year 2025: $195,201 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0078",
+        "apple_2024_c0078",
+        "apple_2023_c0074",
+        "apple_2023_c0075",
+        "apple_2023_c0083"
+      ]
+    },
+    {
+      "id": "E18",
+      "category": "direct_lookup",
+      "question": "How much cash did Apple's operations generate in fiscal 2023?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 11,
+      "facts": [
+        "Apple Inc.: operating cash flow, fiscal year 2023: $110,543 million (GAAP)",
+        "Apple Inc.: revenue, fiscal year 2023: $383,285 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2023_c0070",
+        "apple_2023_c0119",
+        "apple_2024_c0121",
+        "apple_2023_c0076"
+      ]
+    },
+    {
+      "id": "E19",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend buying back its own stock in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: share repurchases, fiscal year 2025: -$90,711 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0074",
+        "apple_2025_c0072",
+        "apple_2025_c0071",
+        "apple_2025_c0004",
+        "apple_2023_c0112"
+      ]
+    },
+    {
+      "id": "E20",
+      "category": "direct_lookup",
+      "question": "How much did Apple pay in dividends in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: dividends paid, fiscal year 2023: -$15,025 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2023_c0071",
+        "apple_2024_c0082",
+        "apple_2024_c0076",
+        "apple_2023_c0070",
+        "apple_2023_c0088"
+      ]
+    },
+    {
+      "id": "E21",
+      "category": "direct_lookup",
+      "question": "What were Apple's total assets at the end of fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: total assets, fiscal year 2025: $359,241 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0125",
+        "apple_2025_c0112",
+        "apple_2023_c0104",
+        "apple_2025_c0091",
+        "apple_2023_c0070"
+      ]
+    },
+    {
+      "id": "E22",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's provision for income taxes change from fiscal 2024 to fiscal 2025?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc.: provision for income taxes, fiscal year 2024: $29,749 million (GAAP)",
+        "Apple Inc.: provision for income taxes, fiscal year 2025: $20,719 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0079",
+        "apple_2025_c0111",
+        "apple_2024_c0079",
+        "apple_2024_c0109",
+        "apple_2023_c0103"
+      ]
+    },
+    {
+      "id": "E23",
+      "category": "direct_lookup",
+      "question": "How many full-time employees did Apple have at the end of fiscal 2024?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "apple_2025_c0015",
+        "apple_2024_c0014",
+        "apple_2025_c0074",
+        "apple_2024_c0076",
+        "apple_2024_c0095"
+      ]
+    },
+    {
+      "id": "E24",
+      "category": "direct_lookup",
+      "question": "How many shares did Apple repurchase during fiscal 2024 and for how much?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": false,
+      "combined_support@5": false,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: share repurchases, fiscal year 2024: -$94,949 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2023_c0067",
+        "apple_2024_c0072",
+        "apple_2025_c0071",
+        "apple_2023_c0112",
+        "apple_2024_c0073"
+      ]
+    },
+    {
+      "id": "E25",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's total revenue in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2025: $281,724 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0189",
+        "microsoft_2025_c0105",
+        "microsoft_2025_c0188",
+        "microsoft_2024_c0122",
+        "microsoft_2023_c0205"
+      ]
+    },
+    {
+      "id": "E26",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's operating income in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: operating income, fiscal year 2023: $88,523 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0122",
+        "microsoft_2023_c0113",
+        "microsoft_2023_c0118",
+        "microsoft_2023_c0115",
+        "microsoft_2025_c0188"
+      ]
+    },
+    {
+      "id": "E27",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's diluted earnings per share in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: diluted eps, fiscal year 2025: $13.64 per share (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0113",
+        "microsoft_2025_c0154",
+        "microsoft_2025_c0129",
+        "microsoft_2023_c0141",
+        "microsoft_2024_c0147"
+      ]
+    },
+    {
+      "id": "E28",
+      "category": "segment_breakdown",
+      "question": "How much revenue did Microsoft's Intelligent Cloud segment generate in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation - Intelligent Cloud: revenue, fiscal year 2025: $106,265 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0105",
+        "microsoft_2024_c0122",
+        "microsoft_2025_c0104",
+        "microsoft_2023_c0115",
+        "microsoft_2023_c0105"
+      ]
+    },
+    {
+      "id": "E29",
+      "category": "segment_breakdown",
+      "question": "What was revenue for Microsoft's More Personal Computing segment in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation - More Personal Computing: revenue, fiscal year 2023: $54,734 million (GAAP) [reports disagree: Microsoft 10-K FY2025 states $44,820 million]"
+      ],
+      "chunks": [
+        "microsoft_2024_c0122",
+        "microsoft_2025_c0105",
+        "microsoft_2023_c0115",
+        "microsoft_2023_c0204",
+        "microsoft_2025_c0188"
+      ]
+    },
+    {
+      "id": "E30",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft spend on research and development in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: research and development, fiscal year 2025: $32,488 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0118",
+        "microsoft_2025_c0144",
+        "microsoft_2025_c0108",
+        "microsoft_2024_c0125",
+        "microsoft_2025_c0098"
+      ]
+    },
+    {
+      "id": "E31",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's net cash from operations in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Microsoft Corporation: operating cash flow, fiscal year 2025: $136,162 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0116",
+        "microsoft_2025_c0132",
+        "microsoft_2023_c0144",
+        "microsoft_2024_c0133",
+        "microsoft_2024_c0150"
+      ]
+    },
+    {
+      "id": "E32",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft pay out in cash dividends in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: dividends paid, fiscal year 2025: -$24,082 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0119",
+        "microsoft_2025_c0181",
+        "microsoft_2024_c0136",
+        "microsoft_2023_c0130",
+        "microsoft_2024_c0204"
+      ]
+    },
+    {
+      "id": "E33",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's total assets as of June 30, 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Microsoft Corporation: total assets, fiscal year 2025: $619,003 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0189",
+        "microsoft_2024_c0212",
+        "microsoft_2023_c0206",
+        "microsoft_2023_c0179",
+        "microsoft_2025_c0130"
+      ]
+    },
+    {
+      "id": "E34",
+      "category": "entity_resolution",
+      "question": "How large was Microsoft Cloud revenue in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2024: $245,122 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0105",
+        "microsoft_2024_c0211",
+        "microsoft_2024_c0114",
+        "microsoft_2025_c0098",
+        "microsoft_2023_c0205"
+      ]
+    },
+    {
+      "id": "E35",
+      "category": "direct_lookup",
+      "question": "How many people did Microsoft employ full-time as of June 30, 2024?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "microsoft_2025_c0021",
+        "microsoft_2024_c0019",
+        "microsoft_2023_c0019",
+        "microsoft_2024_c0212",
+        "microsoft_2024_c0013"
+      ]
+    },
+    {
+      "id": "E36",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft's gaming revenue grow in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": false,
+      "combined_support@5": false,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2024: $245,122 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0125",
+        "microsoft_2024_c0122",
+        "microsoft_2025_c0108",
+        "microsoft_2023_c0105",
+        "microsoft_2024_c0211"
+      ]
+    },
+    {
+      "id": "E37",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's effective tax rate in fiscal 2024?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 4,
+      "facts": [],
+      "chunks": [
+        "microsoft_2024_c0127",
+        "microsoft_2025_c0110",
+        "microsoft_2025_c0172",
+        "microsoft_2024_c0193",
+        "microsoft_2024_c0191"
+      ]
+    },
+    {
+      "id": "E38",
+      "category": "cross_year_comparison",
+      "question": "How did Microsoft's net income change from fiscal 2023 to fiscal 2025?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 10,
+      "facts": [
+        "Microsoft Corporation: net income, fiscal year 2023: $72,361 million (GAAP)",
+        "Microsoft Corporation: net income, fiscal year 2025: $101,832 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0122",
+        "microsoft_2025_c0110",
+        "microsoft_2023_c0115",
+        "microsoft_2023_c0113",
+        "microsoft_2024_c0193"
+      ]
+    },
+    {
+      "id": "E39",
+      "category": "cross_document",
+      "question": "Which company reported higher net income in fiscal 2025, Apple or Microsoft?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 10,
+      "facts": [
+        "Apple Inc.: net income, fiscal year 2025: $112,010 million (GAAP)",
+        "Microsoft Corporation: net income, fiscal year 2025: $101,832 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "microsoft_2023_c0113",
+        "apple_2025_c0078",
+        "microsoft_2025_c0110",
+        "apple_2025_c0077"
+      ]
+    },
+    {
+      "id": "E40",
+      "category": "segment_breakdown",
+      "question": "What was NVIDIA's data center revenue in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": false,
+      "combined_support@5": false,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "NVIDIA Corporation: revenue, fiscal year 2025: $130,497 million (GAAP)"
+      ],
+      "chunks": [
+        "nvidia_2025_c0146",
+        "nvidia_2024_c0137",
+        "nvidia_2023_c0120",
+        "nvidia_2025_c0154",
+        "nvidia_2023_c0118"
+      ]
+    },
+    {
+      "id": "E41",
+      "category": "missing_evidence",
+      "question": "What was Microsoft's revenue in fiscal 2026?",
+      "graph_facts": 0,
+      "graph_support": null,
+      "text_support@5": null,
+      "combined_support@5": null,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "microsoft_2023_c0105",
+        "microsoft_2024_c0114",
+        "microsoft_2024_c0122",
+        "microsoft_2025_c0098",
+        "microsoft_2025_c0105"
+      ]
+    },
+    {
+      "id": "E42",
+      "category": "entity_resolution",
+      "question": "What net income did the iPhone maker report for fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Apple Inc.: net income, fiscal year 2023: $96,995 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2023_c0070",
+        "apple_2024_c0100",
+        "apple_2023_c0095",
+        "apple_2025_c0102"
+      ]
+    },
+    {
+      "id": "E43",
+      "category": "direct_lookup",
+      "question": "What were Apple's total net sales in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: revenue, fiscal year 2024: $391,035 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2024_c0121",
+        "apple_2024_c0078",
+        "apple_2024_c0077",
+        "apple_2025_c0125"
+      ]
+    },
+    {
+      "id": "E44",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend on research and development in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc.: research and development, fiscal year 2024: $31,370 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0079",
+        "apple_2024_c0076",
+        "apple_2025_c0123",
+        "apple_2025_c0074",
+        "apple_2024_c0109"
+      ]
+    },
+    {
+      "id": "E45",
+      "category": "direct_lookup",
+      "question": "What were Apple's selling, general and administrative expenses in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: selling general and administrative, fiscal year 2025: $27,601 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0079",
+        "apple_2023_c0075",
+        "apple_2024_c0079",
+        "apple_2024_c0078",
+        "apple_2025_c0123"
+      ]
+    },
+    {
+      "id": "E46",
+      "category": "direct_lookup",
+      "question": "What was Apple's operating income in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc.: operating income, fiscal year 2024: $123,216 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2025_c0079",
+        "apple_2024_c0120",
+        "apple_2023_c0118",
+        "apple_2024_c0088"
+      ]
+    },
+    {
+      "id": "E47",
+      "category": "direct_lookup",
+      "question": "What was Apple's income before provision for income taxes in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc.: income before taxes, fiscal year 2024: $123,485 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0111",
+        "apple_2023_c0103",
+        "apple_2024_c0109",
+        "apple_2024_c0079",
+        "apple_2025_c0079"
+      ]
+    },
+    {
+      "id": "E48",
+      "category": "direct_lookup",
+      "question": "What were Apple's diluted earnings per share in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc.: diluted eps, fiscal year 2024: $6.08 per share (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0100",
+        "apple_2025_c0102",
+        "apple_2023_c0095",
+        "apple_2023_c0083",
+        "apple_2024_c0088"
+      ]
+    },
+    {
+      "id": "E49",
+      "category": "direct_lookup",
+      "question": "How much cash and cash equivalents did Apple hold at the end of fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: cash and cash equivalents, fiscal year 2024: $29,943 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0102",
+        "apple_2024_c0092",
+        "apple_2025_c0103",
+        "apple_2025_c0080",
+        "apple_2025_c0104"
+      ]
+    },
+    {
+      "id": "E50",
+      "category": "direct_lookup",
+      "question": "What were Apple's total liabilities at the end of fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc.: total liabilities, fiscal year 2024: $308,030 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0110",
+        "apple_2025_c0112",
+        "apple_2024_c0090",
+        "apple_2024_c0106",
+        "apple_2023_c0104"
+      ]
+    },
+    {
+      "id": "E51",
+      "category": "direct_lookup",
+      "question": "What was Apple's total shareholders' equity at the end of fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Apple Inc.: shareholders equity, fiscal year 2024: $56,950 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0091",
+        "apple_2025_c0092",
+        "apple_2023_c0086",
+        "apple_2025_c0091",
+        "apple_2024_c0090"
+      ]
+    },
+    {
+      "id": "E52",
+      "category": "direct_lookup",
+      "question": "How much did Apple spend on property, plant and equipment in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: capital expenditures, fiscal year 2024: -$9,447 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0106",
+        "apple_2023_c0101",
+        "apple_2025_c0108",
+        "apple_2025_c0109",
+        "apple_2023_c0102"
+      ]
+    },
+    {
+      "id": "E53",
+      "category": "direct_lookup",
+      "question": "What was Apple's share-based compensation expense in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc.: share based compensation, fiscal year 2024: $11,688 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0118",
+        "apple_2023_c0115",
+        "apple_2025_c0119",
+        "apple_2024_c0079",
+        "apple_2025_c0079"
+      ]
+    },
+    {
+      "id": "E54",
+      "category": "direct_lookup",
+      "question": "What was Apple's depreciation and amortization in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Apple Inc.: depreciation and amortization, fiscal year 2023: $11,519 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0106",
+        "apple_2024_c0076",
+        "apple_2023_c0070",
+        "apple_2023_c0102",
+        "apple_2023_c0104"
+      ]
+    },
+    {
+      "id": "E55",
+      "category": "segment_breakdown",
+      "question": "What were Apple's Wearables, Home and Accessories net sales in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Apple Inc. - Wearables, Home and Accessories: revenue, fiscal year 2024: $37,005 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0077",
+        "apple_2024_c0078",
+        "apple_2023_c0074",
+        "apple_2023_c0073",
+        "apple_2025_c0078"
+      ]
+    },
+    {
+      "id": "E56",
+      "category": "segment_breakdown",
+      "question": "How much revenue did iPad generate for Apple in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Apple Inc. - iPad: revenue, fiscal year 2025: $28,023 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0078",
+        "apple_2023_c0074",
+        "apple_2024_c0077",
+        "apple_2023_c0094",
+        "apple_2024_c0076"
+      ]
+    },
+    {
+      "id": "E57",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in Europe in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Apple Inc. - Europe: revenue, fiscal year 2024: $101,328 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2025_c0077",
+        "apple_2023_c0072",
+        "apple_2024_c0077",
+        "apple_2024_c0121"
+      ]
+    },
+    {
+      "id": "E58",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in the Americas in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Apple Inc. - Americas: revenue, fiscal year 2025: $178,353 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0077",
+        "apple_2024_c0076",
+        "apple_2023_c0072",
+        "apple_2025_c0125",
+        "apple_2025_c0123"
+      ]
+    },
+    {
+      "id": "E59",
+      "category": "segment_breakdown",
+      "question": "What were Apple's net sales in Rest of Asia Pacific in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Apple Inc. - Rest of Asia Pacific: revenue, fiscal year 2023: $29,615 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2023_c0073",
+        "apple_2024_c0077",
+        "apple_2025_c0077",
+        "apple_2024_c0076",
+        "apple_2023_c0072"
+      ]
+    },
+    {
+      "id": "E60",
+      "category": "direct_lookup",
+      "question": "What was Apple's total gross margin percentage in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: gross margin, fiscal year 2025: $195,201 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0078",
+        "apple_2023_c0075",
+        "apple_2024_c0078",
+        "apple_2023_c0074",
+        "apple_2025_c0079"
+      ]
+    },
+    {
+      "id": "E61",
+      "category": "cross_year_comparison",
+      "question": "How did Apple's iPhone net sales change from fiscal 2024 to fiscal 2025?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc. - iPhone: revenue, fiscal year 2024: $201,183 million (GAAP)",
+        "Apple Inc. - iPhone: revenue, fiscal year 2025: $209,586 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2025_c0077",
+        "apple_2024_c0077",
+        "apple_2023_c0073",
+        "apple_2023_c0072"
+      ]
+    },
+    {
+      "id": "E62",
+      "category": "cross_year_comparison",
+      "question": "How much did Apple's Services net sales grow between fiscal 2023 and fiscal 2025?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc. - Services: revenue, fiscal year 2023: $85,200 million (GAAP)",
+        "Apple Inc. - Services: revenue, fiscal year 2025: $109,158 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0077",
+        "apple_2025_c0078",
+        "apple_2024_c0076",
+        "apple_2023_c0074",
+        "apple_2024_c0078"
+      ]
+    },
+    {
+      "id": "E63",
+      "category": "direct_lookup",
+      "question": "How many full-time equivalent employees did Apple have at the end of fiscal 2025?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": false,
+      "combined_support@5": false,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "apple_2025_c0015",
+        "apple_2024_c0014",
+        "apple_2024_c0116",
+        "apple_2023_c0113",
+        "apple_2025_c0074"
+      ]
+    },
+    {
+      "id": "E64",
+      "category": "direct_lookup",
+      "question": "How many full-time employees did Apple have at the end of fiscal 2023?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": false,
+      "combined_support@5": false,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "apple_2025_c0015",
+        "apple_2025_c0074",
+        "apple_2024_c0076",
+        "apple_2024_c0014",
+        "apple_2023_c0070"
+      ]
+    },
+    {
+      "id": "E65",
+      "category": "direct_lookup",
+      "question": "How large was the share repurchase program Apple announced in May 2024?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc.: share repurchases, fiscal year 2024: -$94,949 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2023_c0067",
+        "apple_2025_c0071",
+        "apple_2024_c0082",
+        "apple_2024_c0072",
+        "apple_2025_c0082"
+      ]
+    },
+    {
+      "id": "E66",
+      "category": "direct_lookup",
+      "question": "How many shares did Apple repurchase during fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": false,
+      "combined_support@5": false,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Apple Inc.: share repurchases, fiscal year 2025: -$90,711 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0071",
+        "apple_2023_c0067",
+        "apple_2023_c0112",
+        "apple_2024_c0072",
+        "apple_2025_c0082"
+      ]
+    },
+    {
+      "id": "E67",
+      "category": "direct_lookup",
+      "question": "How many shares did Apple buy back in fiscal 2023 and at what cost?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Apple Inc.: share repurchases, fiscal year 2023: -$77,550 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2023_c0112",
+        "apple_2025_c0074",
+        "apple_2023_c0067",
+        "apple_2023_c0083",
+        "apple_2023_c0071"
+      ]
+    },
+    {
+      "id": "E68",
+      "category": "entity_resolution",
+      "question": "What was MSFT's total revenue in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2024: $245,122 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0211",
+        "microsoft_2025_c0188",
+        "microsoft_2023_c0205",
+        "microsoft_2024_c0122",
+        "microsoft_2023_c0191"
+      ]
+    },
+    {
+      "id": "E69",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's gross margin in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: gross margin, fiscal year 2024: $171,008 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0122",
+        "microsoft_2023_c0118",
+        "microsoft_2023_c0113",
+        "microsoft_2025_c0105",
+        "microsoft_2024_c0125"
+      ]
+    },
+    {
+      "id": "E70",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's operating income in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: operating income, fiscal year 2025: $128,528 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0188",
+        "microsoft_2025_c0105",
+        "microsoft_2024_c0122",
+        "microsoft_2023_c0113",
+        "microsoft_2025_c0110"
+      ]
+    },
+    {
+      "id": "E71",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's diluted earnings per share in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: diluted eps, fiscal year 2023: $9.68 per share (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0113",
+        "microsoft_2025_c0154",
+        "microsoft_2023_c0141",
+        "microsoft_2025_c0129",
+        "microsoft_2024_c0147"
+      ]
+    },
+    {
+      "id": "E72",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's general and administrative expenses in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: general and administrative, fiscal year 2024: $7,609 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0126",
+        "microsoft_2023_c0119",
+        "microsoft_2025_c0109",
+        "microsoft_2023_c0118",
+        "microsoft_2024_c0125"
+      ]
+    },
+    {
+      "id": "E73",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft spend on sales and marketing in fiscal 2024?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 9,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2024: $245,122 million (GAAP)",
+        "Microsoft Corporation: sales and marketing, fiscal year 2024: $24,456 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0118",
+        "microsoft_2024_c0125",
+        "microsoft_2025_c0108",
+        "microsoft_2024_c0211",
+        "microsoft_2024_c0114"
+      ]
+    },
+    {
+      "id": "E74",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's income before income taxes in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: income before taxes, fiscal year 2025: $123,627 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0110",
+        "microsoft_2025_c0171",
+        "microsoft_2023_c0183",
+        "microsoft_2024_c0190",
+        "microsoft_2024_c0127"
+      ]
+    },
+    {
+      "id": "E75",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's provision for income taxes in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: provision for income taxes, fiscal year 2024: $19,651 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0190",
+        "microsoft_2025_c0171",
+        "microsoft_2023_c0183",
+        "microsoft_2025_c0110",
+        "microsoft_2024_c0127"
+      ]
+    },
+    {
+      "id": "E76",
+      "category": "direct_lookup",
+      "question": "How much cash and cash equivalents did Microsoft have on June 30, 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Microsoft Corporation: cash and cash equivalents, fiscal year 2025: $30,242 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0133",
+        "microsoft_2024_c0151",
+        "microsoft_2025_c0130",
+        "microsoft_2023_c0142",
+        "microsoft_2025_c0113"
+      ]
+    },
+    {
+      "id": "E77",
+      "category": "direct_lookup",
+      "question": "What were Microsoft's total liabilities at the end of fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Microsoft Corporation: total liabilities, fiscal year 2024: $243,686 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0173",
+        "microsoft_2024_c0204",
+        "microsoft_2024_c0148",
+        "microsoft_2025_c0130",
+        "microsoft_2025_c0179"
+      ]
+    },
+    {
+      "id": "E78",
+      "category": "direct_lookup",
+      "question": "What was Microsoft's total stockholders' equity at the end of fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [
+        "Microsoft Corporation: shareholders equity, fiscal year 2025: $343,479 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0134",
+        "microsoft_2025_c0131",
+        "microsoft_2024_c0152",
+        "microsoft_2024_c0149",
+        "microsoft_2023_c0143"
+      ]
+    },
+    {
+      "id": "E79",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft spend on additions to property and equipment in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: capital expenditures, fiscal year 2025: -$64,551 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0163",
+        "microsoft_2025_c0116",
+        "microsoft_2023_c0174",
+        "microsoft_2023_c0109",
+        "microsoft_2023_c0148"
+      ]
+    },
+    {
+      "id": "E80",
+      "category": "cross_year_comparison",
+      "question": "How did Microsoft's capital expenditures change from fiscal 2024 to fiscal 2025?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: capital expenditures, fiscal year 2024: -$44,477 million (GAAP)",
+        "Microsoft Corporation: capital expenditures, fiscal year 2025: -$64,551 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2025_c0116",
+        "microsoft_2024_c0133",
+        "microsoft_2023_c0127",
+        "microsoft_2023_c0130",
+        "microsoft_2025_c0173"
+      ]
+    },
+    {
+      "id": "E81",
+      "category": "direct_lookup",
+      "question": "How much did Microsoft spend repurchasing common stock in fiscal 2024 according to its cash flow statement?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: share repurchases, fiscal year 2024: -$17,254 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2024_c0133",
+        "microsoft_2024_c0111",
+        "microsoft_2025_c0119",
+        "microsoft_2023_c0127",
+        "microsoft_2024_c0136"
+      ]
+    },
+    {
+      "id": "E82",
+      "category": "segment_breakdown",
+      "question": "What was revenue for Microsoft's Productivity and Business Processes segment in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation - Productivity and Business Processes: revenue, fiscal year 2024: $77,728 million (GAAP) [reports disagree: Microsoft 10-K FY2025 states $106,820 million]"
+      ],
+      "chunks": [
+        "microsoft_2024_c0122",
+        "microsoft_2023_c0115",
+        "microsoft_2025_c0105",
+        "microsoft_2025_c0101",
+        "microsoft_2025_c0188"
+      ]
+    },
+    {
+      "id": "E83",
+      "category": "conflicting_evidence",
+      "question": "What was Microsoft's Intelligent Cloud revenue in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Microsoft Corporation - Intelligent Cloud: revenue, fiscal year 2023: $87,907 million (GAAP) [reports disagree: Microsoft 10-K FY2025 states $72,944 million]"
+      ],
+      "chunks": [
+        "microsoft_2024_c0122",
+        "microsoft_2025_c0105",
+        "microsoft_2023_c0105",
+        "microsoft_2023_c0115",
+        "microsoft_2024_c0114"
+      ]
+    },
+    {
+      "id": "E84",
+      "category": "entity_resolution",
+      "question": "How large was Microsoft Cloud revenue in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2025: $281,724 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0105",
+        "microsoft_2025_c0189",
+        "microsoft_2025_c0098",
+        "microsoft_2025_c0105",
+        "microsoft_2024_c0114"
+      ]
+    },
+    {
+      "id": "E85",
+      "category": "entity_resolution",
+      "question": "What was Microsoft Cloud revenue in fiscal 2023?",
+      "graph_facts": 1,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2023: $211,915 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0105",
+        "microsoft_2024_c0114",
+        "microsoft_2024_c0211",
+        "microsoft_2023_c0205",
+        "microsoft_2025_c0098"
+      ]
+    },
+    {
+      "id": "E86",
+      "category": "direct_lookup",
+      "question": "How fast did Azure and other cloud services revenue grow in fiscal 2025?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": false,
+      "combined_support@5": false,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "microsoft_2023_c0105",
+        "microsoft_2025_c0098",
+        "microsoft_2024_c0114",
+        "microsoft_2023_c0116",
+        "microsoft_2024_c0211"
+      ]
+    },
+    {
+      "id": "E87",
+      "category": "direct_lookup",
+      "question": "How many people did Microsoft employ full-time as of June 30, 2023?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "microsoft_2024_c0019",
+        "microsoft_2025_c0021",
+        "microsoft_2023_c0019",
+        "microsoft_2023_c0206",
+        "microsoft_2024_c0013"
+      ]
+    },
+    {
+      "id": "E88",
+      "category": "direct_lookup",
+      "question": "What was the total purchase price of Microsoft's Activision Blizzard acquisition?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "microsoft_2025_c0164",
+        "microsoft_2023_c0176",
+        "microsoft_2024_c0182",
+        "microsoft_2024_c0115",
+        "microsoft_2024_c0183"
+      ]
+    },
+    {
+      "id": "E89",
+      "category": "conflicting_evidence",
+      "question": "What was Microsoft's adjusted (non-GAAP) diluted EPS in fiscal 2023?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Microsoft Corporation: diluted eps, fiscal year 2023: $9.68 per share (GAAP)",
+        "Microsoft Corporation: diluted eps, fiscal year 2023: $9.81 per share (non-GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0113",
+        "microsoft_2024_c0129",
+        "microsoft_2023_c0123",
+        "microsoft_2023_c0166",
+        "microsoft_2024_c0122"
+      ]
+    },
+    {
+      "id": "E90",
+      "category": "cross_document",
+      "question": "Which company spent more on research and development in fiscal 2025, Apple or Microsoft?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "Apple Inc.: research and development, fiscal year 2025: $34,550 million (GAAP)",
+        "Microsoft Corporation: research and development, fiscal year 2025: $32,488 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2025_c0079",
+        "microsoft_2023_c0118",
+        "apple_2025_c0074",
+        "microsoft_2023_c0041",
+        "apple_2025_c0123"
+      ]
+    },
+    {
+      "id": "E91",
+      "category": "cross_document",
+      "question": "Compare Apple's and Microsoft's total assets at the end of fiscal 2024.",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 9,
+      "facts": [
+        "Apple Inc.: total assets, fiscal year 2024: $364,980 million (GAAP)",
+        "Microsoft Corporation: total assets, fiscal year 2024: $512,163 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0121",
+        "microsoft_2025_c0189",
+        "apple_2024_c0076",
+        "microsoft_2023_c0179",
+        "apple_2025_c0125"
+      ]
+    },
+    {
+      "id": "E92",
+      "category": "ambiguous_question",
+      "question": "What was net income in fiscal 2025?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": false,
+      "combined_support@5": false,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "nvidia_2025_c0155",
+        "nvidia_2023_c0132",
+        "microsoft_2025_c0110",
+        "nvidia_2025_c0156",
+        "microsoft_2023_c0119"
+      ]
+    },
+    {
+      "id": "E93",
+      "category": "missing_evidence",
+      "question": "How many iPhone units did Apple sell in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": null,
+      "text_support@5": null,
+      "combined_support@5": null,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "Apple Inc. - iPhone: revenue, fiscal year 2024: $201,183 million (GAAP)"
+      ],
+      "chunks": [
+        "apple_2024_c0076",
+        "apple_2025_c0077",
+        "apple_2025_c0074",
+        "apple_2023_c0071",
+        "apple_2024_c0077"
+      ]
+    },
+    {
+      "id": "E94",
+      "category": "missing_evidence",
+      "question": "What was Microsoft's revenue in the second quarter of fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": null,
+      "text_support@5": null,
+      "combined_support@5": null,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "Microsoft Corporation: revenue, fiscal year 2024: $245,122 million (GAAP)"
+      ],
+      "chunks": [
+        "microsoft_2023_c0108",
+        "microsoft_2024_c0122",
+        "microsoft_2023_c0191",
+        "microsoft_2024_c0211",
+        "microsoft_2025_c0105"
+      ]
+    },
+    {
+      "id": "E95",
+      "category": "missing_evidence",
+      "question": "What was Tesla's automotive revenue in fiscal 2024?",
+      "graph_facts": 0,
+      "graph_support": null,
+      "text_support@5": null,
+      "combined_support@5": null,
+      "sources_have_pages": true,
+      "n_sources": 4,
+      "facts": [],
+      "chunks": [
+        "nvidia_2024_c0137",
+        "nvidia_2024_c0139",
+        "nvidia_2025_c0146",
+        "nvidia_2023_c0129",
+        "nvidia_2024_c0237"
+      ]
+    },
+    {
+      "id": "E96",
+      "category": "direct_lookup",
+      "question": "What was NVIDIA's revenue in fiscal year 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "NVIDIA Corporation: revenue, fiscal year 2025: $130,497 million (GAAP)"
+      ],
+      "chunks": [
+        "nvidia_2025_c0146",
+        "nvidia_2024_c0137",
+        "nvidia_2025_c0154",
+        "nvidia_2025_c0222",
+        "nvidia_2023_c0118"
+      ]
+    },
+    {
+      "id": "E97",
+      "category": "direct_lookup",
+      "question": "What was NVIDIA's net income in fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "NVIDIA Corporation: net income, fiscal year 2024: $29,760 million (GAAP)"
+      ],
+      "chunks": [
+        "nvidia_2025_c0155",
+        "nvidia_2023_c0132",
+        "nvidia_2024_c0137",
+        "nvidia_2023_c0129",
+        "nvidia_2025_c0156"
+      ]
+    },
+    {
+      "id": "E98",
+      "category": "conflicting_evidence",
+      "question": "What were NVIDIA's diluted earnings per share for fiscal 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "NVIDIA Corporation: diluted eps, fiscal year 2024: $11.93 per share (GAAP) [reports disagree: NVIDIA 10-K FY2025 states $1.19 per share]"
+      ],
+      "chunks": [
+        "nvidia_2025_c0213",
+        "nvidia_2023_c0198",
+        "nvidia_2025_c0181",
+        "nvidia_2024_c0175",
+        "nvidia_2023_c0160"
+      ]
+    },
+    {
+      "id": "E99",
+      "category": "direct_lookup",
+      "question": "Who was NVIDIA's chief financial officer in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "NVIDIA Corporation FY2025 executive: Colette M. Kress - Executive Vice President and Chief Financial Officer"
+      ],
+      "chunks": [
+        "nvidia_2025_c0239",
+        "nvidia_2025_c0250",
+        "nvidia_2023_c0221",
+        "nvidia_2025_c0146",
+        "nvidia_2025_c0137"
+      ]
+    },
+    {
+      "id": "E100",
+      "category": "direct_lookup",
+      "question": "How much did NVIDIA spend on share repurchases in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "NVIDIA Corporation: share repurchases, fiscal year 2025: -$33,706 million (GAAP)"
+      ],
+      "chunks": [
+        "nvidia_2025_c0133",
+        "nvidia_2025_c0238",
+        "nvidia_2024_c0153",
+        "nvidia_2023_c0111",
+        "nvidia_2023_c0120"
+      ]
+    },
+    {
+      "id": "E101",
+      "category": "cross_year_comparison",
+      "question": "How did NVIDIA's revenue change from fiscal 2024 to fiscal 2025?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "NVIDIA Corporation: revenue, fiscal year 2024: $60,922 million (GAAP)",
+        "NVIDIA Corporation: revenue, fiscal year 2025: $130,497 million (GAAP)"
+      ],
+      "chunks": [
+        "nvidia_2025_c0222",
+        "nvidia_2024_c0146",
+        "nvidia_2024_c0218",
+        "nvidia_2024_c0137",
+        "nvidia_2025_c0154"
+      ]
+    },
+    {
+      "id": "E102",
+      "category": "direct_lookup",
+      "question": "What was IBM's total revenue in 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "International Business Machines Corporation: revenue, fiscal year 2023: $61,860 million (GAAP)"
+      ],
+      "chunks": [
+        "ibm_2024_c0606",
+        "ibm_2023_c0712",
+        "ibm_2023_c0708",
+        "ibm_2025_c0465",
+        "ibm_2025_c0474"
+      ]
+    },
+    {
+      "id": "E103",
+      "category": "direct_lookup",
+      "question": "What was IBM's net income in fiscal 2025?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": true,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "International Business Machines Corporation: net income, fiscal year 2025: $10,593 million (GAAP)"
+      ],
+      "chunks": [
+        "ibm_2025_c0307",
+        "ibm_2025_c0349",
+        "ibm_2024_c0420",
+        "ibm_2025_c0308",
+        "ibm_2024_c0543"
+      ]
+    },
+    {
+      "id": "E104",
+      "category": "direct_lookup",
+      "question": "What were IBM's diluted earnings per share for 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "International Business Machines Corporation: diluted eps, fiscal year 2024: $6.43 per share (GAAP)"
+      ],
+      "chunks": [
+        "ibm_2024_c0420",
+        "ibm_2023_c0539",
+        "ibm_2024_c0626",
+        "ibm_2023_c0735",
+        "ibm_2024_c0426"
+      ]
+    },
+    {
+      "id": "E105",
+      "category": "direct_lookup",
+      "question": "Who was IBM's CEO according to its fiscal 2025 annual report?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 6,
+      "facts": [
+        "International Business Machines Corporation FY2025 executive: Arvind Krishna - Chairman of the Board, President and Chief Executive Officer"
+      ],
+      "chunks": [
+        "ibm_2024_c0488",
+        "ibm_2025_c0034",
+        "ibm_2025_c0301",
+        "ibm_2025_c0004",
+        "ibm_2024_c0004"
+      ]
+    },
+    {
+      "id": "E106",
+      "category": "direct_lookup",
+      "question": "What were IBM's total assets at the end of 2024?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 7,
+      "facts": [
+        "International Business Machines Corporation: total assets, fiscal year 2024: $137,175 million (GAAP)"
+      ],
+      "chunks": [
+        "ibm_2024_c0467",
+        "ibm_2024_c0605",
+        "ibm_2025_c0349",
+        "ibm_2023_c0712",
+        "ibm_2023_c0582"
+      ]
+    },
+    {
+      "id": "E107",
+      "category": "segment_breakdown",
+      "question": "What was IBM's Software segment revenue in 2025?",
+      "graph_facts": 0,
+      "graph_support": false,
+      "text_support@5": false,
+      "combined_support@5": false,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "ibm_2023_c0708",
+        "ibm_2024_c0488",
+        "ibm_2025_c0332",
+        "ibm_2024_c0436",
+        "ibm_2024_c0444"
+      ]
+    },
+    {
+      "id": "E108",
+      "category": "entity_resolution",
+      "question": "How much did International Business Machines spend on research and development in 2023?",
+      "graph_facts": 1,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "International Business Machines Corporation: research and development, fiscal year 2023: $6,775 million (GAAP)"
+      ],
+      "chunks": [
+        "ibm_2024_c0459",
+        "ibm_2023_c0575",
+        "ibm_2025_c0432",
+        "ibm_2023_c0726",
+        "ibm_2024_c0450"
+      ]
+    },
+    {
+      "id": "E109",
+      "category": "ambiguous_question",
+      "question": "Compare IBM and NVIDIA revenue in fiscal 2024.",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "International Business Machines Corporation: revenue, fiscal year 2024: $62,753 million (GAAP)",
+        "NVIDIA Corporation: revenue, fiscal year 2024: $60,922 million (GAAP)"
+      ],
+      "chunks": [
+        "ibm_2024_c0488",
+        "nvidia_2024_c0137",
+        "ibm_2024_c0726",
+        "nvidia_2024_c0139",
+        "ibm_2024_c0454"
+      ]
+    },
+    {
+      "id": "E110",
+      "category": "missing_evidence",
+      "question": "What was IBM's revenue in fiscal 2026?",
+      "graph_facts": 0,
+      "graph_support": null,
+      "text_support@5": null,
+      "combined_support@5": null,
+      "sources_have_pages": true,
+      "n_sources": 5,
+      "facts": [],
+      "chunks": [
+        "ibm_2025_c0307",
+        "ibm_2024_c0488",
+        "ibm_2023_c0712",
+        "ibm_2025_c0362",
+        "ibm_2024_c0606"
+      ]
+    },
+    {
+      "id": "E111",
+      "category": "cross_year_comparison",
+      "question": "How did NVIDIA's research and development expense change from fiscal 2023 to fiscal 2025?",
+      "graph_facts": 2,
+      "graph_support": true,
+      "text_support@5": false,
+      "combined_support@5": true,
+      "sources_have_pages": true,
+      "n_sources": 8,
+      "facts": [
+        "NVIDIA Corporation: research and development, fiscal year 2023: $7,339 million (GAAP)",
+        "NVIDIA Corporation: research and development, fiscal year 2025: $12,914 million (GAAP)"
+      ],
+      "chunks": [
+        "nvidia_2023_c0131",
+        "nvidia_2024_c0148",
+        "nvidia_2025_c0155",
+        "nvidia_2023_c0129",
+        "nvidia_2023_c0132"
+      ]
+    }
+  ]
+}

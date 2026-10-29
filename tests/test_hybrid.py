@@ -22,7 +22,29 @@ def test_detects_companies_including_aliases():
     assert cr.detect_companies("Compare Apple and Microsoft revenue") == ["apple", "microsoft"]
     assert cr.detect_companies("What net income did the iPhone maker report?") == ["apple"]
     assert cr.detect_companies("MSFT cloud growth") == ["microsoft"]
-    assert cr.detect_companies("NVIDIA data center revenue") == []
+    # IBM and NVIDIA indexed since 2026-10-29; Tesla is not.
+    assert cr.detect_companies("NVIDIA data center revenue") == ["nvidia"]
+    assert cr.detect_companies("Compare IBM and NVDA revenue") == ["ibm", "nvidia"]
+    assert cr.detect_companies("International Business Machines R&D") == ["ibm"]
+    assert cr.detect_companies("Tesla automotive revenue") == []
+
+
+def test_ibm_and_nvidia_metric_wording():
+    assert cr.detect_metrics("What was NVIDIA's gross profit?") == ["gross_margin"]
+    # "sales, general and administrative" is SG&A, not revenue.
+    assert cr.detect_metrics("NVIDIA sales, general and administrative expense") == ["selling_general_and_administrative"]
+    assert cr.detect_metrics("IBM research, development and engineering") == ["research_and_development"]
+    assert cr.detect_metrics("NVIDIA income before income tax") == ["income_before_taxes"]
+    # NVIDIA's capex line (incl. intangibles) is a separate metric returned for the same words.
+    assert cr.detect_metrics("NVIDIA capital expenditures") == [
+        "capital_expenditures", "purchases_of_property_equipment_and_intangibles"]
+
+
+def test_text_sources_use_the_graph_report_caption(monkeypatch):
+    chunks = [_c("i1", "ibm", 175), _c("n1", "nvidia", 52)]
+    _fake_retrieval(monkeypatch, chunks, ["i1", "n1"])
+    got = hybrid.text_search(None, "Compare IBM and NVIDIA revenue", 2)
+    assert [c["source"] for c in got] == ["IBM Annual Report FY2024, p.175", "NVIDIA Annual Report FY2024, p.52"]
 
 
 def test_detects_fiscal_years():
@@ -101,8 +123,9 @@ def test_dedupe_keeps_one_chunk_per_company_year_page(monkeypatch):
 
 def test_new_balance_sheet_and_cash_flow_metrics_are_detected():
     assert cr.detect_metrics("What was Apple's income before provision for income taxes in fiscal 2024?") == ["income_before_taxes"]
-    assert cr.detect_metrics("How did Microsoft's capital expenditures change?") == ["capital_expenditures"]
-    assert cr.detect_metrics("How much did Microsoft spend on additions to property and equipment?") == ["capital_expenditures"]
+    assert cr.detect_metrics("How did Microsoft's capital expenditures change?") == [
+        "capital_expenditures", "purchases_of_property_equipment_and_intangibles"]   # 2nd: NVIDIA only
+    assert cr.detect_metrics("How much did Microsoft spend on additions to property and equipment?")[0] == "capital_expenditures"
     assert cr.detect_metrics("What was Microsoft's total stockholders’ equity?") == ["shareholders_equity"]
     assert cr.detect_metrics("How much cash and cash equivalents did Apple hold?") == ["cash_and_cash_equivalents"]
     assert cr.detect_metrics("What was Microsoft's provision for income taxes in fiscal 2024?") == ["provision_for_income_taxes"]

@@ -30,7 +30,7 @@ import sys
 from itertools import zip_longest
 
 from fin_graph_rag import embeddings as em
-from fin_graph_rag.cypher_retriever import cypher_search, detect_companies, source_label
+from fin_graph_rag.cypher_retriever import SHORT_NAMES, cypher_search, detect_companies, source_label
 from fin_graph_rag.retrieval import BM25, bm25_text, rrf, tokenize
 from fin_graph_rag.vector_retriever import vector_search
 
@@ -44,6 +44,14 @@ CANDIDATES = 100
 DEDUPE_BY_PAGE = False
 # DEMO-KNOB: when the question names a company, drop text chunks from the other.
 FILTER_BY_COMPANY = True
+# DEMO-KNOB: apply that company filter BEFORE taking the CANDIDATES from each
+# ranking (BM25 over the named companies' chunks only; vector search over-sampled
+# by VECTOR_OVERSAMPLE, then filtered). Hypothesis: with four companies indexed,
+# the top 100 of the whole corpus hold fewer of the named company's chunks.
+# Measured 2026-10-29 on 105 cases: combined support@5 96 (on) vs 97 (off),
+# @10 101 vs 101 - no gain, so off (the simpler behaviour) stays the default.
+PREFILTER_BY_COMPANY = False
+VECTOR_OVERSAMPLE = 4
 
 _bm25 = None
 
@@ -58,17 +66,21 @@ def _keyword_index():
 
 def text_search(driver, query: str, top_k: int = 5, database=None, embedder=None,
                 dedupe: bool | None = None, company_filter: bool | None = None,
-                default_companies: list[str] | None = None) -> list[dict]:
+                default_companies: list[str] | None = None, prefilter: bool | None = None) -> list[dict]:
     dedupe = DEDUPE_BY_PAGE if dedupe is None else dedupe
     company_filter = FILTER_BY_COMPANY if company_filter is None else company_filter
-    vec = vector_search(driver, query, CANDIDATES, database, embedder)
+    companies = detect_companies(query) or list(default_companies or [])
+    pre = (PREFILTER_BY_COMPANY if prefilter is None else prefilter) and company_filter and bool(companies)
+    vec = vector_search(driver, query, CANDIDATES * (VECTOR_OVERSAMPLE if pre else 1), database, embedder)
+    if pre:
+        vec = [v for v in vec if v["company"] in companies][:CANDIDATES]
     bm25, chunks = _keyword_index()
     scores = bm25.scores(tokenize(query))
-    kw = [chunks[i]["chunk_id"] for i in scores.argsort()[::-1][:CANDIDATES] if scores[i] > 0]
+    order = [i for i in scores.argsort()[::-1] if scores[i] > 0 and (not pre or chunks[i]["company"] in companies)]
+    kw = [chunks[i]["chunk_id"] for i in order[:CANDIDATES]]
     fused = rrf([[v["chunk_id"] for v in vec], kw])
     by_id = {v["chunk_id"]: v for v in vec}
     chunk_by_id = {c["chunk_id"]: c for c in chunks}
-    companies = detect_companies(query) or list(default_companies or [])
     ranked = sorted(fused.items(), key=lambda x: -x[1])
     if len(companies) > 1:
         # Comparison question: alternate between the named companies so the
@@ -90,7 +102,9 @@ def text_search(driver, query: str, top_k: int = 5, database=None, embedder=None
         out.append({"chunk_id": cid, "text": c["text"], "company": company, "year": year, "page_num": page,
                     "overlap_chars": c.get("overlap_chars", 0), "qualifiers": c.get("qualifiers", []),
                     "rrf_score": round(score, 6),
-                    "source": source_label(f"{company.title()} 10-K FY{year}", page)})
+                    # Same caption as the graph's Report.name ("IBM", not "Ibm"), so a
+                    # text citation and a graph citation of one page are one source.
+                    "source": source_label(f"{SHORT_NAMES.get(company, company.title())} 10-K FY{year}", page)})
         if len(out) == top_k:
             break
     return out
@@ -118,9 +132,13 @@ def _figure(s: str) -> float | None:
 
 
 def graph_supports(facts: list[dict], sup: dict) -> bool:
-    """A metric fact whose value equals the expected figure (sign ignored: outflows are negative)."""
+    """A metric fact whose value equals the expected figure (sign ignored: outflows are
+    negative); for a non-numeric answer (a person and role), a fact whose text holds
+    both the expected label and figure (added 2026-10-29 with the first person cases)."""
     want = _figure(sup["figure"])
-    return want is not None and any(f["type"] == "metric" and abs(abs(f["value"]) - want) < 0.005 for f in facts)
+    if want is None:
+        return any(f["type"] != "metric" and sup["label"] in f["text"] and sup["figure"] in f["text"] for f in facts)
+    return any(f["type"] == "metric" and abs(abs(f["value"]) - want) < 0.005 for f in facts)
 
 
 def evaluate(driver, k: int = 5, database=None, **text_opts) -> dict:
@@ -147,7 +165,8 @@ def evaluate(driver, k: int = 5, database=None, **text_opts) -> dict:
     return {
         "k": k, "options": {"dedupe": text_opts.get("dedupe", DEDUPE_BY_PAGE),
                             "company_filter": text_opts.get("company_filter", FILTER_BY_COMPANY),
-                            "candidates": CANDIDATES},
+                            "prefilter": text_opts.get("prefilter", PREFILTER_BY_COMPANY),
+                            "vector_oversample": VECTOR_OVERSAMPLE, "candidates": CANDIDATES},
         "summary": {
             "cases_with_support": len(scored),
             "graph_support": sum(r["graph_support"] for r in scored),
