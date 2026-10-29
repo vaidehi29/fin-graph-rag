@@ -9,6 +9,9 @@ data/extracted/*
 data/processed/*
 data/index/*
 !data/**/.gitkeep
+# Deployed app needs the chunk text for BM25 keyword search (vectors are in Neo4j).
+# Public 10-K text, ~9 MB; re-commit whenever fin_graph_rag.preprocess is re-run.
+!data/processed/chunks.jsonl
 *.faiss
 *.bin
 *.safetensors
