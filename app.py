@@ -125,9 +125,12 @@ qa_tab, graph_tab = st.tabs(["Q&A", "Knowledge Graph"])
 
 # --- Q&A -----------------------------------------------------------------------
 with qa_tab:
-    question = st.text_input("Ask a financial question…",
-                             placeholder="e.g. Compare Apple and Microsoft net income in fiscal 2025")
-    if st.button("Search", type="primary") and question.strip():
+    # A form so pressing Enter in the question box submits, same as clicking Search.
+    with st.form("ask"):
+        question = st.text_input("Ask a financial question…",
+                                 placeholder="e.g. Compare Apple and Microsoft net income in fiscal 2025")
+        submitted = st.form_submit_button("Search", type="primary")
+    if submitted and question.strip():
         if not chosen:
             st.warning("Select at least one company in the sidebar.")
         else:
