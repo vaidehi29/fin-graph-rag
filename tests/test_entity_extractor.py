@@ -122,6 +122,14 @@ EXPECTED = [
     ("apple|total_liabilities|||2024|gaap", 308030), ("apple|shareholders_equity|||2024|gaap", 56950),
     ("microsoft|capital_expenditures|||2025|gaap", -64551), ("microsoft|cash_and_cash_equivalents|||2025|gaap", 30242),
     ("microsoft|shareholders_equity|||2025|gaap", 343479), ("microsoft|income_before_taxes|||2025|gaap", 123627),
+    # IBM / NVIDIA (added 2026-10-29), each line checked on its page (eval/cases.jsonl E96-E111 and
+    # README): NVIDIA FY2025 p.52/56, FY2024 p.50, FY2023 p.56; IBM FY2023 p.242, FY2024 p.167/169, FY2025 p.175.
+    ("nvidia|revenue|||2025|gaap", 130497), ("nvidia|net_income|||2024|gaap", 29760),
+    ("nvidia|diluted_eps|||2025|gaap", 2.94), ("nvidia|share_repurchases|||2025|gaap", -33706),
+    ("nvidia|research_and_development|||2025|gaap", 12914), ("nvidia|total_assets|||2023|gaap", 41182),
+    ("ibm|revenue|||2023|gaap", 61860), ("ibm|net_income|||2025|gaap", 10593),
+    ("ibm|diluted_eps|||2024|gaap", 6.43), ("ibm|total_assets|||2024|gaap", 137175),
+    ("ibm|research_and_development|||2023|gaap", 6775), ("ibm|shareholders_equity|||2024|gaap", 27307),
 ]
 
 

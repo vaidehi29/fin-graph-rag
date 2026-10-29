@@ -14,6 +14,7 @@ PANEL NOTE: Marked `integration`: skipped in the default run, selected with
             Apple / Microsoft equivalents (only those reports are indexed).
 """
 
+import math
 import os
 import re
 from pathlib import Path
@@ -65,6 +66,10 @@ def test_hybrid_search_compare_cites_both_companies(neo4j):
     assert any(s.startswith("Apple ") for s in res["sources"])
     assert any(s.startswith("Microsoft ") for s in res["sources"])
     assert {f["company"] for f in res["graph_facts"] if f["type"] == "metric"} == {"apple", "microsoft"}
+    # IBM / NVIDIA report "gross profit" - the same metric, found for both.
+    res = hybrid_search(driver, "Compare IBM and NVIDIA gross margin", 5, db)
+    assert any(s.startswith("IBM ") for s in res["sources"]) and any(s.startswith("NVIDIA ") for s in res["sources"])
+    assert {f["company"] for f in res["graph_facts"] if f["type"] == "metric"} == {"ibm", "nvidia"}
 
 
 # --- pipeline.txt phase 8: golden set ----------------------------------------
@@ -83,8 +88,9 @@ def test_golden_questions(neo4j):
         if g["question"] == "What risks does Apple mention?":
             ok = ok and r["n_graph_facts"] > 0
         passed.append((g["question"], ok))
-    # pipeline.txt acceptance: at least 3 of 4 golden questions answered with citations.
-    assert sum(ok for _, ok in passed) >= 3, passed
+    # pipeline.txt acceptance: at least 3 of 4 golden questions answered with citations
+    # (75%; the set has 6 questions since IBM/NVIDIA were added -> at least 5).
+    assert sum(ok for _, ok in passed) >= math.ceil(0.75 * len(GOLDEN_QUESTIONS)), passed
 
 
 # --- acceptance checks of earlier phases (moved here from the unit files) ----

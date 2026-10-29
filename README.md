@@ -9,7 +9,7 @@ retrieved evidence and a knowledge graph. Agent rules are in [CLAUDE.md](CLAUDE.
 
 | Component | State |
 |---|---|
-| IBM + NVIDIA | Phases 1-7 done 2026-10-29 (12 reports in total); phase 8 tests extended, golden set unchanged - see [Adding IBM and NVIDIA](#adding-ibm-and-nvidia-phases-1-4-2026-10-29). The rows below describe the Apple/Microsoft baseline. |
+| IBM + NVIDIA | Phases 1-8 done 2026-10-29 (12 reports in total; 109 unit + 8 integration tests pass, golden set 6/6) - see [Adding IBM and NVIDIA](#adding-ibm-and-nvidia-phases-1-4-2026-10-29). The rows below describe the Apple/Microsoft baseline. |
 | PDF extraction | Done (`fin_graph_rag/pdf_extractor.py`). Run on all 6 reports: 682 pages, 1 empty. |
 | Preprocessing / chunking | Done - phase 1 (`fin_graph_rag/preprocess.py`). 617 non-empty pages → 1,432 chunks, all ≤ 500 tokens incl. overlap (bert-base-uncased); 375 tables (365 whole, 10 split into labelled parts); 20-30 token overlap between prose chunks. |
 | Embeddings / index | Local (`fin_graph_rag/embeddings.py`): `BAAI/bge-small-en-v1.5` on CPU, 1,432 × 384-d flat cosine index, chunks embedded with a context header. Gemini / Hugging Face free tiers not yet compared. |
@@ -527,17 +527,25 @@ with on-screen zoom buttons.
 
 ## Testing and validation (phase 8)
 
-| suite | command | what it covers | result (2026-10-28) |
-|---|---|---|---|
-| unit | `pytest tests/ -v --ignore-glob="*integration*"` | every component with fakes / synthetic data, plus real-corpus checks when `data/` is present | **88 passed** |
-| integration | `pytest -m integration -v` | live Neo4j, local model, Gemini: retrieval, golden set, acceptance checks of phases 3-7, the Streamlit app end to end | **8 passed** (1 min 52 s) |
+| suite | command | what it covers | result (2026-10-28) | result (2026-10-29, 4 companies) |
+|---|---|---|---|---|
+| unit | `pytest tests/ -v --ignore-glob="*integration*"` | every component with fakes / synthetic data, plus real-corpus checks when `data/` is present | **88 passed** | **109 passed** (29 s) |
+| integration | `pytest -m integration -v` | live Neo4j, local model, Gemini: retrieval, golden set, acceptance checks of phases 3-7, the Streamlit app end to end | **8 passed** (1 min 52 s) | **8 passed** (46 s) |
+
+Added for IBM/NVIDIA (2026-10-29): 12 hand-verified IBM/NVIDIA figures in the
+real-corpus fact check (`EXPECTED`), a real-corpus layout test (IBM signatures
+p.26 and Exhibit 13 kept as report content; NVIDIA signatures pages 91/84/86;
+titled income statements with FY2025-2023 columns), unit tests for every new
+parsing rule, `--companies` merges, `embeddings append`, citations with all-caps
+names and the fiscal-year note, and the integration checks below.
 
 A plain `pytest` runs the unit tests and skips the integration tests
 (`tests/conftest.py`), so it never touches the database or spends API quota.
 
 **pipeline.txt phase 8, mapped to this project** (module names follow the
-`fin_graph_rag/` layout; NVIDIA / Tesla are not indexed, so those checks use
-the closest Apple / Microsoft equivalent):
+`fin_graph_rag/` layout; Tesla is not indexed, so that check uses the closest
+equivalent; NVIDIA has been indexed since 2026-10-29, so its check now runs as
+written):
 
 | pipeline.txt test | here | result |
 |---|---|---|
@@ -545,13 +553,16 @@ the closest Apple / Microsoft equivalent):
 | `extract_entities` JSON parsing with extra whitespace | `test_llm_json_with_extra_whitespace_is_parsed` (+ thinking parts skipped, malformed JSON logged and skipped) | pass |
 | `build_context`: graph facts before text chunks | `test_build_context_graph_facts_before_text` | pass |
 | `cypher_search("Apple revenue")` has a revenue result | `test_integration.py::test_cypher_search_apple_revenue` | pass |
-| `vector_search("AI chips demand")` -> NVIDIA | Microsoft-only topic -> top hit is a Microsoft chunk | pass |
-| `hybrid_search("Compare Tesla and Microsoft margins")` -> both in sources | "Compare Apple and Microsoft gross margin" -> both in sources and facts | pass |
-| golden set (`tests/golden_questions.py`): answer > 50 chars, >= 1 citation, no "I don't know"; >= 3/4 | same checks + no invalid citation + the verified figure/name present | **4/4** |
+| `vector_search("AI chips demand")` -> NVIDIA | as written: top hit is NVIDIA (all top 5 are NVIDIA chunks); plus a Microsoft-only topic -> Microsoft | pass |
+| `hybrid_search("Compare Tesla and Microsoft margins")` -> both in sources | "Compare Apple and Microsoft gross margin" and "Compare IBM and NVIDIA gross margin" -> both companies in sources and facts | pass |
+| golden set (`tests/golden_questions.py`): answer > 50 chars, >= 1 citation, no "I don't know"; >= 3/4 | same checks + no invalid citation + the verified figure/name present; 6 questions since 2026-10-29, threshold 75% (>= 5) | **4/4**, then **6/6** |
 
 Golden answers (cached, cited): Apple vs Microsoft revenue FY2021-FY2025 (7
 sources); Apple risks across 6 categories (8 sources); Apple FY2025 net income
-$112,010 million (p.32); Microsoft FY2025 CEO Satya Nadella (p.19).
+$112,010 million (p.32); Microsoft FY2025 CEO Satya Nadella (p.19). Added
+2026-10-29: NVIDIA FY2025 revenue $130,497 million (p.52); IBM CEO Arvind
+Krishna (FY2025 report). The Apple/Microsoft revenue answer now also states both
+fiscal-year ends (phase 6 change).
 
 **Failure handling** (CLAUDE.md 5.1 #10, `tests/test_pipeline.py`): malformed
 model JSON is logged and that extraction batch skipped (not cached, retried

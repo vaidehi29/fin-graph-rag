@@ -97,3 +97,24 @@ def test_overlap_is_20_to_30_tokens_copied_from_previous_chunk():
         assert src["text"][src["overlap_chars"]:].endswith(overlap), c["chunk_id"]
         assert OVERLAP_MIN_TOKENS <= count_tokens(overlap) <= OVERLAP_MAX_TOKENS
         assert not c["text"][c["overlap_chars"]:].startswith("[Table part")
+
+
+def test_ibm_and_nvidia_filing_layout():
+    """IBM's Exhibit 13 (incorporated Items 7/8) is report content, not exhibits;
+    NVIDIA's "Signatures" page is found; both have titled income statements."""
+    import json as _json
+    chunks = load(CHUNKS)
+    report = _json.loads((ROOT / "data/processed/chunking_report.json").read_text(encoding="utf-8"))
+    docs = {d["doc_id"]: d for d in report["documents"]}
+    if "ibm_2025" not in docs or "nvidia_2025" not in docs:
+        pytest.skip("IBM / NVIDIA not processed")
+    for y in (2023, 2024, 2025):
+        assert docs[f"ibm_{y}"]["signatures_page"] == 26 and docs[f"ibm_{y}"]["exhibit13_pages"] > 100
+    assert [docs[f"nvidia_{y}"]["signatures_page"] for y in (2023, 2024, 2025)] == [91, 84, 86]
+    ibm_is = [c for c in chunks if c["doc_id"] == "ibm_2025" and c["section"] == "Exhibit 13 Consolidated Income Statement"]
+    assert ibm_is and not any(c["in_exhibits"] for c in ibm_is)
+    assert any(t["title"].startswith("Consolidated Income Statement") and t["column_years"] == [2025, 2024, 2023]
+               for c in ibm_is for t in c["tables"])
+    nv = [c for c in chunks if c["doc_id"] == "nvidia_2025" and "Revenue $ 130,497 $ 60,922 $ 26,974" in c["text"]]
+    assert any("Consolidated Statements of Income" in t["title"] and t["column_years"] == [2025, 2024, 2023]
+               for c in nv for t in c["tables"])

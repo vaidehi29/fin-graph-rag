@@ -24,4 +24,9 @@ GOLDEN_QUESTIONS = [
      "expect": ["112,010"]},                                           # Apple 10-K FY2025 p32
     {"question": "Who was Microsoft's chief executive officer in fiscal 2025?",
      "expect": ["Satya Nadella"]},                                     # Microsoft 10-K FY2025, executive officers
+    # Added 2026-10-29 with the IBM and NVIDIA reports (same two kinds: metric, person).
+    {"question": "What was NVIDIA's revenue in fiscal year 2025?",
+     "expect": ["130,497"]},                                           # NVIDIA 10-K FY2025 p52
+    {"question": "Who was IBM's CEO according to its fiscal 2025 annual report?",
+     "expect": ["Arvind Krishna"]},                                    # IBM 10-K FY2025 p5 (executive officers)
 ]
