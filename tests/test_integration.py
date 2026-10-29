@@ -131,7 +131,7 @@ def test_app_end_to_end():
         at.run()
         assert not at.exception
         assert [t.label for t in at.tabs] == ["Q&A", "Knowledge Graph"]
-        assert at.sidebar.multiselect[0].value == ["Apple", "Microsoft"]
+        assert at.sidebar.multiselect[0].value == ["Apple", "Microsoft", "IBM", "NVIDIA"]
         assert any("nodes" in c.value and "relationships" in c.value for c in at.caption)   # graph tab rendered
         at.text_input[0].input("What was Microsoft's net income for fiscal year 2024?")
         at.button[0].click()
@@ -144,5 +144,17 @@ def test_app_end_to_end():
         assert any("High confidence" in m for m in md)
         assert any(m.startswith("- **Microsoft** - FY2024 - p.") for m in md)
         assert len(at.session_state["history"]) == 1
+        # IBM / NVIDIA (added 2026-10-29): a cited NVIDIA answer and NVIDIA's graph.
+        at.text_input[0].input("What was NVIDIA's revenue in fiscal year 2025?")
+        at.button[0].click()
+        at.run()
+        assert not at.exception
+        md = [m.value for m in at.markdown]
+        assert any("130,497" in m and "[Source: NVIDIA Annual Report FY2025" in m for m in md)
+        assert any(m.startswith("- **NVIDIA** - FY2025 - p.") for m in md)
+        [company_box] = [s for s in at.selectbox if s.label == "Company"]    # the graph tab's company picker
+        company_box.select("NVIDIA").run()
+        assert not at.exception
+        assert any("from NVIDIA" in c.value and "nodes" in c.value for c in at.caption)
     finally:
         os.chdir(cwd)

@@ -63,10 +63,36 @@ CITATION_RE = re.compile(r"\[Source:\s*([^\]]+)\]")
 NUMBER_RE = re.compile(r"\d[\d,]*(?:\.\d+)?")
 
 
+# Each company's fiscal-year convention, quoted from its FY2025 report. PANEL: asked
+# to "compare IBM and NVIDIA revenue in fiscal 2024", the model called both figures
+# "the same fiscal year" although NVIDIA's FY2024 ended in January 2024 and IBM's in
+# December 2024 (eval E109). Added to the context only when the evidence spans two
+# or more companies, so single-company prompts are unchanged.
+FISCAL_YEAR_NOTES = {
+    "apple": ("Apple: \"The Company's fiscal year is the 52- or 53-week period that ends on the last Saturday "
+              "of September.\"", "Apple Annual Report FY2025, p.4"),
+    # Income-statement column header: covers every year, not only FY2025.
+    "microsoft": ("Microsoft: \"Year Ended June 30, 2025 2024 2023\" (each fiscal year ends June 30)",
+                  "Microsoft Annual Report FY2025, p.69"),
+    "ibm": ("IBM: \"For the year ended December 31\" (IBM's fiscal year is the calendar year)",
+            "IBM Annual Report FY2025, p.175"),
+    "nvidia": ("NVIDIA: \"We operate on a 52- or 53-week year, ending on the last Sunday in January.\"",
+               "NVIDIA Annual Report FY2025, p.57"),
+}
+
+
 def build_context(result: dict, max_facts: int = MAX_FACTS) -> str:
     """Graph facts first (exact, higher confidence), then text excerpts, each with its source label."""
     parts = []
     facts = result.get("graph_facts", [])[:max_facts]
+    companies = sorted({x["company"] for x in facts + result.get("text_chunks", []) if x.get("company")})
+    if len(companies) > 1 and all(c in FISCAL_YEAR_NOTES for c in companies):
+        parts.append("FISCAL YEARS (the same fiscal year number can cover different months for each company):")
+        for c in companies:
+            text, src = FISCAL_YEAR_NOTES[c]
+            parts.append(f"- {text} [Source: {src}]")
+        parts.append("When the answer compares these companies, say in one sentence when each company's fiscal "
+                     "year ends, citing the source above, and do not call their fiscal years the same period.\n")
     if facts:
         parts.append("GRAPH FACTS (exact figures from the reports' tables and verified extractions):")
         for f in facts:
@@ -92,7 +118,8 @@ def cited_sources(answer: str) -> list[str]:
     """
     out = []
     for group in CITATION_RE.findall(answer):
-        for s in re.split(r";\s*(?=[A-Z][a-z]+ Annual Report)", group):
+        # Company names may be all capitals ("IBM Annual Report", "NVIDIA Annual Report").
+        for s in re.split(r";\s*(?=[A-Z][A-Za-z]+ Annual Report)", group):
             s = s.strip()
             m = re.fullmatch(r"(.+?, p\.)\s*(\d+(?:\s*,\s*\d+)+)", s)
             labels = [f"{m.group(1)}{n.strip()}" for n in m.group(2).split(",")] if m else [s]
@@ -174,8 +201,11 @@ DECLINE_RE = re.compile(r"not contain|does not (include|provide|mention)|no (inf
                         r"insufficient|cannot (be )?(determine|answer)|not available|unable to", re.I)
 
 
-def evaluate(driver, database=None, llm=None, cases_path=em.CASES_PATH, extra_questions=()) -> dict:
+def evaluate(driver, database=None, llm=None, cases_path=em.CASES_PATH, extra_questions=(),
+             ids: set[str] | None = None) -> dict:
     cases = [json.loads(l) for l in cases_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    if ids:
+        cases = [c for c in cases if c["id"] in ids]
     if llm is None:
         from fin_graph_rag.llm import GeminiJSON
         llm = GeminiJSON(model=ANSWER_MODEL)
@@ -227,10 +257,26 @@ def evaluate(driver, database=None, llm=None, cases_path=em.CASES_PATH, extra_qu
     }
 
 
+def parse_ids(spec: str) -> set[str]:
+    """"E40,E96-E98" -> {"E40", "E96", "E97", "E98"}."""
+    out = set()
+    for part in spec.split(","):
+        m = re.fullmatch(r"\s*E(\d+)\s*(?:-\s*E?(\d+))?\s*", part)
+        if not m:
+            raise ValueError(f"Bad case id {part!r}; use e.g. E40,E96-E111")
+        a, b = int(m.group(1)), int(m.group(2) or m.group(1))
+        out |= {f"E{n:02d}" for n in range(a, b + 1)}
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Answer questions from the reports with citations.")
     ap.add_argument("question", nargs="?")
     ap.add_argument("--evaluate", action="store_true")
+    ap.add_argument("--ids", help="with --evaluate: only these case ids, e.g. E40,E96-E111 "
+                                  "(saves free-tier quota; no pipeline samples)")
+    ap.add_argument("--samples", nargs="*", default=None,
+                    help="with --evaluate: extra sample questions (default: pipeline.txt's two)")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     if not args.evaluate and not args.question:
@@ -241,8 +287,10 @@ def main(argv: list[str] | None = None) -> int:
     try:
         with driver_session() as (driver, db):
             if args.evaluate:
-                result = evaluate(driver, db, extra_questions=["Compare Apple and Microsoft revenue",
-                                                               "What risks does Apple mention?"])
+                ids = parse_ids(args.ids) if args.ids else None
+                samples = args.samples if args.samples is not None else (
+                    [] if ids else ["Compare Apple and Microsoft revenue", "What risks does Apple mention?"])
+                result = evaluate(driver, db, extra_questions=samples, ids=ids)
                 path = em.results_path("answers", 0, len(result["cases"])).with_name(
                     em.results_path("answers", 0, len(result["cases"])).name.replace("_k0", ""))
                 path.parent.mkdir(parents=True, exist_ok=True)

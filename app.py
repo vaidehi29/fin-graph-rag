@@ -1,6 +1,7 @@
 """
 COMPONENT : User interface / demo (Streamlit)
-PURPOSE   : Ask questions about the Apple and Microsoft annual reports and get
+PURPOSE   : Ask questions about the indexed annual reports (Apple, Microsoft,
+            IBM, NVIDIA) and get
             cited, verified answers; browse the knowledge graph.
 INPUTS    : Neo4j (NEO4J_* in .env), GEMINI_API_KEY (.env), local embedding model
 OUTPUTS   : web UI at http://localhost:8501
@@ -101,10 +102,11 @@ with st.sidebar:
     model = st.selectbox("Answer model (Gemini free tier)", ANSWER_MODELS)
     high_only = st.toggle("Only show high-confidence answers", value=False,
                           help="High = the answer is backed by exact facts from the knowledge graph.")
-    st.caption("Answers use only the indexed Apple and Microsoft 10-K reports (FY2023-FY2025).")
+    st.caption(f"Answers use only the indexed 10-K reports of {', '.join(COMPANIES)} (fiscal years "
+               "2023-2025; NVIDIA's fiscal year ends in late January, IBM's on December 31).")
 
 st.title("Financial Graph RAG")
-st.caption("Apple and Microsoft annual reports · knowledge graph + text retrieval · cited answers")
+st.caption(f"{', '.join(COMPANIES)} annual reports · knowledge graph + text retrieval · cited answers")
 
 try:
     driver, database = get_driver()

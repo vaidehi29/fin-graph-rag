@@ -1,0 +1,355 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "summary": {
+    "questions": 19,
+    "answers_with_valid_citation": "17/18",
+    "invalid_citations_total": 0,
+    "answers_with_unverified_numbers": 0,
+    "expected_figures_present": "14/16",
+    "trap_figure_used": "0/1",
+    "missing_evidence_declined_without_figures": "1/1",
+    "note": "automatic checks; expected figure present != fully correct answer - read the answers"
+  },
+  "cases": [
+    {
+      "id": "E40",
+      "category": "segment_breakdown",
+      "question": "What was NVIDIA's data center revenue in fiscal 2025?",
+      "answer": "The provided reports do not contain the exact dollar amount for NVIDIA's Data Center revenue in fiscal year 2025, only stating that it was up 142% from a year ago [Source: NVIDIA Annual Report FY2025, p.38].",
+      "confidence": "high",
+      "sources": [
+        "NVIDIA Annual Report FY2025, p.38"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": null
+    },
+    {
+      "id": "E96",
+      "category": "direct_lookup",
+      "question": "What was NVIDIA's revenue in fiscal year 2025?",
+      "answer": "NVIDIA's revenue for fiscal year 2025 was $130,497 million (GAAP) [Source: NVIDIA Annual Report FY2025, p.52], or $130.5 billion [Source: NVIDIA Annual Report FY2025, p.38].",
+      "confidence": "high",
+      "sources": [
+        "NVIDIA Annual Report FY2025, p.52",
+        "NVIDIA Annual Report FY2025, p.38"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E97",
+      "category": "direct_lookup",
+      "question": "What was NVIDIA's net income in fiscal 2024?",
+      "answer": "NVIDIA's net income in fiscal year 2024 was $29,760 million (GAAP) [Source: NVIDIA Annual Report FY2024, p.50].",
+      "confidence": "high",
+      "sources": [
+        "NVIDIA Annual Report FY2024, p.50"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E98",
+      "category": "conflicting_evidence",
+      "question": "What were NVIDIA's diluted earnings per share for fiscal 2024?",
+      "answer": "NVIDIA's diluted earnings per share for fiscal 2024 was $11.93 per share (GAAP) [Source: NVIDIA Annual Report FY2024, p.50], though the reports disagree as the NVIDIA 10-K FY2025 states $1.19 per share [Source: NVIDIA Annual Report FY2025, p.52].",
+      "confidence": "high",
+      "sources": [
+        "NVIDIA Annual Report FY2024, p.50",
+        "NVIDIA Annual Report FY2025, p.52"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E99",
+      "category": "direct_lookup",
+      "question": "Who was NVIDIA's chief financial officer in fiscal 2025?",
+      "answer": "NVIDIA's chief financial officer in fiscal 2025 was Colette M. Kress, who served as Executive Vice President and Chief Financial Officer [Source: NVIDIA Annual Report FY2025, p.13].",
+      "confidence": "high",
+      "sources": [
+        "NVIDIA Annual Report FY2025, p.13"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E100",
+      "category": "direct_lookup",
+      "question": "How much did NVIDIA spend on share repurchases in fiscal 2025?",
+      "answer": "In fiscal year 2025, NVIDIA repurchased 310 million shares of its common stock for $34.0 billion [Source: NVIDIA Annual Report FY2025, p.33]. Additionally, share repurchases were listed as -$33,706 million (GAAP) in fiscal year 2025 [Source: NVIDIA Annual Report FY2025, p.56].",
+      "confidence": "high",
+      "sources": [
+        "NVIDIA Annual Report FY2025, p.33",
+        "NVIDIA Annual Report FY2025, p.56"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E101",
+      "category": "cross_year_comparison",
+      "question": "How did NVIDIA's revenue change from fiscal 2024 to fiscal 2025?",
+      "answer": "NVIDIA Corporation's revenue for fiscal year 2024 was $60,922 million (GAAP) [Source: NVIDIA Annual Report FY2024, p.50] [Source: NVIDIA Annual Report FY2025, p.52], and for fiscal year 2025, its revenue was $130,497 million (GAAP) [Source: NVIDIA Annual Report FY2025, p.52]. This represents an increase of $69,575 million or approximately 114.2% (calculated).",
+      "confidence": "high",
+      "sources": [
+        "NVIDIA Annual Report FY2024, p.50",
+        "NVIDIA Annual Report FY2025, p.52"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E102",
+      "category": "direct_lookup",
+      "question": "What was IBM's total revenue in 2023?",
+      "answer": "International Business Machines Corporation reported a total revenue of $61,860 million in fiscal year 2023 [Source: IBM Annual Report FY2023, p.242].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2023, p.242"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E103",
+      "category": "direct_lookup",
+      "question": "What was IBM's net income in fiscal 2025?",
+      "answer": "International Business Machines Corporation's net income in fiscal year 2025 was $10,593 million [Source: IBM Annual Report FY2025, p.141].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2025, p.141"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E104",
+      "category": "direct_lookup",
+      "question": "What were IBM's diluted earnings per share for 2024?",
+      "answer": "For fiscal year 2024, International Business Machines Corporation reported diluted earnings per share from continuing operations of $6.42 per share and consolidated earnings per share assuming dilution of $6.43 per share [Source: IBM Annual Report FY2024, p.129].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2024, p.129"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E105",
+      "category": "direct_lookup",
+      "question": "Who was IBM's CEO according to its fiscal 2025 annual report?",
+      "answer": "According to IBM's fiscal 2025 annual report, Arvind Krishna served as the Chairman of the Board, President and Chief Executive Officer [Source: IBM Annual Report FY2025, p.4].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2025, p.4"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E106",
+      "category": "direct_lookup",
+      "question": "What were IBM's total assets at the end of 2024?",
+      "answer": "At the end of fiscal year 2024, International Business Machines Corporation's total assets were $137,175 million (GAAP) [Source: IBM Annual Report FY2024, p.169].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2024, p.169"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": false,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E107",
+      "category": "segment_breakdown",
+      "question": "What was IBM's Software segment revenue in 2025?",
+      "answer": "The provided context does not contain IBM's Software segment revenue for the fiscal year 2025.",
+      "confidence": "medium",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": null
+    },
+    {
+      "id": "E108",
+      "category": "entity_resolution",
+      "question": "How much did International Business Machines spend on research and development in 2023?",
+      "answer": "International Business Machines spent $6,775 million on total research, development and engineering (GAAP) in 2023 [Source: IBM Annual Report FY2023, p.242]. Additionally, the company incurred total expense of $6,342 million for scientific research and the application of scientific advances to the development of new and improved products and their uses, as well as services and their application in 2023 [Source: IBM Annual Report FY2023, p.276].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2023, p.242",
+        "IBM Annual Report FY2023, p.276"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E109",
+      "category": "ambiguous_question",
+      "question": "Compare IBM and NVIDIA revenue in fiscal 2024.",
+      "answer": "In fiscal year 2024, International Business Machines Corporation reported a revenue of $62,753 million (GAAP) [Source: IBM Annual Report FY2024, p.167] [Source: IBM Annual Report FY2025, p.175]. In the same fiscal year 2024, NVIDIA Corporation reported a revenue of $60,922 million (GAAP) [Source: NVIDIA Annual Report FY2024, p.50] [Source: NVIDIA Annual Report FY2025, p.52].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2024, p.167",
+        "IBM Annual Report FY2025, p.175",
+        "NVIDIA Annual Report FY2024, p.50",
+        "NVIDIA Annual Report FY2025, p.52"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E110",
+      "category": "missing_evidence",
+      "question": "What was IBM's revenue in fiscal 2026?",
+      "answer": "The provided reports do not contain enough information to determine IBM's revenue in fiscal 2026, as the available documents only provide financial data through fiscal 2025 [Source: IBM Annual Report FY2025, p.141].",
+      "confidence": "medium",
+      "sources": [
+        "IBM Annual Report FY2025, p.141"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": null,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": true
+    },
+    {
+      "id": "E111",
+      "category": "cross_year_comparison",
+      "question": "How did NVIDIA's research and development expense change from fiscal 2023 to fiscal 2025?",
+      "answer": "NVIDIA Corporation's research and development expense changed from $7,339 million (GAAP) in fiscal year 2023 [Source: NVIDIA Annual Report FY2023, p.54] [Source: NVIDIA Annual Report FY2025, p.52] to $12,914 million (GAAP) in fiscal year 2025 [Source: NVIDIA Annual Report FY2025, p.52].",
+      "confidence": "high",
+      "sources": [
+        "NVIDIA Annual Report FY2023, p.54",
+        "NVIDIA Annual Report FY2025, p.52"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "extra",
+      "category": "pipeline_sample",
+      "question": "Compare IBM and NVIDIA revenue",
+      "answer": "International Business Machines Corporation reported revenues of $57,350 million in fiscal year 2021 [Source: IBM Annual Report FY2023, p.242], $60,530 million in fiscal year 2022 [Source: IBM Annual Report FY2023, p.242], $61,860 million in fiscal year 2023 [Source: IBM Annual Report FY2023, p.242], $62,753 million in fiscal year 2024 [Source: IBM Annual Report FY2024, p.167], and $67,535 million in fiscal year 2025 [Source: IBM Annual Report FY2025, p.175]. NVIDIA Corporation reported revenues of $16,675 million in fiscal year 2021 [Source: NVIDIA Annual Report FY2023, p.54], $26,914 million in fiscal year 2022 [Source: NVIDIA Annual Report FY2023, p.54], $26,974 million in fiscal year 2023 [Source: NVIDIA Annual Report FY2023, p.54], $60,922 million in fiscal year 2024 [Source: NVIDIA Annual Report FY2024, p.50], and $130,497 million in fiscal year 2025 [Source: NVIDIA Annual Report FY2025, p.52].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2023, p.242",
+        "IBM Annual Report FY2024, p.167",
+        "IBM Annual Report FY2025, p.175",
+        "NVIDIA Annual Report FY2023, p.54",
+        "NVIDIA Annual Report FY2024, p.50",
+        "NVIDIA Annual Report FY2025, p.52"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": []
+    },
+    {
+      "id": "extra",
+      "category": "pipeline_sample",
+      "question": "What risks does NVIDIA mention?",
+      "answer": "NVIDIA mentions numerous risks related to artificial intelligence, competition, cybersecurity and privacy, financial and tax matters, intellectual property, international geopolitics, macroeconomic conditions, regulatory and legal compliance, product technology, and operational disruptions [Source: NVIDIA Annual Report FY2025, p.13, 17, 19, 20, 21, 22, 23, 24, 25, 26, 28, 29, 30, 31].",
+      "confidence": "high",
+      "sources": [
+        "NVIDIA Annual Report FY2025, p.13",
+        "NVIDIA Annual Report FY2025, p.17",
+        "NVIDIA Annual Report FY2025, p.19",
+        "NVIDIA Annual Report FY2025, p.20",
+        "NVIDIA Annual Report FY2025, p.21",
+        "NVIDIA Annual Report FY2025, p.22",
+        "NVIDIA Annual Report FY2025, p.23",
+        "NVIDIA Annual Report FY2025, p.24",
+        "NVIDIA Annual Report FY2025, p.25",
+        "NVIDIA Annual Report FY2025, p.26",
+        "NVIDIA Annual Report FY2025, p.28",
+        "NVIDIA Annual Report FY2025, p.29",
+        "NVIDIA Annual Report FY2025, p.30",
+        "NVIDIA Annual Report FY2025, p.31"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": []
+    }
+  ]
+}

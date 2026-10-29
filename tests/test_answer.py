@@ -79,3 +79,27 @@ def test_ask_sets_confidence_from_graph_facts(monkeypatch):
     monkeypatch.setattr(hybrid, "hybrid_search", lambda d, q, k, db, **kw: {**RETRIEVAL, "graph_facts": []})
     r = ans.ask("q", None, llm=FakeLLM("ok [Source: Microsoft Annual Report FY2024, p.56]"))
     assert r["confidence"] == "medium"
+
+
+def test_combined_citation_with_all_caps_company_names_is_split():
+    from fin_graph_rag.answer import cited_sources
+    a = "Revenue rose [Source: IBM Annual Report FY2024, p.167; NVIDIA Annual Report FY2024, p.50]."
+    assert cited_sources(a) == ["IBM Annual Report FY2024, p.167", "NVIDIA Annual Report FY2024, p.50"]
+
+
+def test_case_id_ranges():
+    from fin_graph_rag.answer import parse_ids
+    assert parse_ids("E40,E96-E98") == {"E40", "E96", "E97", "E98"}
+    assert parse_ids("E1-E2") == {"E01", "E02"}
+
+
+def test_fiscal_year_conventions_added_only_for_multi_company_evidence():
+    from fin_graph_rag.answer import build_context, context_sources
+    one = {"graph_facts": [{"company": "ibm", "text": "IBM revenue", "sources": ["IBM Annual Report FY2024, p.167"]}],
+           "text_chunks": []}
+    assert "FISCAL YEARS" not in build_context(one)
+    two = {**one, "text_chunks": [{"company": "nvidia", "text": "Revenue $ 60,922", "overlap_chars": 0,
+                                   "source": "NVIDIA Annual Report FY2024, p.50"}]}
+    ctx = build_context(two)
+    assert ctx.startswith("FISCAL YEARS") and "last Sunday in January" in ctx and "December 31" in ctx
+    assert "NVIDIA Annual Report FY2025, p.57" in context_sources(ctx)        # citable like any source

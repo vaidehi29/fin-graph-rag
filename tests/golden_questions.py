@@ -6,8 +6,9 @@ PURPOSE   : The 4 sample questions pipeline.txt phase 8 checks end to end
 INPUTS    : -
 OUTPUTS   : GOLDEN_QUESTIONS
 DEPENDS ON: -
-PANEL NOTE: pipeline.txt's brief included NVIDIA and Tesla, which are out of
-            scope here (only Apple and Microsoft reports are indexed). Its two
+PANEL NOTE: pipeline.txt's brief included NVIDIA and Tesla; when this set was
+            written only Apple and Microsoft were indexed (NVIDIA and IBM were
+            added 2026-10-29 - their questions are in eval/cases.jsonl E96-E111). Its two
             in-scope samples are kept verbatim; the other two are replaced by
             Apple/Microsoft questions of the same kind (a metric lookup and a
             person query). `expect` lists figures/names verified on the PDF

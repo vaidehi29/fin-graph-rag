@@ -9,7 +9,7 @@ retrieved evidence and a knowledge graph. Agent rules are in [CLAUDE.md](CLAUDE.
 
 | Component | State |
 |---|---|
-| IBM + NVIDIA | Phases 1-5 done 2026-10-29 (12 reports in total); phases 6-8 not yet updated - see [Adding IBM and NVIDIA](#adding-ibm-and-nvidia-phases-1-4-2026-10-29). The rows below describe the Apple/Microsoft baseline. |
+| IBM + NVIDIA | Phases 1-7 done 2026-10-29 (12 reports in total); phase 8 tests extended, golden set unchanged - see [Adding IBM and NVIDIA](#adding-ibm-and-nvidia-phases-1-4-2026-10-29). The rows below describe the Apple/Microsoft baseline. |
 | PDF extraction | Done (`fin_graph_rag/pdf_extractor.py`). Run on all 6 reports: 682 pages, 1 empty. |
 | Preprocessing / chunking | Done - phase 1 (`fin_graph_rag/preprocess.py`). 617 non-empty pages → 1,432 chunks, all ≤ 500 tokens incl. overlap (bert-base-uncased); 375 tables (365 whole, 10 split into labelled parts); 20-30 token overlap between prose chunks. |
 | Embeddings / index | Local (`fin_graph_rag/embeddings.py`): `BAAI/bge-small-en-v1.5` on CPU, 1,432 × 384-d flat cosine index, chunks embedded with a context header. Gemini / Hugging Face free tiers not yet compared. |
@@ -89,9 +89,11 @@ both values are kept on their `REPORTED_IN` edges.
   edges).
 - IBM's income statement has no "operating income" line, so there is no IBM
   `operating_income` fact.
-- Phase 5 (retrieval) is updated - see below. Phases 6-8 are **not**: the UI
-  company list (`config.COMPANIES`) still offers only Apple and Microsoft, and no
-  answers have been generated or reviewed for IBM/NVIDIA questions.
+- Found while testing: the wrapped-row rule would also recover Microsoft's
+  FY2023 income-statement R&D row (label and figures on separate lines; FY2021
+  R&D 20,716 is currently missing from the graph). Not applied - Apple/Microsoft
+  were deliberately not re-run.
+- Phases 5-7 were then updated for IBM/NVIDIA - see below.
 
 ### Phase 5 (hybrid retrieval) for IBM and NVIDIA
 
@@ -134,10 +136,49 @@ in the graph) and E40 at top-5 (found at rank 6-10; the graph offers NVIDIA
 `pipeline.txt`'s "AI chips demand" vector test now returns NVIDIA (integration
 test updated); "Compare IBM and NVIDIA revenue" returns both companies' facts
 with paged sources.
-- Found while testing: the wrapped-row rule would also recover Microsoft's
-  FY2023 income-statement R&D row (label and figures on separate lines; FY2021
-  R&D 20,716 is currently missing from the graph). Not applied - Apple/Microsoft
-  were deliberately not re-run.
+
+### Phases 6-7 (answers, UI) for IBM and NVIDIA
+
+- `answer.cited_sources`: a combined citation "[Source: IBM Annual Report ...;
+  NVIDIA Annual Report ...]" is now split (the split only recognised mixed-case
+  names such as "Apple"), so it is not flagged as invalid.
+- `answer.build_context`: when the evidence spans two or more companies, the
+  context gets each company's fiscal-year convention, quoted from its FY2025
+  report with a source (Apple p.4, Microsoft p.69, IBM p.175, NVIDIA p.57),
+  plus an instruction to state each year-end. Reason: asked to compare IBM and
+  NVIDIA revenue "in fiscal 2024", the model called both "the same fiscal year",
+  though NVIDIA's ended January 28, 2024 and IBM's December 31, 2024. Single-
+  company prompts are unchanged (5 of 111 eval cases have multi-company
+  evidence: E39, E90, E91, E92, E109).
+- `answer --evaluate --ids E40,E96-E111 [--samples ...]` answers a subset only,
+  to save free-tier quota.
+- UI: `config.COMPANIES` = Apple, Microsoft, IBM, NVIDIA (sidebar scope and graph
+  tab); captions no longer say "Apple and Microsoft". The end-to-end app test
+  now also asks an NVIDIA question and opens NVIDIA's graph.
+
+Measured 2026-10-29 (`eval/results/2026-10-29_152604_answers_n19.json`,
+`..._153139_answers_n7.json`, `..._153251_answers_n4.json`; 33 Gemini calls):
+
+| check (17 new/revised cases + 2 samples) | result |
+|---|---|
+| invalid citations / answers with unverified numbers | **0 / 0** |
+| expected figure present (automatic) | 14/16 |
+| missing-evidence question declined without figures | 1/1 |
+| trap (IBM basic EPS 6.53) used | 0/1 |
+| **manual review, 16 answerable** | **13 correct, 1 partial, 2 wrongly declined, 0 wrong figures** |
+
+Manual review: correct - E96-E97, E99-E106, E108, E109 (after the fiscal-year
+note: both figures, each year-end cited), E111; partial - E98 (gives 11.93 and
+says the FY2025 report states 1.19, but not that the 10-for-1 split explains it);
+declined although the reports contain it - E40 (data center 115,186) and E107
+(IBM Software 29,962), both the known retrieval misses. E100 gives the cash
+outflow 33,706 and the text's "$34.0 billion" repurchase amount, both cited.
+Apple/Microsoft comparisons re-answered with the note (E39, E90, E91 and
+"Compare Apple and Microsoft revenue"): same figures, 3/3 present, now with
+each year-end. E92 (no company named) still declines, as before.
+UI verified 2026-10-29: `pytest -m integration` 8/8 (headless app: Q&A with a
+cited NVIDIA answer, NVIDIA graph tab); `streamlit run app.py` passes the health
+check. Not re-checked in a real browser this time.
 
 ## Setup
 

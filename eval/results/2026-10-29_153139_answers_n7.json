@@ -1,0 +1,146 @@
+{
+  "model": "gemini-3.5-flash-lite",
+  "summary": {
+    "questions": 7,
+    "answers_with_valid_citation": "6/7",
+    "invalid_citations_total": 0,
+    "answers_with_unverified_numbers": 0,
+    "expected_figures_present": "4/5",
+    "trap_figure_used": "0/0",
+    "missing_evidence_declined_without_figures": "0/0",
+    "note": "automatic checks; expected figure present != fully correct answer - read the answers"
+  },
+  "cases": [
+    {
+      "id": "E39",
+      "category": "cross_document",
+      "question": "Which company reported higher net income in fiscal 2025, Apple or Microsoft?",
+      "answer": "Apple reported a higher net income in fiscal 2025 at $112,010 million [Source: Apple Annual Report FY2025, p.32] compared to Microsoft's net income of $101,832 million [Source: Microsoft Annual Report FY2025, p.53]. Apple's fiscal year ends on the last Saturday of September [Source: Apple Annual Report FY2025, p.4], whereas Microsoft's fiscal year ended June 30, 2025 [Source: Microsoft Annual Report FY2025, p.59].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.32",
+        "Microsoft Annual Report FY2025, p.53",
+        "Apple Annual Report FY2025, p.4",
+        "Microsoft Annual Report FY2025, p.59"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E90",
+      "category": "cross_document",
+      "question": "Which company spent more on research and development in fiscal 2025, Apple or Microsoft?",
+      "answer": "Apple spent more on research and development in fiscal 2025, spending $34,550 million [Source: Apple Annual Report FY2025, p.27], while Microsoft spent $32,488 million [Source: Microsoft Annual Report FY2025, p.56]. Apple's fiscal year ends on the last Saturday of September [Source: Apple Annual Report FY2025, p.4], whereas Microsoft's fiscal year ended June 30, 2025 [Source: Microsoft Annual Report FY2025, p.59].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.27",
+        "Microsoft Annual Report FY2025, p.56",
+        "Apple Annual Report FY2025, p.4",
+        "Microsoft Annual Report FY2025, p.59"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E91",
+      "category": "cross_document",
+      "question": "Compare Apple's and Microsoft's total assets at the end of fiscal 2024.",
+      "answer": "At the end of fiscal 2024, Apple had total assets of $364,980 million (GAAP) [Source: Apple Annual Report FY2024, p.34], while Microsoft had total assets of $512,163 million (GAAP) [Source: Microsoft Annual Report FY2024, p.82]. Apple's fiscal year is the 52- or 53-week period that ends on the last Saturday of September [Source: Apple Annual Report FY2025, p.4], whereas Microsoft's fiscal year ended June 30, 2025 [Source: Microsoft Annual Report FY2025, p.59].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2024, p.34",
+        "Microsoft Annual Report FY2024, p.82",
+        "Apple Annual Report FY2025, p.4",
+        "Microsoft Annual Report FY2025, p.59"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "E92",
+      "category": "ambiguous_question",
+      "question": "What was net income in fiscal 2025?",
+      "answer": "The provided reports do not contain enough information to determine the net income in fiscal 2025 for either Microsoft or NVIDIA.",
+      "confidence": "medium",
+      "sources": [],
+      "has_citation": false,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": false,
+      "trap_figure_used": null,
+      "declined": true,
+      "correct_decline": null
+    },
+    {
+      "id": "E109",
+      "category": "ambiguous_question",
+      "question": "Compare IBM and NVIDIA revenue in fiscal 2024.",
+      "answer": "In fiscal year 2024, IBM's revenue was $62,753 million [Source: IBM Annual Report FY2024, p.167] [Source: IBM Annual Report FY2025, p.175], while NVIDIA's revenue for fiscal year 2024 was $60,922 million [Source: NVIDIA Annual Report FY2024, p.50] [Source: NVIDIA Annual Report FY2025, p.52]. IBM's fiscal year ends for the year ended December 31 [Source: IBM Annual Report FY2025, p.175], whereas NVIDIA operates on a 52- or 53-week year ending on the last Sunday in January [Source: NVIDIA Annual Report FY2025, p.57].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2024, p.167",
+        "IBM Annual Report FY2025, p.175",
+        "NVIDIA Annual Report FY2024, p.50",
+        "NVIDIA Annual Report FY2025, p.52",
+        "NVIDIA Annual Report FY2025, p.57"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": [],
+      "expected_figures_present": true,
+      "trap_figure_used": null,
+      "declined": false,
+      "correct_decline": null
+    },
+    {
+      "id": "extra",
+      "category": "pipeline_sample",
+      "question": "Compare Apple and Microsoft revenue",
+      "answer": "Apple's fiscal year ends on the last Saturday of September [Source: Apple Annual Report FY2025, p.4], while Microsoft's fiscal year ended June 30, 2025 [Source: Microsoft Annual Report FY2025, p.59]. For fiscal year 2025, Apple reported revenue of $416,161 million (GAAP) [Source: Apple Annual Report FY2025, p.25] and Microsoft reported revenue of $281,724 million (GAAP) [Source: Microsoft Annual Report FY2025, p.53].",
+      "confidence": "high",
+      "sources": [
+        "Apple Annual Report FY2025, p.4",
+        "Microsoft Annual Report FY2025, p.59",
+        "Apple Annual Report FY2025, p.25",
+        "Microsoft Annual Report FY2025, p.53"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": []
+    },
+    {
+      "id": "extra",
+      "category": "pipeline_sample",
+      "question": "Compare IBM and NVIDIA revenue",
+      "answer": "IBM's fiscal year ends on December 31 [Source: IBM Annual Report FY2025, p.175], while NVIDIA operates on a 52- or 53-week year ending on the last Sunday in January [Source: NVIDIA Annual Report FY2025, p.57]. For fiscal year 2021, IBM reported revenue of $57,350 million (GAAP) [Source: IBM Annual Report FY2023, p.242] and NVIDIA reported revenue of $16,675 million (GAAP) [Source: NVIDIA Annual Report FY2023, p.54]. For fiscal year 2022, IBM reported revenue of $60,530 million (GAAP) [Source: IBM Annual Report FY2024, p.167] and NVIDIA reported revenue of $26,914 million (GAAP) [Source: NVIDIA Annual Report FY2024, p.50]. For fiscal year 2023, IBM reported revenue of $61,860 million (GAAP) [Source: IBM Annual Report FY2023, p.242] and NVIDIA reported revenue of $26,974 million (GAAP) [Source: NVIDIA Annual Report FY2023, p.54]. For fiscal year 2024, IBM reported revenue of $62,753 million (GAAP) [Source: IBM Annual Report FY2024, p.167] and NVIDIA reported revenue of $60,922 million (GAAP) [Source: NVIDIA Annual Report FY2024, p.50]. For fiscal year 2025, IBM reported revenue of $67,535 million (GAAP) [Source: IBM Annual Report FY2025, p.175] and NVIDIA reported revenue of $130,497 million (GAAP) [Source: NVIDIA Annual Report FY2025, p.52].",
+      "confidence": "high",
+      "sources": [
+        "IBM Annual Report FY2025, p.175",
+        "NVIDIA Annual Report FY2025, p.57",
+        "IBM Annual Report FY2023, p.242",
+        "NVIDIA Annual Report FY2023, p.54",
+        "IBM Annual Report FY2024, p.167",
+        "NVIDIA Annual Report FY2024, p.50",
+        "NVIDIA Annual Report FY2025, p.52"
+      ],
+      "has_citation": true,
+      "invalid_citations": [],
+      "unverified_numbers": []
+    }
+  ]
+}
