@@ -21,7 +21,7 @@ Graph schema (as written by this module):
     (:Risk)-[:IN_CATEGORY]->(:RiskCategory {name})
     (:Risk)-[:DISCLOSED_IN {page, chunk_id, quote}]->(:Report)
     (:Company)-[:HAS_EXECUTIVE | BOARD_MEMBER {fiscal_year, role, page, chunk_id, quote}]->(:Person {key, name})
-    (:Company)-[:COMPETES_WITH {fiscal_year, context, page, chunk_id, quote}]->(:Company)
+    (:Company)-[:COMPETES_WITH {fiscal_year, context, page, chunk_id, quote}]->(:Company:Competitor)   (Competitor = not a reporting company)
     (:Company)-[:COMPETES_WITH {...}]->(:Offering {name, kind})   (competing products / open source)
     (:TextChunk {chunk_id, text, company, year, page_num, chunk_index, embedding, ...})
         -[:SOURCED_FROM]->(:Company);  (:TextChunk)-[:PART_OF]->(:Report)
@@ -89,12 +89,15 @@ FOREACH (_ IN CASE WHEN row.board_only THEN [] ELSE [1] END |
     SET h.role = row.role, h.page = row.page, h.chunk_id = row.chunk_id, h.quote = row.quote)
 """
 # Only names classified as companies become Company nodes; competing products
-# and open-source projects (e.g. Linux, MySQL) are Offering nodes.
+# and open-source projects (e.g. Linux, MySQL) are Offering nodes. A competitor
+# Company that is not itself a reporting company (no `id`) also gets the
+# Competitor label, so it stands apart from the four reporting companies.
 WRITE_COMPETITORS = """
 UNWIND $rows AS row
 MERGE (c:Company {name: row.company_name})
 FOREACH (_ IN CASE WHEN row.kind = 'company' THEN [1] ELSE [] END |
   MERGE (o:Company {name: row.name})
+  FOREACH (_ IN CASE WHEN o.id IS NULL THEN [1] ELSE [] END | SET o:Competitor)
   MERGE (c)-[w:COMPETES_WITH {fiscal_year: row.fiscal_year}]->(o)
     SET w.context = row.context, w.page = row.page, w.chunk_id = row.chunk_id, w.quote = row.quote)
 FOREACH (_ IN CASE WHEN row.kind = 'company' THEN [] ELSE [1] END |
@@ -134,6 +137,18 @@ def entity_rows(entities: list[TextEntity]) -> dict[str, list[dict]]:
     return rows
 
 
+# One-off / repair: label every competitor-only Company (written before the label existed).
+LABEL_COMPETITORS = """
+MATCH (:Company)-[:COMPETES_WITH]->(o:Company) WHERE o.id IS NULL
+WITH DISTINCT o SET o:Competitor
+RETURN count(o) AS labelled
+"""
+
+
+def label_competitors(driver, database=None) -> int:
+    return driver.execute_query(LABEL_COMPETITORS, database_=database).records[0]["labelled"]
+
+
 def write_entities(driver, entities: list[TextEntity], database=None, batch: int = 100) -> dict:
     rows = entity_rows(entities)
     for kind, query in (("risk", WRITE_RISKS), ("executive", WRITE_PEOPLE), ("competitor", WRITE_COMPETITORS)):
@@ -145,6 +160,7 @@ WRITE_FACTS = """
 UNWIND $rows AS row
 MERGE (c:Company {name: row.company_name})
   SET c.id = row.company
+  REMOVE c:Competitor
 MERGE (m:FinancialMetric {key: row.key})
   SET m.company = row.company, m.metric = row.metric, m.fiscal_year = row.fiscal_year,
       m.basis = row.basis, m.unit = row.unit, m.value = row.value, m.segment = row.segment,

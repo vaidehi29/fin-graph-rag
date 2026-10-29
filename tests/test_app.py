@@ -35,3 +35,10 @@ def test_stored_text_cannot_inject_script_into_graph_page():
 
 def test_no_relationship_groups_returns_empty_graph_without_querying():
     assert fetch_subgraph(None, "apple", []) == {"nodes": {}, "edges": []}
+
+
+def test_competitor_companies_are_drawn_as_competitors_whatever_the_label_order():
+    from fin_graph_rag.graph_view import primary_label
+    assert primary_label({"Company", "Competitor"}) == primary_label(["Competitor", "Company"]) == "Competitor"
+    assert primary_label(["Company"]) == "Company" and primary_label([]) == "?"
+    assert caption(["Competitor", "Company"], {"name": "Intel"}) == "Intel"

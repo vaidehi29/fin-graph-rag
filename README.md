@@ -214,7 +214,8 @@ Schema (all writes `MERGE`, uniqueness constraints per `pipeline.txt`):
 (:FinancialMetric)-[:REPORTED_IN {page, table_id, chunk_id, row_text, value}]->(:Report)
 (:Company)-[:FACES_RISK]->(:Risk)-[:IN_CATEGORY]->(:RiskCategory);  (:Risk)-[:DISCLOSED_IN {page, chunk_id, quote}]->(:Report)
 (:Company)-[:HAS_EXECUTIVE | BOARD_MEMBER {fiscal_year, role, page, quote}]->(:Person)
-(:Company)-[:COMPETES_WITH {fiscal_year, context, page, quote}]->(:Company | :Offering)
+(:Company)-[:COMPETES_WITH {fiscal_year, context, page, quote}]->(:Company:Competitor | :Offering)
+// :Competitor (added 2026-10-29) = a competitor Company that is not one of the four reporting companies (no `id`)
 ```
 
 **Table facts** (286): revenue, gross margin, operating income, net income,

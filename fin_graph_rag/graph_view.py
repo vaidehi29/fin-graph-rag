@@ -20,8 +20,16 @@ import html
 NODE_COLORS = {
     "Company": "#1f77b4", "FinancialMetric": "#2ca02c", "Risk": "#d62728", "BusinessSegment": "#ff7f0e",
     "Product": "#ffbb78", "Person": "#9467bd", "Report": "#7f7f7f", "RiskCategory": "#e377c2",
-    "Offering": "#17becf",
+    "Offering": "#17becf", "Competitor": "#aec7e8",
 }
+
+
+def primary_label(labels) -> str:
+    """The label a node is drawn as. Competitor companies carry two labels
+    (Company, Competitor); the driver returns labels unordered, so the choice
+    must not depend on order - Competitor wins, otherwise the only label."""
+    labels = sorted(labels)
+    return "Competitor" if "Competitor" in labels else (labels[0] if labels else "?")
 # UI groups -> relationship types leaving the Company node.
 REL_GROUPS = {
     "Financial metrics": ["HAS_METRIC"],
@@ -52,7 +60,7 @@ RETURN c, r1, n, collect(DISTINCT [r2, m])[..$per_node] AS hop2
 
 
 def caption(labels: list[str], p: dict) -> str:
-    label = labels[0] if labels else "?"
+    label = primary_label(labels)
     if label == "FinancialMetric":
         scope = p.get("segment") or p.get("product")
         value = p.get("value")
@@ -68,7 +76,7 @@ def _node(n) -> tuple[str, dict]:
     props = dict(n)
     labels = list(n.labels)
     tip = "\n".join(f"{k}: {v}" for k, v in props.items() if k not in ("embedding", "text") and v not in (None, ""))
-    return n.element_id, {"label": labels[0] if labels else "?", "caption": caption(labels, props), "title": tip}
+    return n.element_id, {"label": primary_label(labels), "caption": caption(labels, props), "title": tip}
 
 
 def fetch_subgraph(driver, company: str, groups: list[str], year: int | None = None, limit: int = 120,

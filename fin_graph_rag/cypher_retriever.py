@@ -181,7 +181,7 @@ COMPETITOR_QUERY = """
 MATCH (c:Company {id: $company})-[w:COMPETES_WITH]->(o)
 WHERE size($years) = 0 OR w.fiscal_year IN $years
 MATCH (c)-[:FILED]->(r:Report {year: w.fiscal_year})
-RETURN c.name AS company_name, o.name AS name, labels(o)[0] AS kind, w.context AS context,
+RETURN c.name AS company_name, o.name AS name, CASE WHEN o:Offering THEN "Offering" ELSE "Company" END AS kind, w.context AS context,
        w.fiscal_year AS fiscal_year, r.name AS report, w.page AS page, w.chunk_id AS chunk_id
 ORDER BY fiscal_year DESC, name
 """
