@@ -132,3 +132,39 @@ def test_load_env_last_duplicate_wins(tmp_path, monkeypatch, caplog):
     assert os.environ["FGR_TEST_K"] == "newest"
     assert "FGR_TEST_K is set 3 times" in caplog.text and "newest" not in caplog.text
     monkeypatch.delenv("FGR_TEST_K")
+
+
+def test_streamlit_secrets_fill_the_environment_without_overriding(monkeypatch, caplog):
+    # MOCK: a fake streamlit module standing in for st.secrets on Streamlit Cloud.
+    import os
+    import sys
+    import types
+    from fin_graph_rag.embedders import load_streamlit_secrets
+    fake = types.ModuleType("streamlit")
+    fake.secrets = {"NEO4J_URI": "neo4j+s://cloud", "NEO4J_PASSWORD": "from-secrets", "neo4j": {"nested": "x"}}
+    monkeypatch.setitem(sys.modules, "streamlit", fake)
+    monkeypatch.delenv("NEO4J_URI", raising=False)
+    monkeypatch.setenv("NEO4J_PASSWORD", "already-set")
+    copied = load_streamlit_secrets()
+    assert copied == ["NEO4J_URI"]                          # names only, never values
+    assert os.environ["NEO4J_URI"] == "neo4j+s://cloud"
+    assert os.environ["NEO4J_PASSWORD"] == "already-set"    # a real environment variable wins
+    assert "neo4j" not in os.environ                        # sections are not flattened
+    assert "[neo4j] ignored" in caplog.text                 # ...but the skip is reported
+    assert "nested" not in caplog.text                      # section contents are never logged
+
+
+def test_no_streamlit_secrets_is_not_an_error(monkeypatch):
+    import sys
+    import types
+    from fin_graph_rag.embedders import load_streamlit_secrets
+
+    class Missing:
+        def keys(self):
+            raise FileNotFoundError("No secrets found")
+    fake = types.ModuleType("streamlit")
+    fake.secrets = Missing()
+    monkeypatch.setitem(sys.modules, "streamlit", fake)
+    assert load_streamlit_secrets() == []
+    monkeypatch.delitem(sys.modules, "streamlit")
+    assert load_streamlit_secrets() == []                   # CLI run: streamlit never imported

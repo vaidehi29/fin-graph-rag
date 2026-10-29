@@ -54,13 +54,46 @@ GEMINI_MAX_RETRIES = 8
 CACHE_DIR = Path(os.getenv("FGR_INDEX_DIR", "data/index")) / "cache"
 
 
+def load_streamlit_secrets() -> list[str]:
+    """Copy top-level Streamlit secrets into os.environ (existing values win).
+
+    PANEL: On Streamlit Community Cloud there is no .env file; credentials are
+    set as secrets and read through st.secrets. Copying them into os.environ
+    lets every module keep one lookup (os.getenv) for local runs and the cloud.
+    Only runs inside a Streamlit app (streamlit already imported), so CLI runs
+    never import streamlit. Returns the key names copied - never the values.
+    """
+    import sys
+    if "streamlit" not in sys.modules:
+        return []
+    try:
+        import streamlit as st
+        items = {k: st.secrets[k] for k in st.secrets.keys()}
+    except Exception as e:  # FALLBACK: no secrets.toml (local run) - .env / environment still apply.
+        log.debug("No Streamlit secrets available: %s", type(e).__name__)
+        return []
+    copied = []
+    for key, value in items.items():
+        # Sections ([neo4j] ...) are not flattened: secrets must be top-level KEY = "value".
+        if not isinstance(value, (str, int, float, bool)):
+            log.warning("Streamlit secret section [%s] ignored: put settings at the top level "
+                        "(e.g. NEO4J_URI = \"...\"), not under a [section] header", key)
+        elif key not in os.environ:
+            os.environ[key] = str(value)
+            copied.append(key)
+    return copied
+
+
 def load_env(path: Path = Path(".env")) -> None:
-    """Load KEY=VALUE lines from .env into os.environ (existing values win).
+    """Load settings into os.environ: Streamlit secrets (when running as a
+    Streamlit app), then KEY=VALUE lines from .env. Existing values win, so the
+    order of precedence is: real environment > st.secrets > .env.
 
     If a key appears more than once in the file, the LAST value is used (the
     python-dotenv convention) and a warning names the key. Values are never
     logged or returned.
     """
+    load_streamlit_secrets()
     if not path.exists():
         return
     values: dict[str, str] = {}

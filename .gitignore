@@ -20,3 +20,6 @@ __pycache__/
 venv/
 .pytest_cache/
 *.egg-info/
+
+# Streamlit secrets (local copy of the Streamlit Cloud secrets)
+.streamlit/secrets.toml

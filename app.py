@@ -3,7 +3,8 @@ COMPONENT : User interface / demo (Streamlit)
 PURPOSE   : Ask questions about the indexed annual reports (Apple, Microsoft,
             IBM, NVIDIA) and get
             cited, verified answers; browse the knowledge graph.
-INPUTS    : Neo4j (NEO4J_* in .env), GEMINI_API_KEY (.env), local embedding model
+INPUTS    : Neo4j and Gemini settings (NEO4J_*, GEMINI_API_KEY) from st.secrets on
+            Streamlit Cloud or .env locally; local embedding model
 OUTPUTS   : web UI at http://localhost:8501
 DEPENDS ON: streamlit, pyvis, fin_graph_rag.answer, fin_graph_rag.graph_view
 PANEL NOTE: The UI adds no logic of its own: answers come from
@@ -22,7 +23,13 @@ import urllib.error
 
 import streamlit as st
 
-from fin_graph_rag.config import ANSWER_MODELS, COMPANIES
+from fin_graph_rag.embedders import load_env
+
+# Streamlit Cloud: NEO4J_*, GEMINI_API_KEY etc. come from st.secrets; locally from
+# .env. Loaded before fin_graph_rag.config, which reads settings at import time.
+load_env()
+
+from fin_graph_rag.config import ANSWER_MODELS, COMPANIES  # noqa: E402  (needs the settings above)
 
 st.set_page_config(page_title="Financial Graph RAG", page_icon="📊", layout="wide")
 HISTORY_SIZE = 5
