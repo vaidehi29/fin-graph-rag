@@ -115,3 +115,61 @@ def test_header_is_shortened_to_fit_the_model_limit():
     assert levels == {"none_fits": 1} and inputs[0] == c["text"]
     # The stored chunk text itself is never modified.
     assert c["text"] == " ".join(["w"] * 20)
+
+
+class FakeEmbedder:
+    """MOCK: 2-d vectors derived from text length; no model download."""
+    max_tokens = 512
+    info = {}
+
+    def __init__(self):
+        self.calls = []
+
+    def embed_documents(self, texts):
+        import numpy as np
+        self.calls.append(list(texts))
+        return np.array([[float(len(t)), 1.0] for t in texts], dtype=np.float32)
+
+
+def write_chunk_lines(path, chunks):
+    with path.open("w", encoding="utf-8") as f:
+        f.writelines(json.dumps(c) + "\n" for c in chunks)
+
+
+def built_index(tmp_path, monkeypatch, chunks):
+    import numpy as np
+    chunks_path = tmp_path / "chunks.jsonl"
+    write_chunk_lines(chunks_path, chunks)
+    d = em.index_dir(tmp_path / "index", header=False)
+    d.mkdir(parents=True)
+    np.save(d / "embeddings.npy", np.array([[1.0, 0.0]] * len(chunks), dtype=np.float32))
+    (d / "chunk_ids.json").write_text(json.dumps([c["chunk_id"] for c in chunks]), encoding="utf-8")
+    (d / "manifest.json").write_text(json.dumps({
+        "model": em.MODEL_NAME, "chunk_header": None, "max_input_tokens_seen": 5,
+        "chunks_sha256": em.sha256_of(chunks_path)}), encoding="utf-8")
+    fake = FakeEmbedder()
+    monkeypatch.setattr(em, "get_embedder", lambda name: fake)
+    monkeypatch.setattr(em, "input_tokenizer", lambda: lambda s, add_special_tokens=True: {"input_ids": s.split()})
+    return chunks_path, d, fake
+
+
+def test_append_embeds_only_new_chunks_and_keeps_old_vectors(tmp_path, monkeypatch):
+    import numpy as np
+    old = [chunk("apple_2023_c0000", "apple_2023", "apple text")]
+    chunks_path, d, fake = built_index(tmp_path, monkeypatch, old)
+    write_chunk_lines(chunks_path, old + [chunk("ibm_2025_c0000", "ibm_2025", "ibm text here")])
+    m = em.append(chunks_path, tmp_path / "index", header=False)
+    assert fake.calls == [["ibm text here"]]                           # only the new chunk is embedded
+    assert np.load(d / "embeddings.npy")[0].tolist() == [1.0, 0.0]      # old vector untouched
+    assert m["n_chunks"] == 2 and m["chunks_sha256"] == em.sha256_of(chunks_path)
+    em.load_vectors(tmp_path / "index", chunks_path, header=False)     # valid for the merged file
+    assert em.append(chunks_path, tmp_path / "index", header=False)["n_chunks"] == 2   # second run: no-op
+    assert len(fake.calls) == 1
+
+
+def test_append_refuses_when_indexed_chunks_changed(tmp_path, monkeypatch):
+    chunks_path, _, fake = built_index(tmp_path, monkeypatch, [chunk("apple_2023_c0000", "apple_2023", "apple text")])
+    write_chunk_lines(chunks_path, [chunk("apple_2023_c0000", "apple_2023", "EDITED apple text")])
+    with pytest.raises(ValueError, match="changed since the index was built"):
+        em.append(chunks_path, tmp_path / "index", header=False)
+    assert fake.calls == []

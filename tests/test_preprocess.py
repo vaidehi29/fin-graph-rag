@@ -215,3 +215,67 @@ def test_overlap_repeats_tail_of_previous_prose_chunk(monkeypatch):
     # A chunk starting with a table gets no overlap.
     assert t.has_table and t.overlap_chars == 0
     assert all(c.token_count <= 60 for c in chunks)
+
+
+# --- IBM / NVIDIA layouts (added 2026-10-29) --------------------------------
+# MOCK: synthetic pages modelled on the IBM and NVIDIA 10-K PDFs.
+
+SIGNED = ("Pursuant to the requirements of Section 13 or 15(d) of the Securities Exchange Act of 1934, "
+          "the registrant has signed.")
+
+
+def test_toc_signatures_line_is_not_the_signatures_page():
+    # IBM: the table of contents (page 1) has a bare "SIGNATURES" line.
+    chunks, stats = preprocess_doc([
+        page(1, f"Item 1A. Risk Factors 5\nSIGNATURES\n{PROSE}"),
+        page(2, PROSE),
+        page(3, f"Signatures\n{SIGNED}"),                 # NVIDIA writes "Signatures"
+        page(4, "Exhibit 21\nSubsidiaries of the registrant are listed in this exhibit."),
+    ])
+    assert stats.signatures_page == 3 and stats.exhibit_pages == 1
+
+
+def test_table_of_contents_link_is_removed():
+    chunks, stats = preprocess_doc([page(1, f"Table of Contents\n{PROSE}")])
+    assert stats.removed["toc_link"] == 1 and "Table of Contents" not in chunks[0].text
+
+
+def test_exhibit13_annual_report_is_report_content_with_running_header_section():
+    co = "International Business Machines Corporation and Subsidiary Companies"
+    chunks, stats = preprocess_doc([
+        page(1, PROSE),
+        page(2, f"SIGNATURES\n{SIGNED}"),
+        page(3, f"Table of Contents\nReport of Financials Exhibit 13 5\n{co}\n{PROSE}"),
+        page(4, f"Table of Contents\n6 Management Discussion\n{co}\n{PROSE}"),
+        page(5, f"Consolidated Income Statement 42\n{co}\n($ in millions)\n"
+                "For the year ended December 31: Notes 2025 2024\nTotal revenue C 67,535 62,753\n"
+                "Net income $ 10,593 $ 6,023"),
+        page(6, f"EXHIBIT 21\n{PROSE}"),
+    ])
+    assert stats.exhibit13_pages == 3 and stats.exhibit_pages == 1
+    by_page = {c.page_start: c for c in chunks}
+    assert not by_page[4].in_exhibits and by_page[4].section == "Exhibit 13 Management Discussion"
+    assert by_page[4].printed_pages == ["6"] and co not in by_page[4].text
+    # Statement pages keep the statement name as the table title; "December 31:" years are read.
+    [t] = by_page[5].tables
+    assert t["title"].startswith("Consolidated Income Statement") and t["column_years"] == [2025, 2024]
+    assert by_page[6].in_exhibits and not by_page[6].section.startswith("Exhibit 13")
+
+
+def test_line_longer_than_a_chunk_is_split_at_sentence_ends(monkeypatch):
+    monkeypatch.setattr(pp, "MAX_TOKENS", 40)
+    monkeypatch.setattr(pp, "TARGET_TOKENS", 20)
+    long_line = " ".join(f"Clause {i} of the plan applies to every participant." for i in range(12))
+    chunks, stats = preprocess_doc([page(1, long_line)])
+    assert stats.removed["long_line_split"] == 1
+    assert all(c.token_count <= 40 for c in chunks)
+    assert " ".join(c.text.replace("\n", " ") for c in chunks) == long_line     # nothing lost
+    assert all(c.text.endswith(".") for c in chunks)                             # cuts after sentence ends
+
+
+def test_long_label_row_with_parenthetical_stays_inside_table():
+    assert pp.is_bridge("Notes and accounts receivable—trade (net of allowances of $99 in 2025 and $114 in 2024) "
+                        "C 8,112 6,804")
+    # A long line whose only ")" closes a negative figure is not bridged (two Microsoft rows, measured).
+    assert not pp.is_bridge("Acquisition of companies, net of cash acquired, and purchases of intangible "
+                            "and other assets (1,670) (22,038) (8,909)")

@@ -139,9 +139,16 @@ def test_real_corpus_facts_match_verified_figures():
         assert key in by_key and by_key[key].value == value, key
     # Every fact keeps its source row, page and chunk.
     assert all(e.row_text and e.page and e.chunk_id for f in facts for e in f.evidence)
-    # The only disagreements are Microsoft's FY2025 segment recast.
-    assert all(f.company == "microsoft" and f.segment and f.fiscal_year in (2023, 2024)
-               for f in facts if f.conflict)
+    # The only disagreements are Microsoft's FY2025 segment recast and NVIDIA's
+    # FY2025 report restating FY2023/FY2024 diluted EPS for its 10-for-1 stock
+    # split (1.74 -> 0.17, 11.93 -> 1.19).
+    def expected_conflict(f):
+        return ((f.company == "microsoft" and f.segment and f.fiscal_year in (2023, 2024))
+                or (f.key in ("nvidia|diluted_eps|||2023|gaap", "nvidia|diluted_eps|||2024|gaap")))
+    assert all(expected_conflict(f) for f in facts if f.conflict)
+    nvidia_eps = {f.fiscal_year: sorted({e.value for e in f.evidence}) for f in facts
+                  if f.company == "nvidia" and f.metric == "diluted_eps" and f.conflict}
+    assert nvidia_eps in ({}, {2023: [0.17, 1.74], 2024: [1.19, 11.93]})
 
 
 # --- LLM text entities: validation (MOCK: hand-written "model outputs") -------
@@ -257,3 +264,50 @@ def test_untitled_equity_section_inherits_balance_sheet_header_only_when_it_is_a
     units = [sheet, para, orphan]
     ex.inherit_header(units, 2)
     assert orphan.years == [] and orphan.title == ""
+
+
+# --- IBM / NVIDIA statements (added 2026-10-29) ------------------------------
+# MOCK: rows copied from the IBM FY2025 and NVIDIA FY2025 statements.
+
+def test_ibm_income_statement_note_letters_gross_profit_and_diluted_total():
+    u, doc = unit(["Consolidated Income Statement", "($ in millions except per share amounts)"],
+                  ["For the year ended December 31: Notes 2025 2024 2023",
+                   "Total revenue C 67,535 62,753 61,860", "Gross profit 39,297 35,551 34,300",
+                   "Research and development 8,316 7,479 6,775", "Interest expense O&S 1,935 1,712 1,607",
+                   "Net income (1) $ 10,593 $ 6,023 $ 7,502", "Assuming dilution",
+                   "Continuing operations H $ 11.14 $ 6.42 $ 8.15", "Total H $ 11.17 $ 6.43 $ 8.14",
+                   "Weighted-average number of common shares outstanding",
+                   "Assuming dilution 948,675,228 937,161,224 922,073,828"], [2025, 2024, 2023], "ibm_2025")
+    got = {(f.metric, f.fiscal_year): f.value for f in facts_from(u, doc)}
+    assert got[("revenue", 2025)] == 67535 and got[("gross_margin", 2023)] == 34300
+    assert got[("net_income", 2024)] == 6023 and got[("research_and_development", 2025)] == 8316
+    assert got[("diluted_eps", 2025)] == 11.17                        # the total, not continuing operations
+    assert all(v < 1000 for (m, _), v in got.items() if m == "diluted_eps")   # share count ignored
+
+
+def test_nvidia_wrapped_row_takes_label_from_line_above():
+    u, doc = unit(["Consolidated Statements of Cash Flows", "(In millions)"],
+                  ["Jan 26, 2025 Jan 28, 2024 Jan 29, 2023", "Payments related to repurchases of common stock",
+                   "(33,706) (9,533) (10,039)", "Dividends paid (834) (395) (398)"], [2025, 2024, 2023],
+                  "nvidia_2025")
+    got = {(f.metric, f.fiscal_year): f.value for f in facts_from(u, doc)}
+    assert got[("share_repurchases", 2025)] == -33706 and got[("dividends_paid", 2023)] == -398
+
+
+def test_mixed_case_statement_title_must_match_a_whole_title_part():
+    assert ex.table_allowed("NVIDIA Corporation and Subsidiaries / Consolidated Statements of Income / (In millions)")
+    assert ex.table_allowed("Consolidated Balance Sheet / ($ in millions except per share amounts)")
+    # NVIDIA's stock-compensation note mentions the statement in a sentence: not a statement table.
+    assert not ex.table_allowed("Consolidated Statements of Income include stock-based compensation expense, net "
+                                "of amounts capitalized into inventory and subsequently recognized to cost / "
+                                "of revenue, as follows: / Year Ended")
+
+
+def test_equity_block_split_from_balance_sheet_inherits_its_years():
+    bs, _ = unit(["Consolidated Balance Sheet", "($ in millions)"],
+                 ["At December 31: Notes 2025 2024", "Total liabilities 119,139 109,783"], [2025, 2024], "ibm_2025")
+    eq, _ = unit(["Commitments and Contingencies Q", "Equity R", "IBM stockholders' equity"],
+                 ["Total IBM stockholders' equity 32,648 27,307"], [], "ibm_2025")
+    units = [bs, eq]
+    ex.inherit_header(units, 1)
+    assert eq.years == [2025, 2024] and eq.title == bs.title

@@ -39,6 +39,7 @@ PANEL NOTE: One FinancialMetric node per (company, metric, segment/product,
 from __future__ import annotations
 
 import os
+import unicodedata
 from contextlib import contextmanager
 
 from fin_graph_rag.embedders import load_env
@@ -109,7 +110,10 @@ OFFICER = re.compile(r"officer|president|controller|treasurer|secretary|accounti
 
 
 def person_key(name: str) -> str:
-    return " ".join(name.lower().replace(".", " ").split())
+    # Accents are folded: IBM's cover-page signature reads "Nicolás A. Fehring",
+    # its officer list "Nicolas A. Fehring" - one person, one node.
+    folded = "".join(ch for ch in unicodedata.normalize("NFKD", name) if not unicodedata.combining(ch))
+    return " ".join(folded.lower().replace(".", " ").split())
 
 
 def entity_rows(entities: list[TextEntity]) -> dict[str, list[dict]]:
@@ -166,7 +170,7 @@ MERGE (m)-[e:REPORTED_IN {page: ev.page, table_id: ev.table_id}]->(r)
 """
 
 
-SHORT_NAMES = {"apple": "Apple", "microsoft": "Microsoft"}
+SHORT_NAMES = {"apple": "Apple", "microsoft": "Microsoft", "ibm": "IBM", "nvidia": "NVIDIA"}
 
 
 def report_name(company: str, year: int) -> str:

@@ -107,3 +107,19 @@ def test_empty_raw_dir(tmp_path):
     summary = run(tmp_path / "missing", tmp_path / "out")
     assert summary["totals"]["pages"] == 0
     assert (tmp_path / "out" / "pages.jsonl").read_text() == ""
+
+
+def test_companies_option_merges_and_keeps_other_companies(tmp_path):
+    raw, out = tmp_path / "raw", tmp_path / "out"
+    raw.mkdir()
+    (raw / "apple_2023.pdf").write_bytes(make_pdf(["Apple page one with enough text to count"]))
+    run(raw, out)
+    before = (out / "pages.jsonl").read_text(encoding="utf-8")
+    (raw / "ibm_2025.pdf").write_bytes(make_pdf(["IBM page one with enough text to count", "IBM page two text here"]))
+    summary = run(raw, out, companies={"ibm"})
+    assert (out / "pages.jsonl").read_text(encoding="utf-8").startswith(before)   # Apple lines byte-identical
+    assert [p["doc_id"] for p in read_pages(out)] == ["apple_2023", "ibm_2025", "ibm_2025"]
+    assert [d["doc_id"] for d in summary["documents"]] == ["apple_2023", "ibm_2025"]
+    assert summary["totals"]["pages"] == 3
+    run(raw, out, companies={"ibm"})                                  # re-running replaces, never duplicates
+    assert len(read_pages(out)) == 3

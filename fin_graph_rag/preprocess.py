@@ -17,7 +17,7 @@ PANEL NOTE: A number is only useful if it stays attached to its metric label,
             stages can tell them apart from reported GAAP figures.
 
 Usage:
-    python -m fin_graph_rag.preprocess [--in-dir DIR] [--out-dir DIR]
+    python -m fin_graph_rag.preprocess [--in-dir DIR] [--out-dir DIR] [--companies ibm nvidia]
 """
 
 from __future__ import annotations
@@ -86,6 +86,23 @@ RUNNING_ITEM_RE = re.compile(r"^Item (\d{1,2}[A-C]?)$")
 # Lines ending in a digit are table-of-contents entries and are ignored.
 ITEM_HEADING_RE = re.compile(r"^item\s+(\d{1,2}[A-C]?)\.\s+\S.*\D$", re.I)
 SIGNATURES_RE = re.compile(r"^SIGNATURES?$")
+# The signatures page proper says "Pursuant to the requirements of Section 13 or
+# 15(d) ...". PANEL: IBM's table of contents has a bare "SIGNATURES" line on
+# page 2, and NVIDIA FY2024/FY2025 head the page "Signatures" - a heading alone
+# flagged 343 of IBM's 345 pages as exhibits and none of NVIDIA's.
+SIGNATURES_ANY_RE = re.compile(r"^signatures?$", re.I)
+SIGNED_RE = re.compile(r"pursuant to the requirements of section 13 or 15\s*\(d\)", re.I)
+# Filings printed from EDGAR HTML (IBM, NVIDIA) start most pages with this link.
+TOC_LINK_RE = re.compile(r"^Table of Contents$")
+# Exhibit 13 = the annual report to shareholders. IBM's 10-K incorporates its
+# MD&A (Item 7) and financial statements (Item 8) from it by reference, so its
+# pages are report content, not exhibits. It ends where the next exhibit starts.
+EX13_RE = re.compile(r"\bExhibit 13\b")
+EXHIBIT_START_RE = re.compile(r"^EXHIBIT \d", re.I)
+# Exhibit 13 running header: "6 Management Discussion" / "Management Discussion 7"
+# followed by "International Business Machines Corporation and Subsidiary Companies".
+AR_HEADER_RE = re.compile(r"^(?:(?P<pre>\d{1,3}) )?(?P<title>[A-Z][A-Za-z ,&'’-]*[a-z])(?: (?P<post>\d{1,3}))?$")
+SUBSIDIARIES_RE = re.compile(r"^.+ and Subsidiar(y Companies|ies)$")
 
 # --- table detection -------------------------------------------------------
 # A "value" token: 1,234 | $ | (4) | 22% | 9.68 | — | * . A trailing comma is
@@ -99,6 +116,12 @@ UNIT_LINE_RE = re.compile(r"^\((in|dollars|amounts|shares)\b", re.I)
 FOOTNOTE_RE = re.compile(r"^(\*|\(\d{1,2}\)|\([a-z]\)|Refer to accompanying notes)", re.I)
 SENTENCE_END_RE = re.compile(r"[.?!][\"”’)]?$")
 CORP_NAME_RE = re.compile(r"\b(Inc|Corp|Corporation|Ltd)\.$")
+# IBM balance-sheet rows: a parenthetical "(net of allowances of $99 in 2025 ...)",
+# optionally a Notes-column letter, then two or more figures. Matched on the whole
+# line: "... in 2023) 6,804 7,214" - the year before ")" also parses as a value.
+# The parenthetical must contain words, so a negative figure "(1,670)" never counts
+# (two Microsoft rows matched that way - measured).
+LONG_ROW_RE = re.compile(r"\([^()]*[a-z][^()]*\)(?: [A-Z](?:&[A-Z])*)?(?: (?:\$ )?\(?\d[\d,]*\)?){2,}$")
 
 # Qualifiers marking figures that are NOT the reported GAAP result.
 # PANEL: Why tag these? Microsoft FY24 p108 shows "Net income 88,308" - an
@@ -201,6 +224,7 @@ class DocStats:
     pages: int = 0
     pages_after_cleaning: int = 0
     exhibit_pages: int = 0
+    exhibit13_pages: int = 0       # after the signatures page but incorporated by reference (not exhibits)
     signatures_page: int | None = None
     removed: Counter = field(default_factory=Counter)
     tables: int = 0
@@ -215,15 +239,81 @@ class DocStats:
 # Cleaning
 # ---------------------------------------------------------------------------
 
+def signatures_page(pages: list[dict]) -> int | None:
+    """Page number of the signatures page (pages sorted by number).
+
+    The page with a "Signatures" heading AND the "Pursuant to the requirements
+    of Section 13 or 15(d)" sentence; failing that, the first page with an
+    upper-case "SIGNATURES" heading line (the original rule).
+    """
+    def has_heading(p, rx):
+        return any(rx.match(l.strip()) for l in p["text"].splitlines())
+    signed = next((p["page_number"] for p in pages
+                   if has_heading(p, SIGNATURES_ANY_RE) and SIGNED_RE.search(p["text"])), None)
+    if signed is not None:
+        return signed
+    return next((p["page_number"] for p in pages if has_heading(p, SIGNATURES_RE)), None)
+
+
+def exhibit13_pages(pages: list[dict], sig_page: int | None) -> set[int]:
+    """Pages of an Exhibit 13 (annual report) filed after the signatures page:
+    from the page whose top names "Exhibit 13" up to the next "EXHIBIT <n>" page."""
+    out: set[int] = set()
+    if sig_page is None:
+        return out
+    inside = False
+    for p in pages:
+        if p["page_number"] <= sig_page:
+            continue
+        top = [s for l in p["text"].splitlines() if (s := l.strip()) and not TOC_LINK_RE.match(s)][:2]
+        if inside and top and EXHIBIT_START_RE.match(top[0]):
+            break
+        if not inside and any(EX13_RE.search(l) for l in top):
+            inside = True
+        if inside:
+            out.add(p["page_number"])
+    return out
+
+
+def split_long_line(text: str) -> list[str]:
+    """Cut a line too long for one chunk into pieces of <= TARGET_TOKENS.
+
+    PANEL: Packing only cuts between lines, so a single line over the limit
+    became an oversized chunk. Some IBM exhibit PDFs extract a whole page as
+    one line (up to ~3,000 tokens). Cuts fall after a sentence end where
+    possible, else between words; joining the pieces with spaces gives back
+    the line (whitespace normalised).
+    """
+    if count_tokens(text) <= MAX_TOKENS - OVERLAP_MAX_TOKENS:
+        return [text]
+    pieces, cur, size, last_sentence = [], [], 0, 0
+    for w in text.split():
+        t = count_tokens(w)
+        if cur and size + t > TARGET_TOKENS:
+            cut = last_sentence or len(cur)
+            pieces.append(" ".join(cur[:cut]))
+            cur = cur[cut:]
+            size = sum(count_tokens(x) for x in cur)
+            last_sentence = 0
+        cur.append(w)
+        size += t
+        if SENTENCE_END_RE.search(w):
+            last_sentence = len(cur)
+    if cur:
+        pieces.append(" ".join(cur))
+    return pieces
+
+
 def clean_doc(pages: list[dict], stats: DocStats) -> list[Line]:
     """Turn one document's pages into a single stream of cleaned lines."""
     pages = sorted(pages, key=lambda p: p["page_number"])
     stats.pages = len(pages)
-    sig_page = next((p["page_number"] for p in pages
-                     if any(SIGNATURES_RE.match(l.strip()) for l in p["text"].splitlines())), None)
+    sig_page = signatures_page(pages)
     stats.signatures_page = sig_page
+    ex13 = exhibit13_pages(pages, sig_page)
+    stats.exhibit13_pages = len(ex13)
 
-    section = "front_matter"
+    section = before_ex13 = "front_matter"
     out: list[Line] = []
     for p in pages:
         lines = [l.strip() for l in p["text"].splitlines()]
@@ -235,6 +325,8 @@ def clean_doc(pages: list[dict], stats: DocStats) -> list[Line]:
             else:
                 kept.append(l)
         lines = kept
+        if lines and TOC_LINK_RE.match(lines[0]):
+            lines.pop(0); stats.removed["toc_link"] += 1
 
         printed = None
         if lines and (m := FOOTER_RE.match(lines[-1])):
@@ -251,15 +343,39 @@ def clean_doc(pages: list[dict], stats: DocStats) -> list[Line]:
                 section = f"Item {m.group(1).upper()}"
             lines.pop(0); stats.removed["running_header"] += 1
 
-        in_exhibits = sig_page is not None and p["page_number"] > sig_page
+        in_ex13 = p["page_number"] in ex13
+        if not in_ex13 and section.startswith("Exhibit 13"):
+            section = before_ex13          # later exhibits are not part of the annual report
+        if in_ex13:
+            # The running header names the part of the annual report ("Consolidated
+            # Balance Sheet", "Management Discussion"); it becomes the section.
+            if not section.startswith("Exhibit 13"):
+                before_ex13, section = section, "Exhibit 13"
+            if len(lines) > 1 and SUBSIDIARIES_RE.match(lines[1]) and (m := AR_HEADER_RE.match(lines[0])):
+                section = f"Exhibit 13 {m.group('title')}"
+                printed = printed or m.group("pre") or m.group("post")
+                if m.group("title").startswith("Consolidated"):
+                    # On statement pages the header is the statement's only title
+                    # ("Consolidated Income Statement"): keep it, minus the page
+                    # number, so the table is titled. Drop the company line.
+                    lines[0] = m.group("title")
+                    del lines[1]; stats.removed["annual_report_header"] += 1
+                else:
+                    del lines[:2]; stats.removed["annual_report_header"] += 2
+
+        in_exhibits = sig_page is not None and p["page_number"] > sig_page and not in_ex13
         if in_exhibits:
             stats.exhibit_pages += 1
         if lines:
             stats.pages_after_cleaning += 1
         for l in lines:
-            if m := ITEM_HEADING_RE.match(l):
+            if not in_ex13 and (m := ITEM_HEADING_RE.match(l)):
                 section = f"Item {m.group(1).upper()}"
-            out.append(Line(l, p["page_number"], printed, section, in_exhibits))
+            pieces = split_long_line(l)
+            if len(pieces) > 1:
+                stats.removed["long_line_split"] += 1
+            for piece in pieces:
+                out.append(Line(piece, p["page_number"], printed, section, in_exhibits))
     return out
 
 
@@ -296,8 +412,21 @@ def ends_sentence(text: str) -> bool:
 
 
 def is_bridge(text: str) -> bool:
-    """Label-only line that can sit between table rows."""
-    return len(text) <= SHORT_LINE and not ends_sentence(text) and not FOOTNOTE_RE.match(text)
+    """Label-only line - or a row whose label is too long for is_row - that can
+    sit between table rows.
+
+    PANEL: IBM's balance sheet has rows such as "Notes and accounts receivable-
+    trade (net of allowances of $99 in 2025 and $114 in 2024) C 8,112 6,804";
+    without this the table broke in two and its second half (total assets,
+    liabilities, equity) lost its title and year columns.
+    """
+    if ends_sentence(text) or FOOTNOTE_RE.match(text):
+        return False
+    if len(text) <= SHORT_LINE:
+        return True
+    # Only long labels ending in a parenthetical (plus optional Notes letter) before
+    # their figures: a looser rule merged 74 Microsoft chunks' tables (measured).
+    return bool(LONG_ROW_RE.search(text))
 
 
 def find_tables(lines: list[Line]) -> list[tuple[int, int, int]]:
@@ -428,8 +557,9 @@ def qualifiers_of(text: str) -> list[str]:
 
 
 YEAR_RE = re.compile(r"^(19|20)\d{2}$")
-# "June 30," / "September 28," prefixes in "Year Ended June 30, 2024 2023".
-MONTH_DAY_RE = re.compile(r"\b[A-Z][a-z]+ \d{1,2},")
+# "June 30," / "September 28," prefixes in "Year Ended June 30, 2024 2023";
+# IBM writes "For the year ended December 31: Notes 2025 2024 2023".
+MONTH_DAY_RE = re.compile(r"\b[A-Z][a-z]+ \d{1,2}[,:]")
 
 
 def year_header(u: Unit) -> tuple[int, list[int]] | None:
@@ -711,7 +841,7 @@ def preprocess_doc(pages: list[dict]) -> tuple[list[Chunk], DocStats]:
 # CLI
 # ---------------------------------------------------------------------------
 
-def run(in_dir: Path, out_dir: Path) -> dict:
+def run(in_dir: Path, out_dir: Path, companies: set[str] | None = None) -> dict:
     pages_path = in_dir / "pages.jsonl"
     if not pages_path.exists():
         raise FileNotFoundError(f"{pages_path} not found - run fin_graph_rag.pdf_extractor first")
@@ -722,8 +852,22 @@ def run(in_dir: Path, out_dir: Path) -> dict:
             by_doc[p["doc_id"]].append(p)
 
     out_dir.mkdir(parents=True, exist_ok=True)
-    docs, flagged = [], []
-    with (out_dir / "chunks.jsonl").open("w", encoding="utf-8") as out:
+    chunks_path, report_path = out_dir / "chunks.jsonl", out_dir / "chunking_report.json"
+    docs, flagged, keep = [], [], []
+    if companies:
+        # Merge mode: other companies' chunks are copied byte for byte (same
+        # order), so the embeddings already built for them stay valid.
+        from fin_graph_rag.pdf_extractor import kept_lines
+        keep = kept_lines(chunks_path, companies)
+        if report_path.exists():
+            old = json.loads(report_path.read_text(encoding="utf-8"))
+            docs = [d for d in old["documents"] if d["doc_id"].rsplit("_", 1)[0] not in companies]
+            flagged = [t for t in old["qualifier_flagged_tables"]
+                       if t["chunk_id"].rsplit("_", 2)[0] not in companies]
+        by_doc = {d: p for d, p in by_doc.items() if p[0]["company"] in companies}
+    tmp_path = chunks_path.with_suffix(".jsonl.tmp")
+    with tmp_path.open("w", encoding="utf-8") as out:
+        out.writelines(keep)
         for doc_id in sorted(by_doc):
             chunks, stats = preprocess_doc(by_doc[doc_id])
             for c in chunks:
@@ -739,6 +883,7 @@ def run(in_dir: Path, out_dir: Path) -> dict:
             log.info("%s: %d pages -> %d chunks (%d with tables, %d oversized, max %d tokens), %d tables",
                      doc_id, stats.pages, stats.chunks, stats.chunks_with_tables,
                      stats.oversized_chunks, stats.max_chunk_tokens, stats.tables)
+    tmp_path.replace(chunks_path)
 
     report = {
         "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -747,14 +892,15 @@ def run(in_dir: Path, out_dir: Path) -> dict:
                    "OVERLAP_MIN_TOKENS": OVERLAP_MIN_TOKENS, "OVERLAP_MAX_TOKENS": OVERLAP_MAX_TOKENS,
                    "MIN_TABLE_ROWS": MIN_TABLE_ROWS, "SHORT_LINE": SHORT_LINE,
                    "MAX_BRIDGE_LINES": MAX_BRIDGE_LINES, "MAX_HEADER_LINES": MAX_HEADER_LINES},
+        "updated_companies": sorted(companies) if companies else None,
         "documents": docs,
         "qualifier_flagged_tables": flagged,
-        "totals": {k: sum(d[k] for d in docs) for k in
-                   ("pages", "pages_after_cleaning", "exhibit_pages", "tables", "split_tables", "chunks",
-                    "chunks_with_tables", "oversized_chunks")},
+        "totals": {k: sum(d.get(k, 0) for d in docs) for k in
+                   ("pages", "pages_after_cleaning", "exhibit_pages", "exhibit13_pages", "tables", "split_tables",
+                    "chunks", "chunks_with_tables", "oversized_chunks")},
         "max_chunk_tokens": max((d["max_chunk_tokens"] for d in docs), default=0),
     }
-    (out_dir / "chunking_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report
 
 
@@ -762,10 +908,12 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Clean extracted pages and build table-preserving chunks.")
     ap.add_argument("--in-dir", type=Path, default=Path(os.getenv("FGR_EXTRACTED_DIR", "data/extracted")))
     ap.add_argument("--out-dir", type=Path, default=Path(os.getenv("FGR_PROCESSED_DIR", "data/processed")))
+    ap.add_argument("--companies", nargs="+", metavar="COMPANY",
+                    help="only (re-)chunk these companies (e.g. ibm nvidia); other companies' chunks are kept")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     try:
-        report = run(args.in_dir, args.out_dir)
+        report = run(args.in_dir, args.out_dir, {c.lower() for c in args.companies} if args.companies else None)
     except FileNotFoundError as e:
         log.error("%s", e)
         return 1

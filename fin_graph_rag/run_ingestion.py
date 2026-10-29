@@ -15,6 +15,7 @@ PANEL NOTE: --dry-run shows exactly what would be written, so the graph's
 Usage:
     python -m fin_graph_rag.run_ingestion --dry-run [--skip-llm] [--llm-limit N] [--skip-embed]
     python -m fin_graph_rag.run_ingestion
+    python -m fin_graph_rag.run_ingestion --companies ibm nvidia   # add companies; others untouched
 """
 
 from __future__ import annotations
@@ -35,6 +36,19 @@ FACTS_PATH = Path("data/processed/facts.jsonl")
 ENTITIES_PATH = Path("data/processed/text_entities.jsonl")
 
 
+def write_jsonl(path: Path, records: list[dict], companies: set[str] | None) -> None:
+    """Write records; with `companies`, merge them into the existing file - other
+    companies' lines are copied unchanged (same rule as pdf_extractor/preprocess)."""
+    from fin_graph_rag.pdf_extractor import kept_lines
+    keep = kept_lines(path, companies) if companies else []
+    tmp = path.with_suffix(".jsonl.tmp")
+    with tmp.open("w", encoding="utf-8") as f:
+        f.writelines(keep)
+        for r in records:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+    tmp.replace(path)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Extract facts and load them into Neo4j.")
     ap.add_argument("--dry-run", action="store_true", help="extract and print; do not touch Neo4j")
@@ -42,18 +56,20 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--llm-limit", type=int, help="max Gemini batches per task (for trial runs)")
     ap.add_argument("--skip-embed", action="store_true",
                     help="do not load TextChunk nodes / vectors (graph facts only)")
+    ap.add_argument("--companies", nargs="+", metavar="COMPANY",
+                    help="only extract and load these companies (e.g. ibm nvidia); other companies' "
+                         "facts/entities files and graph data are left as they are")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    companies = {c.lower() for c in args.companies} if args.companies else None
 
     try:
-        facts, stats = extract_table_facts()
+        facts, stats = extract_table_facts(companies=companies)
     except FileNotFoundError as e:
         log.error("%s - run pdf_extractor and preprocess first", e)
         return 1
     FACTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with FACTS_PATH.open("w", encoding="utf-8") as f:
-        for fact in facts:
-            f.write(json.dumps(fact_dict(fact), ensure_ascii=False) + "\n")
+    write_jsonl(FACTS_PATH, [fact_dict(f) for f in facts], companies)
     print(json.dumps(stats, indent=2))
     print("facts by company/basis:", dict(Counter(f"{x.company}/{x.basis}" for x in facts)))
     print(f"Saved {FACTS_PATH}")
@@ -63,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
         from fin_graph_rag.llm import GeminiJSON
         try:
             llm = GeminiJSON()
-            entities, estats = extract_text_entities(llm, limit=args.llm_limit)
+            entities, estats = extract_text_entities(llm, limit=args.llm_limit, companies=companies)
         except (QuotaExhausted, RuntimeError) as e:
             # FALLBACK: table facts are still loaded; text entities resume next run from the cache.
             log.error("Text extraction stopped: %s", e)
@@ -71,9 +87,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             estats["api_calls"] = llm.api_calls
             estats["model"] = llm.model
-        with ENTITIES_PATH.open("w", encoding="utf-8") as f:
-            for e in entities:
-                f.write(json.dumps(asdict(e), ensure_ascii=False) + "\n")
+        write_jsonl(ENTITIES_PATH, [asdict(e) for e in entities], companies)
         print(json.dumps(estats, indent=2))
         print(f"Saved {ENTITIES_PATH}")
 
@@ -86,6 +100,9 @@ def main(argv: list[str] | None = None) -> int:
         except (FileNotFoundError, ValueError) as e:
             log.error("%s", e)
             return 1
+        if companies:
+            rows = [i for i, c in enumerate(chunks) if c["company"] in companies]
+            chunks, vectors = [chunks[i] for i in rows], vectors[rows]
         print(f"Chunks to load: {len(chunks)} x {vectors.shape[1]}-d vectors from {vmanifest['model']} "
               f"(header {vmanifest.get('chunk_header')})")
 

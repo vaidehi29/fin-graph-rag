@@ -13,7 +13,7 @@ PANEL NOTE: Every downstream answer must trace back to a document and page.
             and reports (rather than hides) empty pages and failures.
 
 Usage:
-    python -m fin_graph_rag.pdf_extractor [--raw-dir DIR] [--out-dir DIR]
+    python -m fin_graph_rag.pdf_extractor [--raw-dir DIR] [--out-dir DIR] [--companies ibm nvidia]
 """
 
 from __future__ import annotations
@@ -120,19 +120,44 @@ def extract_pdf(path: Path, company: str, fiscal_year: int) -> tuple[list[PageRe
     return pages, report
 
 
-def run(raw_dir: Path, out_dir: Path) -> dict:
+def kept_lines(path: Path, companies: set[str]) -> list[str]:
+    """Lines of an existing JSONL output whose "company" is NOT being re-processed.
+
+    PANEL: Why merge instead of rewriting? Adding a company must not touch the
+    other companies' outputs - their lines are copied byte for byte, so their
+    chunks (and the embeddings built from them) stay valid.
+    """
+    if not path.exists():
+        return []
+    with path.open(encoding="utf-8") as f:
+        return [l for l in f if l.strip() and json.loads(l)["company"] not in companies]
+
+
+def run(raw_dir: Path, out_dir: Path, companies: set[str] | None = None) -> dict:
+    """Extract every PDF in raw_dir, or with `companies` only those companies'
+    PDFs, merged into the existing outputs (other companies kept unchanged)."""
     out_dir.mkdir(parents=True, exist_ok=True)
     pdf_paths = sorted(p for p in raw_dir.iterdir() if p.suffix.lower() == ".pdf") if raw_dir.is_dir() else []
 
     docs: list[DocReport] = []
     skipped: list[str] = []
     pages_path = out_dir / "pages.jsonl"
-    with pages_path.open("w", encoding="utf-8") as out:
+    report_path = out_dir / "extraction_report.json"
+    keep = kept_lines(pages_path, companies) if companies else []
+    old_docs = []
+    if companies and report_path.exists():
+        old_docs = [d for d in json.loads(report_path.read_text(encoding="utf-8"))["documents"]
+                    if d["company"] not in companies]
+    tmp_path = pages_path.with_suffix(".jsonl.tmp")
+    with tmp_path.open("w", encoding="utf-8") as out:
+        out.writelines(keep)
         for path in pdf_paths:
             parsed = parse_filename(path.name)
             if parsed is None:
                 skipped.append(path.name)
                 log.warning("Skipping %s: name must match <company>_<fiscal_year>.pdf", path.name)
+                continue
+            if companies and parsed[0] not in companies:
                 continue
             pages, report = extract_pdf(path, *parsed)
             for rec in pages:
@@ -140,23 +165,28 @@ def run(raw_dir: Path, out_dir: Path) -> dict:
             docs.append(report)
             log.info("%s: %s, %d pages, %d empty, %d errors", report.doc_id, report.status,
                      report.page_count, len(report.empty_pages), len(report.page_errors))
+    tmp_path.replace(pages_path)
 
+    if companies and not docs:
+        log.warning("No PDFs found for companies %s", sorted(companies))
+    docs_out = old_docs + [asdict(d) for d in docs]
     summary = {
         "run_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "raw_dir": str(raw_dir),
         "min_page_chars": MIN_PAGE_CHARS,
-        "documents": [asdict(d) for d in docs],
+        "documents": docs_out,
+        "updated_companies": sorted(companies) if companies else None,
         "skipped_files": skipped,
         "totals": {
-            "documents_ok": sum(d.status == "ok" for d in docs),
-            "documents_partial": sum(d.status == "partial" for d in docs),
-            "documents_failed": sum(d.status == "failed" for d in docs),
-            "pages": sum(d.page_count for d in docs),
-            "pages_with_text": sum(d.pages_with_text for d in docs),
-            "empty_pages": sum(len(d.empty_pages) for d in docs),
+            "documents_ok": sum(d["status"] == "ok" for d in docs_out),
+            "documents_partial": sum(d["status"] == "partial" for d in docs_out),
+            "documents_failed": sum(d["status"] == "failed" for d in docs_out),
+            "pages": sum(d["page_count"] for d in docs_out),
+            "pages_with_text": sum(d["pages_with_text"] for d in docs_out),
+            "empty_pages": sum(len(d["empty_pages"]) for d in docs_out),
         },
     }
-    (out_dir / "extraction_report.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    report_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
     if not pdf_paths:
         log.warning("No PDFs found in %s", raw_dir)
     return summary
@@ -167,10 +197,12 @@ def main(argv: list[str] | None = None) -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--raw-dir", type=Path, default=Path(os.getenv("FGR_RAW_DIR", "data/raw")))
     ap.add_argument("--out-dir", type=Path, default=Path(os.getenv("FGR_EXTRACTED_DIR", "data/extracted")))
+    ap.add_argument("--companies", nargs="+", metavar="COMPANY",
+                    help="only (re-)extract these companies (e.g. ibm nvidia); other companies' pages are kept")
     args = ap.parse_args(argv)
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 
-    summary = run(args.raw_dir, args.out_dir)
+    summary = run(args.raw_dir, args.out_dir, {c.lower() for c in args.companies} if args.companies else None)
     print(json.dumps(summary["totals"], indent=2))
     if summary["skipped_files"]:
         print("Skipped (bad filename):", ", ".join(summary["skipped_files"]))

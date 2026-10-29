@@ -31,7 +31,8 @@ from fin_graph_rag.preprocess import DocStats, clean_doc, is_row, to_units
 PAGES_PATH = Path("data/extracted/pages.jsonl")
 CHUNKS_PATH = Path("data/processed/chunks.jsonl")
 
-COMPANY_NAMES = {"apple": "Apple Inc.", "microsoft": "Microsoft Corporation"}
+COMPANY_NAMES = {"apple": "Apple Inc.", "microsoft": "Microsoft Corporation",
+                 "ibm": "International Business Machines Corporation", "nvidia": "NVIDIA Corporation"}
 
 # Tables we read facts from: primary statements and the MD&A summary/segment
 # tables. PANEL: an allow-list keeps out look-alike rows such as Microsoft's
@@ -50,8 +51,20 @@ MDA_TITLES = re.compile(
 SEGMENT_TABLES = re.compile(r"SEGMENT RESULTS|by reportable segment|Segment revenue", re.I)
 
 
+# IBM and NVIDIA title their statements in mixed case ("Consolidated Income
+# Statement", "Consolidated Statements of Income"). A title PART must equal the
+# statement name exactly: NVIDIA's stock-compensation note starts "Consolidated
+# Statements of Income include stock-based compensation expense ..." and its
+# R&D / SG&A rows are compensation amounts, not the R&D / SG&A totals.
+# Case-insensitive: NVIDIA's FY2023 report writes "CONSOLIDATED STATEMENTS OF INCOME".
+# Safe because the whole title part must match, unlike the substring search above.
+STATEMENT_PARTS = re.compile(r"Consolidated (Income Statements?|Statements? of Income|Balance Sheets?|"
+                             r"Statements? of Cash Flows)", re.I)
+
+
 def table_allowed(title: str) -> bool:
-    return bool(STATEMENT_TITLES.search(title) or MDA_TITLES.search(title))
+    return bool(STATEMENT_TITLES.search(title) or MDA_TITLES.search(title)
+                or any(STATEMENT_PARTS.fullmatch(p.strip()) for p in title.split(" / ")))
 
 # Canonical metric -> row labels (lower-case, footnote markers removed).
 METRICS = {
@@ -81,8 +94,32 @@ METRICS = {
     "total_current_assets": ["total current assets"],
     "total_liabilities": ["total liabilities"],
     "shareholders_equity": ["total shareholders’ equity", "total shareholders' equity",
-                            "total stockholders’ equity", "total stockholders' equity"],
+                            "total stockholders’ equity", "total stockholders' equity",
+                            # IBM: equity attributable to IBM, before noncontrolling interests
+                            "total ibm stockholders' equity", "total ibm stockholders’ equity"],
 }
+# Labels used by IBM and NVIDIA for the same measures (added 2026-10-29).
+# "Gross profit" = revenue minus cost of revenue, the measure Apple and
+# Microsoft call gross margin, so it maps to gross_margin.
+METRICS["gross_margin"] += ["gross profit"]
+# IBM's FY2023/FY2024 reports name its R&D line "Research, development and
+# engineering"; the FY2025 report renames it "Research and development" with the
+# same prior-year figures (checked: no conflict flags on research_and_development).
+METRICS["research_and_development"] += ["research, development and engineering"]
+METRICS["selling_general_and_administrative"] += ["sales, general and administrative"]
+METRICS["income_before_taxes"] += ["income from continuing operations before income taxes",
+                                   "income before income tax"]
+METRICS["provision_for_income_taxes"] += ["provision for/(benefit from) income taxes",
+                                          "income tax expense (benefit)"]
+METRICS["operating_cash_flow"] += ["net cash provided by operating activities"]
+METRICS["capital_expenditures"] += ["payments for property, plant and equipment"]
+METRICS["share_repurchases"] += ["payments related to repurchases of common stock"]
+METRICS["dividends_paid"] += ["cash dividends paid", "dividends paid"]
+METRICS["share_based_compensation"] += ["stock-based compensation"]
+# Kept apart (like Microsoft's "depreciation, amortization, and other"): NVIDIA's
+# capital-spending line includes intangible assets, so it is not the same measure.
+METRICS["purchases_of_property_equipment_and_intangibles"] = [
+    "purchases related to property and equipment and intangible assets"]
 # Non-GAAP rows in Microsoft's reconciliation tables.
 NON_GAAP = {
     "adjusted gross margin (non-gaap)": "gross_margin",
@@ -120,6 +157,9 @@ PRODUCTS = {"apple": ["iPhone", "Mac", "iPad", "Wearables, Home and Accessories"
 
 AMOUNT_RE = re.compile(r"^\(?-?\d(?:[\d,]*\d)?(?:\.\d+)?\)?$")
 FOOTNOTE_RE = re.compile(r"\s*\(\d\)")
+# IBM statements have a "Notes" column: "Total revenue C 67,535", "Interest expense O&S".
+NOTE_REF_RE = re.compile(r"(?:\s+[A-Z](?:&[A-Z])*)+$")
+NOTES_HEADER_RE = re.compile(r"\bNotes(?:\s+(?:19|20)\d{2})+\s*$")
 
 
 @dataclass
@@ -182,8 +222,9 @@ def split_row(text: str) -> tuple[str, list[str]]:
     return text, []
 
 
-def clean_label(label: str) -> str:
-    return FOOTNOTE_RE.sub("", label).strip().rstrip(":").strip()
+def clean_label(label: str, note_refs: bool = False) -> str:
+    label = FOOTNOTE_RE.sub("", label).strip().rstrip(":").strip()
+    return NOTE_REF_RE.sub("", label) if note_refs else label
 
 
 def table_facts(unit, doc: dict, chunk_of: dict[str, str], skipped: Counter) -> list[tuple[Fact, Evidence]]:
@@ -200,6 +241,9 @@ def table_facts(unit, doc: dict, chunk_of: dict[str, str], skipped: Counter) -> 
     chunk_id = chunk_of.get(f"{table_id}#{unit.part}")
     segments = {s.lower(): s for s in SEGMENTS.get(company, [])}
     products = {p.lower(): p for p in PRODUCTS.get(company, [])}
+    # Only tables with a "Notes" column ("... Notes 2025 2024 2023") get note
+    # letters stripped from labels, so no other label is ever shortened.
+    note_refs = any(NOTES_HEADER_RE.search(l.text) for l in unit.lines[:unit.n_header + 4])
 
     out = []
     context = ""                                  # last label-only line (sub-header)
@@ -212,14 +256,25 @@ def table_facts(unit, doc: dict, chunk_of: dict[str, str], skipped: Counter) -> 
         if not is_row(text):
             context = clean_label(text).lower()
             continue
-        label_raw, toks = split_row(text)
-        label = clean_label(label_raw).lower()
+        if all(t == "$" or AMOUNT_RE.match(t) or t in ("—", "–") for t in text.split()):
+            label_raw, toks = "", text.split()        # figures only: the label wrapped onto the line above
+        else:
+            label_raw, toks = split_row(text)
+        label = clean_label(label_raw, note_refs).lower()
+        if not label and toks and context:
+            # A wrapped row: the label sits alone on the line above its figures
+            # (NVIDIA: "Payments related to repurchases of common stock" / "(33,706) ...").
+            label, context = context, ""
         if not toks:
             continue
 
         metric = basis = segment = product = None
         basis = "pro_forma" if pro_forma else "gaap"
-        if label in NON_GAAP:
+        if label == "total" and context == "assuming dilution":
+            # IBM: "Earnings per share ... / Assuming dilution / Continuing operations,
+            # Discontinued operations, Total" - the total is diluted EPS.
+            metric = "diluted_eps"
+        elif label in NON_GAAP:
             metric, basis = NON_GAAP[label], "non_gaap"
         elif label in LABEL_TO_METRIC:
             metric = LABEL_TO_METRIC[label]
@@ -242,7 +297,8 @@ def table_facts(unit, doc: dict, chunk_of: dict[str, str], skipped: Counter) -> 
             # "Diluted" also labels share counts ("Shares used in computing earnings
             # per share: / Diluted 15,812,547"); EPS rows sit under an "earnings per
             # share" sub-header (or say so in the label) and are small numbers.
-            eps_context = "per share" in label or ("per share" in context and not context.startswith(("shares", "weighted")))
+            eps_context = ("per share" in label or context == "assuming dilution"
+                           or ("per share" in context and not context.startswith(("shares", "weighted"))))
             if not eps_context or any(v is not None and abs(v) >= 1000 for v in amounts):
                 continue
         if len(amounts) != len(unit.years):
@@ -287,6 +343,14 @@ def inherit_header(units: list, i: int) -> None:
     guessed.
     """
     unit = units[i]
+    prev = units[i - 1] if i > 0 else None
+    if (not unit.years and unit.title and prev is not None and prev.kind == "table" and prev.years
+            and prev.lines[-1].page == unit.lines[0].page and re.search(r"\bequity\b", unit.title, re.I)):
+        # IBM: "Commitments and Contingencies Q / Equity R / IBM stockholders' equity"
+        # (three heading lines) splits the equity rows from the rest of the balance
+        # sheet directly above, on the same page. They keep that statement's years.
+        unit.title, unit.years = prev.title, prev.years
+        return
     if unit.title or unit.years:
         return
     j, gap = i - 1, []
@@ -303,11 +367,14 @@ def inherit_header(units: list, i: int) -> None:
         unit.title, unit.years = prev.title, prev.years
 
 
-def extract_table_facts(pages_path: Path = PAGES_PATH, chunks_path: Path = CHUNKS_PATH) -> tuple[list[Fact], dict]:
+def extract_table_facts(pages_path: Path = PAGES_PATH, chunks_path: Path = CHUNKS_PATH,
+                        companies: set[str] | None = None) -> tuple[list[Fact], dict]:
+    """Facts from every report, or only from `companies`' reports."""
     by_doc: dict[str, list[dict]] = defaultdict(list)
     for line in pages_path.read_text(encoding="utf-8").splitlines():
         p = json.loads(line)
-        by_doc[p["doc_id"]].append(p)
+        if companies is None or p["company"] in companies:
+            by_doc[p["doc_id"]].append(p)
     chunk_of: dict[str, str] = {}
     for line in chunks_path.read_text(encoding="utf-8").splitlines():
         c = json.loads(line)
@@ -354,7 +421,11 @@ BATCH_TOKENS = 3000
 MIN_QUOTE_WORDS = {"risks": 4, "competitors": 3, "executives": 2}
 COMPETITOR_KINDS = ["company", "product", "open_source_project"]
 OWN_ALIASES = {"apple": "Apple Inc.", "apple inc": "Apple Inc.", "microsoft": "Microsoft Corporation",
-               "microsoft corporation": "Microsoft Corporation", "microsoft corp": "Microsoft Corporation"}
+               "microsoft corporation": "Microsoft Corporation", "microsoft corp": "Microsoft Corporation",
+               "ibm": "International Business Machines Corporation",
+               "international business machines": "International Business Machines Corporation",
+               "international business machines corporation": "International Business Machines Corporation",
+               "nvidia": "NVIDIA Corporation", "nvidia corporation": "NVIDIA Corporation"}
 LEGAL_SUFFIX = re.compile(r",?\s+(Inc\.?|Incorporated|Corporation|Corp\.?|LLC|Ltd\.?|plc|Co\.)$", re.I)
 
 QUOTE_FIELD = {"type": "string", "description": "4-25 consecutive words copied verbatim from the cited passage"}
@@ -499,8 +570,10 @@ def select_batches(chunks: list[dict], task: str) -> list[list[dict]]:
 
 
 def extract_text_entities(llm, chunks_path: Path = CHUNKS_PATH, tasks=tuple(TASKS),
-                          limit: int | None = None) -> tuple[list[TextEntity], dict]:
+                          limit: int | None = None, companies: set[str] | None = None) -> tuple[list[TextEntity], dict]:
     chunks = [json.loads(l) for l in chunks_path.read_text(encoding="utf-8").splitlines() if l.strip()]
+    if companies is not None:
+        chunks = [c for c in chunks if c["company"] in companies]
     entities, rejected, calls = [], Counter(), Counter()
     for task in tasks:
         for batch in select_batches(chunks, task)[:limit]:

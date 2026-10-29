@@ -23,6 +23,7 @@ PANEL NOTE: Free and local: the model is downloaded once from Hugging Face
 
 Usage:
     python -m fin_graph_rag.embeddings build [--no-header]
+    python -m fin_graph_rag.embeddings append     # embed only new chunks (e.g. a new company)
     python -m fin_graph_rag.embeddings search "Microsoft net income fiscal 2024" [-k 5]
     python -m fin_graph_rag.embeddings evaluate [-k 5]
     Add --model gemini:gemini-embedding-001 to any command to use Gemini.
@@ -93,7 +94,8 @@ def input_tokenizer():
 # text only; the stored chunk text (and its citations) are unchanged.
 
 HEADER_VERSION = "v1"
-COMPANY_NAMES = {"apple": "Apple Inc.", "microsoft": "Microsoft Corporation"}
+COMPANY_NAMES = {"apple": "Apple Inc.", "microsoft": "Microsoft Corporation",
+                 "ibm": "International Business Machines Corporation", "nvidia": "NVIDIA Corporation"}
 ITEM_NAMES = {
     "1": "Business", "1A": "Risk Factors", "1B": "Unresolved Staff Comments", "1C": "Cybersecurity",
     "2": "Properties", "3": "Legal Proceedings", "4": "Mine Safety Disclosures",
@@ -222,6 +224,94 @@ def build(chunks_path: Path = CHUNKS_PATH, index_root: Path = INDEX_ROOT, header
     }
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     log.info("Indexed %d chunks (dim %d) in %.1fs -> %s", len(chunks), vecs.shape[1], seconds, out)
+    return manifest
+
+
+def chunk_line_hashes(chunks_path: Path) -> dict[str, str]:
+    """chunk_id -> SHA-256 of its exact JSONL line (bytes, incl. line ending)."""
+    out = {}
+    for line in chunks_path.read_bytes().splitlines(keepends=True):
+        if line.strip():
+            out[json.loads(line)["chunk_id"]] = hashlib.sha256(line).hexdigest()
+    return out
+
+
+def append(chunks_path: Path = CHUNKS_PATH, index_root: Path = INDEX_ROOT, header: bool = True) -> dict:
+    """Embed only chunks that are not in the index yet and append them.
+
+    PANEL: Adding a company should not re-embed (or risk changing) the others.
+    Before reusing any stored vector this proves the indexed chunks are
+    byte-identical to what was embedded: on the first append, by recomputing the
+    manifest's whole-file SHA-256 over those chunks' lines; afterwards, by a
+    per-chunk hash (chunk_hashes.json). Indexed chunks that changed or vanished
+    are dropped and re-embedded / removed - never silently kept.
+    """
+    d = index_dir(index_root, header)
+    if not (d / "manifest.json").exists():
+        raise FileNotFoundError(f"No index at {d} - run `python -m fin_graph_rag.embeddings build` first")
+    manifest = json.loads((d / "manifest.json").read_text(encoding="utf-8"))
+    if manifest["model"] != MODEL_NAME:
+        raise ValueError(f"Index built with {manifest['model']}, this run would use {MODEL_NAME}")
+    if manifest.get("chunk_header") != (HEADER_VERSION if header else None):
+        raise ValueError(f"Index header {manifest.get('chunk_header')!r} differs from this code's {HEADER_VERSION!r}")
+    ids = json.loads((d / "chunk_ids.json").read_text(encoding="utf-8"))
+    vecs = np.load(d / "embeddings.npy")
+    lines = {json.loads(l)["chunk_id"]: l for l in chunks_path.read_bytes().splitlines(keepends=True) if l.strip()}
+    current = chunk_line_hashes(chunks_path)
+
+    hashes_path = d / "chunk_hashes.json"
+    if hashes_path.exists():
+        stored = json.loads(hashes_path.read_text(encoding="utf-8"))
+        keep = [i for i, cid in enumerate(ids) if current.get(cid) == stored.get(cid)]
+    else:
+        # First append: the index was built from a file whose SHA-256 is in the manifest.
+        if any(cid not in lines for cid in ids):
+            raise ValueError("Indexed chunks are missing from chunks.jsonl - rebuild the index")
+        old_sha = hashlib.sha256(b"".join(lines[cid] for cid in ids)).hexdigest()
+        if old_sha != manifest["chunks_sha256"]:
+            raise ValueError("Indexed chunks changed since the index was built - rebuild the index")
+        keep = list(range(len(ids)))
+    kept_ids = {ids[i] for i in keep}
+    chunks = load_chunks(chunks_path)
+    new = [c for c in chunks if c["chunk_id"] not in kept_ids]
+    if not new and len(keep) == len(ids):
+        log.info("Index already up to date (%d chunks)", len(ids))
+        return manifest
+
+    embedder = get_embedder(MODEL_NAME)
+    tok = input_tokenizer()
+    inputs, header_levels = embed_inputs(new, tok, INPUT_LIMIT, header)
+    count = getattr(embedder, "count_tokens", None) or (lambda t: len(tok(t)["input_ids"]))
+    lengths = [count(t) for t in inputs]
+    too_long = [(c["chunk_id"], n) for c, n in zip(new, lengths) if n > embedder.max_tokens]
+    if too_long:
+        raise ValueError(f"{len(too_long)} chunks exceed the model's {embedder.max_tokens}-token limit "
+                         f"(e.g. {too_long[:3]}); re-run preprocess with a matching tokenizer")
+    t0 = time.time()
+    new_vecs = embedder.embed_documents(inputs) if new else np.zeros((0, vecs.shape[1]), np.float32)
+    seconds = time.time() - t0
+    if new_vecs.shape[1] != vecs.shape[1]:
+        raise ValueError(f"New vectors are {new_vecs.shape[1]}-d, index is {vecs.shape[1]}-d")
+
+    all_ids = [ids[i] for i in keep] + [c["chunk_id"] for c in new]
+    all_vecs = np.vstack([vecs[keep], new_vecs]).astype(np.float32)
+    np.save(d / "embeddings.npy", all_vecs)
+    (d / "chunk_ids.json").write_text(json.dumps(all_ids), encoding="utf-8")
+    hashes_path.write_text(json.dumps({cid: current[cid] for cid in all_ids}), encoding="utf-8")
+    levels = Counter(manifest.get("header_levels") or {})
+    levels.update(header_levels)
+    manifest.setdefault("appends", []).append({
+        "appended_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "new_chunks": len(new), "dropped_chunks": len(ids) - len(keep),
+        "companies": sorted({c["doc_id"].rsplit("_", 1)[0] for c in new}),
+        "encode_seconds": round(seconds, 1), "max_input_tokens_seen": max(lengths, default=0),
+    })
+    manifest.update({"n_chunks": len(all_ids), "header_levels": dict(levels) if header else None,
+                     "max_input_tokens_seen": max([manifest["max_input_tokens_seen"], *lengths]),
+                     "chunks_sha256": sha256_of(chunks_path)})
+    (d / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+    log.info("Appended %d chunks (%d dropped) in %.1fs -> %s (%d total)",
+             len(new), len(ids) - len(keep), seconds, d, len(all_ids))
     return manifest
 
 
@@ -355,9 +445,10 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="Build, search and evaluate the local embedding index.")
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("build")
+    a = sub.add_parser("append", help="embed only chunks not yet in the index (e.g. a newly added company)")
     s = sub.add_parser("search"); s.add_argument("query"); s.add_argument("-k", type=int, default=5)
     e = sub.add_parser("evaluate"); e.add_argument("-k", type=int, default=5)
-    for p in (b, s, e):
+    for p in (b, a, s, e):
         p.add_argument("--model", help=f"embedding model (default {MODEL_NAME}); "
                                        "e.g. gemini:gemini-embedding-001")
         # Default: chunks embedded with a context header (measured better, see README).
@@ -370,6 +461,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.cmd == "build":
             print(json.dumps(build(header=args.header), indent=2))
+        elif args.cmd == "append":
+            print(json.dumps(append(header=args.header), indent=2))
         elif args.cmd == "search":
             for r in Index(header=args.header).search(args.query, args.k):
                 own = r["text"][r["overlap_chars"]:]
