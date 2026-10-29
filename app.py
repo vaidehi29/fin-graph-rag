@@ -126,6 +126,8 @@ qa_tab, graph_tab = st.tabs(["Q&A", "Knowledge Graph"])
 # --- Q&A -----------------------------------------------------------------------
 with qa_tab:
     # A form so pressing Enter in the question box submits, same as clicking Search.
+    # The CSS hides Streamlit's "Press Enter to submit form" hint; Enter still works.
+    st.markdown("<style>[data-testid='InputInstructions'] {display: none;}</style>", unsafe_allow_html=True)
     with st.form("ask"):
         question = st.text_input("Ask a financial question…",
                                  placeholder="e.g. Compare Apple and Microsoft net income in fiscal 2025")
